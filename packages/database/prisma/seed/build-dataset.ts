@@ -1,5 +1,6 @@
 import type { FundingStage, Prisma } from "@prisma/client";
 import { ANCHOR_COMPANIES } from "./anchor-companies";
+import { COMPANIES_WITH_LOGOS } from "./company-logos.generated";
 import {
   FOREIGN_LOCALITIES,
   findLocality,
@@ -179,6 +180,7 @@ type CompanyPlan = {
   id: string;
   slug: string;
   name: string;
+  logoUrl: string | null;
   tagline: string;
   description: string;
   website: string;
@@ -259,6 +261,8 @@ export function buildDataset(rng: Rng, now: number): SeedDataset {
       id: `co_${pad(index + 1)}`,
       slug: anchor.slug,
       name: anchor.name,
+      // Only the anchors are real companies, so only they have a logo to show.
+      logoUrl: COMPANIES_WITH_LOGOS.has(anchor.slug) ? `/company-logos/${anchor.slug}.png` : null,
       tagline: anchor.tagline,
       description: anchor.description,
       website: anchor.website,
@@ -350,6 +354,8 @@ export function buildDataset(rng: Rng, now: number): SeedDataset {
       id: `co_${pad(ANCHOR_COMPANIES.length + index + 1)}`,
       slug: entry.slug,
       name: entry.name,
+      // Invented companies have no logo; the map draws their initials instead.
+      logoUrl: null,
       tagline: rng.pick(FILL_TAGLINES),
       description: rng.pick(FILL_DESCRIPTION_TEMPLATES)(entry.name, primaryIndustry),
       website: `https://www.${entry.slug}.in`,
@@ -395,7 +401,7 @@ export function buildDataset(rng: Rng, now: number): SeedDataset {
       id: plan.id,
       slug: plan.slug,
       name: plan.name,
-      logoUrl: null,
+      logoUrl: plan.logoUrl,
       tagline: plan.tagline,
       description: plan.description,
       website: plan.website,

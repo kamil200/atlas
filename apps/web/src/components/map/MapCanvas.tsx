@@ -386,7 +386,8 @@ function addSourcesAndLayers(map: maplibregl.Map) {
       "text-offset": [0, 1.9],
       // High enough that a name never wraps out of a fixed-height plate.
       "text-max-width": 30,
-      "text-padding": 3,
+      // Plates may sit close together; they just may not overlap.
+      "text-padding": 1,
       // When two plates fight for the same spot, the company hiring more people wins.
       "symbol-sort-key": ["-", 0, ["get", "openJobCount"]],
     },
