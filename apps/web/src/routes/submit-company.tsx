@@ -229,7 +229,7 @@ function SubmitCompanyContent() {
                   }
                   className="mt-2 flex items-center gap-1 text-xs text-ink-soft hover:text-danger"
                 >
-                  <Trash2 className="size-3" aria-hidden="true" />
+                  <Trash2 className="size-3.5" aria-hidden="true" />
                   Remove this office
                 </button>
               ) : null}
@@ -242,7 +242,7 @@ function SubmitCompanyContent() {
             size="sm"
             onClick={() => setOffices((current) => [...current, newOffice(false)])}
           >
-            <Plus className="size-3.5" aria-hidden="true" />
+            <Plus className="size-4" aria-hidden="true" />
             Add another office
           </Button>
         </fieldset>

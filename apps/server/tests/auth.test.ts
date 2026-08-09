@@ -65,8 +65,9 @@ describe("session tokens", () => {
 
     // Swap the payload for an admin one, keeping the original signature.
     const [header, , signature] = token.split(".");
-    const forgedPayload = Buffer.from(JSON.stringify({ sub: "usr_demo", role: "ADMIN" }))
-      .toString("base64url");
+    const forgedPayload = Buffer.from(JSON.stringify({ sub: "usr_demo", role: "ADMIN" })).toString(
+      "base64url",
+    );
 
     expect(() => app.jwt.verify(`${header}.${forgedPayload}.${signature}`)).toThrow();
     await app.close();

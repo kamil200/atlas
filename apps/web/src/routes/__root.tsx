@@ -44,7 +44,7 @@ function RouteError({ error }: { error: Error }) {
   return (
     <div className="grid h-full place-items-center p-8 text-center">
       <div>
-        <h1 className="font-display text-3xl text-ink">Something broke on this screen</h1>
+        <h1 className="font-display text-[1.75rem] text-ink">Something broke on this screen</h1>
         <p className="mt-2 max-w-md text-sm text-ink-soft">{error.message}</p>
         <button
           type="button"
@@ -62,7 +62,7 @@ function NotFound() {
   return (
     <div className="grid h-full place-items-center p-8 text-center">
       <div>
-        <h1 className="font-display text-4xl text-ink">Nothing at this corner</h1>
+        <h1 className="font-display text-[2rem] text-ink">Nothing at this corner</h1>
         <p className="mt-2 text-sm text-ink-soft">
           The page you were after is not here. The map still is.
         </p>

@@ -19,7 +19,7 @@ export function PageShell({
       <div className="mx-auto max-w-3xl px-6 py-10">
         <div className="flex items-end justify-between gap-4">
           <div>
-            <h1 className="font-display text-4xl leading-tight text-ink">{title}</h1>
+            <h1 className="font-display text-[2rem] leading-tight text-ink">{title}</h1>
             {subtitle ? <p className="mt-2 text-sm text-ink-soft">{subtitle}</p> : null}
           </div>
           {action}
@@ -54,7 +54,7 @@ export function RequireAuth({
     return (
       <div className="grid h-full place-items-center px-6 text-center">
         <div>
-          <h1 className="font-display text-3xl text-ink">Sign in to see this</h1>
+          <h1 className="font-display text-[1.75rem] text-ink">Sign in to see this</h1>
           <p className="mt-2 text-sm text-ink-soft">
             Your saved roles and applications live behind a login.
           </p>
@@ -70,7 +70,7 @@ export function RequireAuth({
     return (
       <div className="grid h-full place-items-center px-6 text-center">
         <div>
-          <h1 className="font-display text-3xl text-ink">Not your queue</h1>
+          <h1 className="font-display text-[1.75rem] text-ink">Not your queue</h1>
           <p className="mt-2 text-sm text-ink-soft">This page is for admins.</p>
           <Button asChild className="mt-5">
             <Link to="/map">Back to the map</Link>

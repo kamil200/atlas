@@ -27,7 +27,7 @@ export function SectionHeading({
   return (
     <div className="max-w-xl">
       <p className="font-mono text-[11px] uppercase tracking-[0.08em] text-peepal-700">{eyebrow}</p>
-      <h2 className="font-display mt-3 text-[clamp(1.9rem,4vw,2.8rem)] leading-[1.1] text-ink">
+      <h2 className="font-display mt-3 text-[clamp(1.75rem,3.6vw,2.5rem)] leading-[1.12] text-ink">
         {title}
       </h2>
       <p className="mt-3 text-base text-ink-soft">{body}</p>
@@ -216,7 +216,7 @@ export function CtaCard() {
   return (
     <div className="rounded-xl border border-line bg-paper-2 p-8 shadow-card sm:p-12">
       <div className="mx-auto max-w-lg text-center">
-        <h2 className="font-display text-[clamp(1.9rem,4vw,2.8rem)] leading-[1.1] text-ink">
+        <h2 className="font-display text-[clamp(1.75rem,3.6vw,2.5rem)] leading-[1.12] text-ink">
           Start with your own neighbourhood
         </h2>
         <ul className="mt-6 space-y-2 text-left">

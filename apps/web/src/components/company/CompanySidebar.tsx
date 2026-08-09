@@ -109,7 +109,7 @@ export function CompanySidebar({
                     className="flex items-center gap-1 text-xs font-medium text-peepal-700 hover:underline"
                   >
                     Website
-                    <ExternalLink className="size-3" aria-hidden="true" />
+                    <ExternalLink className="size-3.5" aria-hidden="true" />
                   </a>
                 ) : null}
                 {hq ? (

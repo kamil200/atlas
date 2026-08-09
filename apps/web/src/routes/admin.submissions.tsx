@@ -88,7 +88,7 @@ function AdminSubmissionsContent() {
                   disabled={isReviewing}
                   onClick={() => decide(submission.id, "APPROVED")}
                 >
-                  <Check className="size-3.5" aria-hidden="true" />
+                  <Check className="size-4" aria-hidden="true" />
                   Approve
                 </Button>
                 <Button
@@ -97,7 +97,7 @@ function AdminSubmissionsContent() {
                   disabled={isReviewing}
                   onClick={() => decide(submission.id, "REJECTED")}
                 >
-                  <X className="size-3.5" aria-hidden="true" />
+                  <X className="size-4" aria-hidden="true" />
                   Reject
                 </Button>
               </div>

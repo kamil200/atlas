@@ -37,9 +37,9 @@ describe("visibility base", () => {
 
   it("keeps the visibility base no matter which dimension is omitted", () => {
     for (const omit of ["hiringStatus", "workMode", "city", "investors"] as const) {
-      expect(clauses(compileCompanyWhere({ hiringStatus: ["ACTIVELY_HIRING"] }, { omit }))).toContainEqual(
-        VISIBLE_COMPANY,
-      );
+      expect(
+        clauses(compileCompanyWhere({ hiringStatus: ["ACTIVELY_HIRING"] }, { omit })),
+      ).toContainEqual(VISIBLE_COMPANY);
     }
   });
 });

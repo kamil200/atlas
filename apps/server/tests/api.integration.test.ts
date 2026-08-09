@@ -59,9 +59,9 @@ describe("facet counts", () => {
 
     // A dimension ignores its own filter, so its numbers do not move at all.
     expect(after.workMode).toEqual(before.workMode);
-    expect(after.workMode.filter((bucket) => bucket.value !== "REMOTE").every((b) => b.count > 0)).toBe(
-      true,
-    );
+    expect(
+      after.workMode.filter((bucket) => bucket.value !== "REMOTE").every((b) => b.count > 0),
+    ).toBe(true);
   });
 
   it("narrows the other dimensions", async () => {
@@ -192,9 +192,9 @@ describe("saving and applying", () => {
     expect(second.appliedAt).toBe(first.appliedAt);
 
     const list = await app.inject({ method: "GET", url: "/api/applications", cookies: auth() });
-    expect(list.json().data.items.filter((row: { jobId: string }) => row.jobId === jobId)).toHaveLength(
-      1,
-    );
+    expect(
+      list.json().data.items.filter((row: { jobId: string }) => row.jobId === jobId),
+    ).toHaveLength(1);
   });
 
   it("refuses to touch someone else's list", async () => {

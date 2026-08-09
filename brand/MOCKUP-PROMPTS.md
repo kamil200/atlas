@@ -10,10 +10,10 @@ Paste any of these into claude.ai (artifacts on) or Claude Code to generate mock
 Build a single-file HTML mockup (inline CSS only, no external assets, no JS needed) of a landing page for "Chowk" — a job platform that puts startups hiring on an interactive city map instead of a list. India-first, playful but professional, polish level of a designer-built product.
 
 Brand tokens (use exactly):
-- paper #FAF7F0 (page bg), paper-2 #F2ECE1 (cards), ink #211E1A (text + primary buttons with paper text), ink-soft #6F6659, line #E5DCCC (borders)
+- paper #FFFFFF (page bg), paper-2 #F2F3F6 (wells + hover fills), ink #191A1C (text + primary buttons with paper text), ink-soft #6E7078, line #E3E5E9 (borders)
 - peepal green #1B7F4D (brand, map pins/clusters, hero pill, checked states), peepal deep #136640 (links, badges), marigold #F5B301 (tiny dot accents + selected ring only), stone #B8AE9E (quiet/not-hiring pins)
 - Tints: #E2F1E6 (green pill fill), #DEF0E4 (applied chip), #FCF1CE (interviewing chip)
-- Display font: Rozha One (fallback Georgia). Body: Inter (fallback system-ui). Mono garnish: JetBrains Mono (fallback ui-monospace) for tiny uppercase meta labels like "92 COMPANIES · 1,486 JOBS"
+- Display font: Young Serif (fallback Georgia). Body: Inter (fallback system-ui). Mono garnish: JetBrains Mono (fallback ui-monospace) for tiny uppercase meta labels like "92 COMPANIES · 1,486 JOBS"
 - Radius 12-24px, warm soft shadows, generous whitespace
 
 Logo mark (inline SVG): peepal-green rounded square #1B7F4D containing four paper rounded squares in a 2x2 grid (city blocks) with a marigold center dot — a map tile with a crossroads. Wordmark "chowk" lowercase in the display font with a marigold full stop.
@@ -50,5 +50,5 @@ Details that sell it: soft shadows, 12-16px radii, hover states, tabular numbers
 ## Prompt 3 — Logo explorations
 
 ```
-Generate 6 SVG logo mark explorations for "Chowk" (Hindi: town square/crossroads) — a map-based startup-jobs platform. Constraints: must read at 16px, flat vector, max 3 colors from: peepal green #1B7F4D, paper #FAF7F0, ink #211E1A, marigold #F5B301. Directions to explore: (1) map tile with four city blocks + center dot, (2) crossroads/plus formed by negative space, (3) location pin whose head is a town square, (4) aerial roundabout with a tree canopy center, (5) rangoli-geometric square, (6) the Devanagari च simplified into a map path. Present all 6 on one paper-colored board with the wordmark "chowk" in Rozha One below each.
+Generate 6 SVG logo mark explorations for "Chowk" (Hindi: town square/crossroads) — a map-based startup-jobs platform. Constraints: must read at 16px, flat vector, max 3 colors from: peepal green #1B7F4D, paper #FFFFFF, ink #191A1C, marigold #F5B301. Directions to explore: (1) map tile with four city blocks + center dot, (2) crossroads/plus formed by negative space, (3) location pin whose head is a town square, (4) aerial roundabout with a tree canopy center, (5) rangoli-geometric square, (6) the Devanagari च simplified into a map path. Present all 6 on one white board with the wordmark "chowk" in Young Serif below each.
 ```

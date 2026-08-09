@@ -71,7 +71,7 @@ export function FilterPanel({
             className="flex items-center gap-1 text-xs font-medium text-peepal-700 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-peepal-500"
           >
             Clear all
-            <X className="size-3" aria-hidden="true" />
+            <X className="size-3.5" aria-hidden="true" />
           </button>
         ) : null}
       </div>

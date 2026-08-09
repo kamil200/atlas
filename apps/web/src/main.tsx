@@ -1,4 +1,4 @@
-import "@fontsource/rozha-one/400.css";
+import "@fontsource/young-serif/400.css";
 import "@fontsource-variable/inter";
 import "@fontsource/jetbrains-mono/400.css";
 import "@fontsource/jetbrains-mono/500.css";

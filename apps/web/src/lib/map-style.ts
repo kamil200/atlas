@@ -1,10 +1,8 @@
-import type { StyleSpecification } from "maplibre-gl";
-import { MAP_STYLE_URL } from "./constants";
+import type maplibregl from "maplibre-gl";
 
 /*
   Positron is a good quiet basemap, but it is cold grey and Chowk lives on warm
-  paper. So we fetch the style once and repaint it in brand colours before the
-  map is built.
+  paper. So once the style has loaded we repaint it in brand colours.
 
   Why not a CSS filter over the canvas: the pins are drawn on the same canvas,
   so a filter would tint them too. Repainting the style leaves the pins alone.
@@ -94,31 +92,14 @@ const PAINT: Record<string, Record<string, string>> = {
 };
 
 /*
-  Started at import time so the fetch overlaps React's first render — by the
-  time the map effect runs the style is usually already here.
+  Call once the style has loaded. A layer id we do not know about is skipped,
+  so an upstream style change can leave a layer cold — it can never break the map.
 */
-let pending: Promise<StyleSpecification | string> | null = null;
-
-export function loadBrandStyle(): Promise<StyleSpecification | string> {
-  pending ??= fetch(MAP_STYLE_URL)
-    .then((response) => {
-      if (!response.ok) throw new Error(`style ${response.status}`);
-      return response.json() as Promise<StyleSpecification>;
-    })
-    .then(warmStyle)
-    // Falling back to the plain URL means a bad network gives a grey map, not no map.
-    .catch(() => MAP_STYLE_URL);
-  return pending;
-}
-
-function warmStyle(style: StyleSpecification): StyleSpecification {
-  for (const layer of style.layers) {
-    const overrides = PAINT[layer.id];
-    if (!overrides) continue;
-    // Layers with no paint block of their own still need one to receive colours.
-    const paint = { ...(("paint" in layer && layer.paint) || {}) };
-    Object.assign(paint, overrides);
-    (layer as { paint?: unknown }).paint = paint;
+export function applyBrandPaint(map: maplibregl.Map) {
+  for (const [layerId, overrides] of Object.entries(PAINT)) {
+    if (!map.getLayer(layerId)) continue;
+    for (const [property, value] of Object.entries(overrides)) {
+      map.setPaintProperty(layerId, property, value);
+    }
   }
-  return style;
 }

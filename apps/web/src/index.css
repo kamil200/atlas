@@ -15,11 +15,16 @@
   Everything in the app pulls colour and font from here. No raw hex in components.
 */
 @theme {
-  --color-paper: #faf7f0;
-  --color-paper-2: #f2ece1;
-  --color-ink: #211e1a;
-  --color-ink-soft: #6f6659;
-  --color-line: #e5dccc;
+  /*
+    Neutral whites, not cream. The warm paper ground read as dated newsprint;
+    a true white surface with a cool hairline is what makes the product feel
+    current, and it lifts link contrast at the same time (BRAND §2).
+  */
+  --color-paper: #ffffff;
+  --color-paper-2: #f2f3f6;
+  --color-ink: #191a1c;
+  --color-ink-soft: #6e7078;
+  --color-line: #e3e5e9;
   --color-peepal-400: #55b983;
   --color-peepal-500: #2e9d64;
   --color-peepal-600: #1b7f4d;
@@ -29,9 +34,9 @@
   --color-marigold-500: #f5b301;
   --color-marigold-tint: #fcf1ce;
   --color-danger: #d64545;
-  --color-stone: #b8ae9e;
+  --color-stone: #b0b3ba;
 
-  --font-display: "Rozha One", Georgia, serif;
+  --font-display: "Young Serif", Georgia, serif;
   --font-sans: "Inter Variable", ui-sans-serif, system-ui, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, monospace;
 
@@ -40,8 +45,14 @@
   --radius-lg: 16px;
   --radius-xl: 24px;
 
-  --shadow-card: 0 1px 2px rgb(33 30 26 / 0.06), 0 4px 16px rgb(33 30 26 / 0.06);
-  --shadow-pop: 0 2px 4px rgb(33 30 26 / 0.08), 0 12px 32px rgb(33 30 26 / 0.12);
+  /*
+    Neutral-tinted and tight. A wide soft blur on a white ground just looks
+    like grey haze — depth comes from a crisp 1px contact shadow plus a
+    larger, weaker ambient one.
+  */
+  --shadow-sm: 0 1px 2px rgb(17 18 21 / 0.05);
+  --shadow-card: 0 1px 2px rgb(17 18 21 / 0.06), 0 4px 12px -2px rgb(17 18 21 / 0.06);
+  --shadow-pop: 0 2px 4px rgb(17 18 21 / 0.06), 0 12px 32px -8px rgb(17 18 21 / 0.14);
 
   /* Fast and physical, never floaty (BRAND §5). */
   --ease-brand: cubic-bezier(0.22, 1, 0.36, 1);
@@ -86,6 +97,19 @@
   /* Counts and coordinates must not jitter as they change (BRAND §3). */
   .font-mono {
     font-variant-numeric: tabular-nums;
+  }
+
+  /*
+    Young Serif is wide, heavy, and has a tall x-height, so it reads a size
+    larger than most serifs at the same px. Pulling the tracking in slightly
+    and giving it a little more leading stops big headings looking shouty.
+    Call sites that set their own `leading-*` still win — this is only the
+    default so every heading does not need hand-tuning.
+  */
+  .font-display {
+    font-weight: 400;
+    letter-spacing: -0.015em;
+    line-height: 1.12;
   }
 }
 
@@ -133,6 +157,43 @@
 .chowk-popup .maplibregl-popup-tip {
   border-top-color: var(--color-paper);
   border-bottom-color: var(--color-paper);
+}
+
+/* Grows out of the pin it belongs to rather than appearing on top of it (BRAND §5). */
+@media (prefers-reduced-motion: no-preference) {
+  .chowk-popup .maplibregl-popup-content {
+    animation: chowk-popup-in 150ms var(--ease-brand);
+  }
+}
+
+@keyframes chowk-popup-in {
+  from {
+    opacity: 0;
+    transform: scale(0.92) translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/*
+  MapLibre's own attribution is a white box with blue links. Toned down to a
+  paper chip so the bottom corner stays quiet next to the stats bar.
+*/
+.maplibregl-ctrl-attrib {
+  border-radius: 999px !important;
+  background: color-mix(in srgb, var(--color-paper) 92%, transparent) !important;
+  font-family: var(--font-sans);
+  font-size: 10px;
+}
+
+.maplibregl-ctrl-attrib a {
+  color: var(--color-ink-soft);
+}
+
+.maplibregl-ctrl-attrib-button {
+  background-color: transparent !important;
 }
 
 /* Kill every animation for people who asked for that (BRAND §5). */

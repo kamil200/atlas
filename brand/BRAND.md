@@ -22,7 +22,9 @@ The marigold dot is a reusable motif: wordmark full stop, selected-state ring, m
 
 ## 2. Color
 
-Warm paper ground, ink for text and primary CTAs, and a **green-led system**:
+Neutral white ground, ink for text and primary CTAs, and a **green-led system**.
+
+The ground used to be warm cream (`#FAF7F0`). It was swapped for true white in Aug 2026 — on screen the cream read as dated newsprint rather than warm, and it dulled every surface sitting on it. Depth now comes from a hairline plus a tight shadow, not from a tinted ground. Link contrast improved as a side effect (6.6:1 → 7.0:1). The token *names* are unchanged, so nothing downstream had to move.
 
 - **Peepal (green)** — the brand color and the working color. The logo tile, map pins, clusters, links, focus rings, selected filters, active bookmark, tabs, hiring badges. If it's Chowk or you can act on it, it's peepal.
 - **Marigold (yellow)** — the garland. The dot, the selected-pin ring, small highlights and celebratory moments. Never large surfaces, never text.
@@ -30,11 +32,11 @@ Warm paper ground, ink for text and primary CTAs, and a **green-led system**:
 
 | Token | Hex | Role |
 |---|---|---|
-| `paper` | `#FAF7F0` | Page ground |
-| `paper-2` | `#F2ECE1` | Raised cards, wells, hover fills |
-| `ink` | `#211E1A` | Text, primary buttons (paper text on ink) |
-| `ink-soft` | `#6F6659` | Secondary text, placeholders |
-| `line` | `#E5DCCC` | Borders, dividers |
+| `paper` | `#FFFFFF` | Page ground, cards, chrome |
+| `paper-2` | `#F2F3F6` | Wells, hover fills, skeletons |
+| `ink` | `#191A1C` | Text, primary buttons (paper text on ink) |
+| `ink-soft` | `#6E7078` | Secondary text, placeholders |
+| `line` | `#E3E5E9` | Borders, dividers |
 | `peepal-400` | `#55B983` | Hover glows, subtle fills |
 | `peepal-500` | `#2E9D64` | Focus rings, active accents |
 | `peepal-600` | `#1B7F4D` | Brand tile, pins, clusters, checked states, badges |
@@ -42,11 +44,11 @@ Warm paper ground, ink for text and primary CTAs, and a **green-led system**:
 | `marigold-400` | `#FFC933` | Glows, hover ring on pins |
 | `marigold-500` | `#F5B301` | The dot, selected-pin ring, star moments |
 | `danger` | `#D64545` | Errors, destructive actions |
-| `stone` | `#B8AE9E` | Quiet (not-hiring) pins, disabled |
+| `stone` | `#B0B3BA` | Quiet (not-hiring) pins, disabled |
 
 Tints for chips/wells (derived, don't invent new ones): peepal tint `#DEF0E4` (applied chips, success wells), marigold tint `#FCF1CE` (interviewing chips), pill tint `#E2F1E6` (hero pill fill).
 
-Contrast rules (AA): body text = ink on paper (14.9:1). Links = peepal-700 (6.6:1). Cluster/badge text = paper on peepal-600 (5.0:1) — 12px+ semibold only. Never marigold for text at any size; never peepal lighter than 600 for text under 18px. Primary CTA = ink background + paper text; peepal is an accent and a map color, not a button fill.
+Contrast rules (AA): body text = ink on paper (17.4:1). Secondary text = ink-soft on paper (5.0:1). Links = peepal-700 (7.0:1). Cluster/badge text = paper on peepal-600 (5.0:1) — 12px+ semibold only. Never marigold for text at any size; never peepal lighter than 600 for text under 18px. Primary CTA = ink background + paper text; peepal is an accent and a map color, not a button fill.
 
 Map pin states: actively hiring = peepal-600 (white stroke); quiet/not hiring = stone; hover = marigold-400 ring; selected = marigold-500 ring, 3px — the garland around the tree. Cluster bubble = peepal-600 fill, paper count text, soft peepal halo behind, size stepped by count.
 
@@ -56,11 +58,11 @@ Dark mode: v1 is light-only (deliberate — matches the reference and halves the
 
 | Role | Face | Usage |
 |---|---|---|
-| Display | **Rozha One** (Indian Type Foundry, Google Fonts) | Landing headlines, section titles, the wordmark, big numbers. High-contrast, unmistakably ours. Weight 400 only (it ships one). Tight leading (1.05), sizes `clamp(2.5rem, 6vw, 4.5rem)` for h1 |
+| Display | **Young Serif** (Google Fonts) | Landing headlines, section titles, the wordmark, big numbers. Weight 400 only (it ships one). Wide, heavy, tall x-height — so it reads a size larger than most serifs: default tracking `-0.015em` and leading `1.12` are set once on `.font-display`, sizes `clamp(2.3rem, 5.6vw, 4.1rem)` for h1 |
 | UI / body | **Inter** | Everything in the product. 400 body, 500 labels, 600 emphasis. 14px base in app, 16px on landing |
 | Data garnish | **JetBrains Mono** | Coordinates, counts, meta labels. 11–12px, uppercase, `letter-spacing: 0.08em` — e.g. `12.97°N 77.59°E`, `92 COMPANIES · 1,486 JOBS` |
 
-Self-host via `@fontsource/rozha-one`, `@fontsource-variable/inter`, `@fontsource/jetbrains-mono`. Numbers in tables/counters get `font-variant-numeric: tabular-nums`.
+Self-host via `@fontsource/young-serif`, `@fontsource-variable/inter`, `@fontsource/jetbrains-mono`. Numbers in tables/counters get `font-variant-numeric: tabular-nums`.
 
 The mono-coordinates garnish is the signature detail: any place a location appears, its coordinates may appear beside it in tiny mono. Use in the stats pill, company sidebar header, office rows.
 
@@ -70,11 +72,11 @@ The mono-coordinates garnish is the signature detail: any place a location appea
 @import "tailwindcss";
 
 @theme {
-  --color-paper: #FAF7F0;
-  --color-paper-2: #F2ECE1;
-  --color-ink: #211E1A;
-  --color-ink-soft: #6F6659;
-  --color-line: #E5DCCC;
+  --color-paper: #FFFFFF;
+  --color-paper-2: #F2F3F6;
+  --color-ink: #191A1C;
+  --color-ink-soft: #6E7078;
+  --color-line: #E3E5E9;
   --color-peepal-400: #55B983;
   --color-peepal-500: #2E9D64;
   --color-peepal-600: #1B7F4D;
@@ -84,9 +86,9 @@ The mono-coordinates garnish is the signature detail: any place a location appea
   --color-marigold-500: #F5B301;
   --color-marigold-tint: #FCF1CE;
   --color-danger: #D64545;
-  --color-stone: #B8AE9E;
+  --color-stone: #B0B3BA;
 
-  --font-display: "Rozha One", Georgia, serif;
+  --font-display: "Young Serif", Georgia, serif;
   --font-sans: "Inter Variable", ui-sans-serif, system-ui, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, monospace;
 
@@ -95,8 +97,11 @@ The mono-coordinates garnish is the signature detail: any place a location appea
   --radius-lg: 16px;
   --radius-xl: 24px;
 
-  --shadow-card: 0 1px 2px rgb(33 30 26 / 0.06), 0 4px 16px rgb(33 30 26 / 0.06);
-  --shadow-pop: 0 2px 4px rgb(33 30 26 / 0.08), 0 12px 32px rgb(33 30 26 / 0.12);
+  /* Neutral and tight. On a white ground a wide soft blur just reads as grey
+     haze — depth comes from a crisp 1px contact shadow plus a weaker ambient. */
+  --shadow-sm: 0 1px 2px rgb(17 18 21 / 0.05);
+  --shadow-card: 0 1px 2px rgb(17 18 21 / 0.06), 0 4px 12px -2px rgb(17 18 21 / 0.06);
+  --shadow-pop: 0 2px 4px rgb(17 18 21 / 0.06), 0 12px 32px -8px rgb(17 18 21 / 0.14);
 }
 ```
 

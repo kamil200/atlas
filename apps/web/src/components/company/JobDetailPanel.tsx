@@ -116,7 +116,7 @@ export function JobDetailPanel({
             <Button asChild className="flex-1">
               <a href={detail.applyUrl} target="_blank" rel="noreferrer">
                 Apply on company site
-                <ExternalLink className="size-3.5" aria-hidden="true" />
+                <ExternalLink className="size-4" aria-hidden="true" />
               </a>
             </Button>
             {isAuthenticated ? (

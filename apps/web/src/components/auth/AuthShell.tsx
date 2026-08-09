@@ -19,7 +19,7 @@ export function AuthShell({
           <Wordmark />
         </Link>
 
-        <h1 className="font-display mt-8 text-4xl leading-tight text-ink">{title}</h1>
+        <h1 className="font-display mt-8 text-[2rem] leading-tight text-ink">{title}</h1>
         <p className="mt-2 text-sm text-ink-soft">{subtitle}</p>
 
         <div className="mt-7">{children}</div>

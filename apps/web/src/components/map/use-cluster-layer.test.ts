@@ -36,7 +36,9 @@ describe("toOfficeFeature", () => {
   });
 
   it("flattens hiring status into a boolean the paint expression can read", () => {
-    expect(toOfficeFeature(office({ hiringStatus: "ACTIVELY_HIRING" })).properties.hiring).toBe(true);
+    expect(toOfficeFeature(office({ hiringStatus: "ACTIVELY_HIRING" })).properties.hiring).toBe(
+      true,
+    );
     expect(toOfficeFeature(office({ hiringStatus: "NOT_HIRING" })).properties.hiring).toBe(false);
   });
 

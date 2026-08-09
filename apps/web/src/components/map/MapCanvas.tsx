@@ -2,21 +2,42 @@ import type { OfficeMapPoint } from "@chowk/schema";
 import maplibregl, { type GeoJSONSource, type MapGeoJSONFeature } from "maplibre-gl";
 import { useEffect, useMemo, useRef } from "react";
 import { createRoot, type Root } from "react-dom/client";
-import { MAP_COLORS, MAP_INITIAL_VIEW, MAP_STYLE_URL } from "@/lib/constants";
+import {
+  MAP_CITY_ZOOM,
+  MAP_CLUSTER_MAX_ZOOM,
+  MAP_COLORS,
+  MAP_INITIAL_VIEW,
+  MAP_STYLE_URL,
+} from "@/lib/constants";
+import { applyBrandPaint } from "@/lib/map-style";
 import { MarkerPopup } from "./MarkerPopup";
+import { IMAGE, registerSharedImages, syncCompanyTiles, TILE_PREFIX } from "./pin-images";
 import { type OfficeFeatureProperties, toOfficeCollection } from "./use-cluster-layer";
 
 import "maplibre-gl/dist/maplibre-gl.css";
 
 const SOURCE_ID = "offices";
-const CLUSTER_LAYER = "clusters";
-const CLUSTER_COUNT_LAYER = "cluster-count";
-const SELECTED_LAYER = "office-selected";
-const POINT_LAYER = "office-point";
+const HERE_SOURCE_ID = "you-are-here";
+
+const LAYER = {
+  ring: "office-ring",
+  hover: "office-hover",
+  selected: "office-selected",
+  tile: "office-tile",
+  label: "office-label",
+  cluster: "office-cluster",
+  here: "office-here",
+} as const;
+
+const NO_FEATURE = "__none__";
 
 export type MapApi = {
   flyTo: (lat: number, lng: number, zoom?: number) => void;
   getCenterZoom: () => { lng: number; lat: number; zoom: number };
+  zoomBy: (delta: number) => void;
+  resetView: () => void;
+  /** Drops the marigold "you are here" dot and flies to it. */
+  showHere: (lat: number, lng: number) => void;
 };
 
 type MapCanvasProps = {
@@ -51,7 +72,6 @@ export function MapCanvas({
   const loadedRef = useRef(false);
   const popupRef = useRef<maplibregl.Popup | null>(null);
   const popupRootRef = useRef<Root | null>(null);
-  const hoveredRef = useRef<string | number | null>(null);
 
   const geojson = useMemo(() => toOfficeCollection(offices), [offices]);
 
@@ -59,6 +79,8 @@ export function MapCanvas({
     Latest props kept in refs. The setup effect runs once, so anything its
     event handlers close over directly would be frozen at first render.
   */
+  const officesRef = useRef(offices);
+  officesRef.current = offices;
   const geojsonRef = useRef(geojson);
   geojsonRef.current = geojson;
   const onSelectRef = useRef(onSelectCompany);
@@ -75,15 +97,6 @@ export function MapCanvas({
     const container = containerRef.current;
     if (!container) return;
 
-    const map = new maplibregl.Map({
-      container,
-      style: MAP_STYLE_URL,
-      center: MAP_INITIAL_VIEW.center,
-      zoom: MAP_INITIAL_VIEW.zoom,
-      attributionControl: { compact: true },
-    });
-    mapRef.current = map;
-
     const closePopup = () => {
       popupRootRef.current?.unmount();
       popupRootRef.current = null;
@@ -91,78 +104,67 @@ export function MapCanvas({
       popupRef.current = null;
     };
 
-    map.on("load", () => {
+    const map = new maplibregl.Map({
+      container,
+      style: MAP_STYLE_URL,
+      center: MAP_INITIAL_VIEW.center,
+      zoom: MAP_INITIAL_VIEW.zoom,
+      attributionControl: { compact: true },
+      maxZoom: 17,
+      // Symbols fade rather than pop when a tile finishes loading.
+      fadeDuration: 200,
+    });
+    mapRef.current = map;
+
+    /*
+      Set up on `styledata`, not on `load`.
+
+      MapLibre only fires `load` after the first complete frame is painted, and
+      a browser stops painting a background tab. Opening the map in a new tab
+      and switching to it later would leave a map with no pins on it. `styledata`
+      fires when the stylesheet itself is ready, whether or not anything drew.
+    */
+    const setUpLayers = () => {
+      if (map.getSource(SOURCE_ID)) return;
+
+      /*
+        addSource is the first call that needs a parsed stylesheet, and it
+        throws until there is one. Letting it throw here is the check: nothing
+        after it has run, and the next styledata event tries again.
+
+        Not isStyleLoaded() — that also waits on every tile in view, which a
+        background tab never fetches.
+      */
+      try {
+        addSourcesAndLayers(map);
+      } catch {
+        return;
+      }
+
+      /*
+        The globe is why zooming out is fun. MapLibre flattens it to mercator
+        on its own as you zoom into a city, so nothing else has to know which
+        projection is showing.
+
+        No sky on purpose: MapLibre's fog blends toward the horizon across the
+        whole globe, and any fog colour near paper turns the map into a blank
+        sheet. The globe reads fine without it.
+      */
+      map.setProjection({ type: "globe" });
+      applyBrandPaint(map);
+      registerSharedImages(map);
       loadedRef.current = true;
 
-      map.addSource(SOURCE_ID, {
-        type: "geojson",
-        data: geojsonRef.current,
-        cluster: true,
-        clusterRadius: 50,
-        clusterMaxZoom: 14,
-        // Gives points a stable id so hover can use feature state.
-        promoteId: "officeId",
-      });
-
-      map.addLayer({
-        id: CLUSTER_LAYER,
-        type: "circle",
-        source: SOURCE_ID,
-        filter: ["has", "point_count"],
-        paint: {
-          "circle-color": MAP_COLORS.cluster,
-          "circle-opacity": 0.92,
-          // Bigger clusters read as bigger bubbles.
-          "circle-radius": ["step", ["get", "point_count"], 16, 5, 22, 15, 28, 40, 34],
-          "circle-stroke-width": 3,
-          "circle-stroke-color": MAP_COLORS.stroke,
-          "circle-stroke-opacity": 0.9,
-        },
-      });
-
-      map.addLayer({
-        id: CLUSTER_COUNT_LAYER,
-        type: "symbol",
-        source: SOURCE_ID,
-        filter: ["has", "point_count"],
-        layout: {
-          "text-field": ["get", "point_count_abbreviated"],
-          "text-font": ["Noto Sans Bold"],
-          "text-size": 12,
-        },
-        paint: { "text-color": MAP_COLORS.clusterText },
-      });
-
-      // Drawn beneath the pin so it reads as a ring around it.
-      map.addLayer({
-        id: SELECTED_LAYER,
-        type: "circle",
-        source: SOURCE_ID,
-        filter: ["==", ["get", "companySlug"], "__none__"],
-        paint: { "circle-color": MAP_COLORS.selected, "circle-radius": 11 },
-      });
-
-      map.addLayer({
-        id: POINT_LAYER,
-        type: "circle",
-        source: SOURCE_ID,
-        filter: ["!", ["has", "point_count"]],
-        paint: {
-          "circle-color": ["case", ["get", "hiring"], MAP_COLORS.hiring, MAP_COLORS.quiet],
-          "circle-radius": ["case", ["boolean", ["feature-state", "hover"], false], 8.5, 7],
-          "circle-stroke-width": 2,
-          "circle-stroke-color": MAP_COLORS.stroke,
-        },
-      });
-
       // Data and selection may both have arrived before the style finished.
-      const source = map.getSource(SOURCE_ID) as GeoJSONSource | undefined;
-      source?.setData(geojsonRef.current);
-      applySelected(map, selectedRef.current);
-    });
+      void pushData(map, geojsonRef.current, officesRef.current);
+      applyFilter(map, LAYER.selected, "companySlug", selectedRef.current);
+    };
+
+    map.on("styledata", setUpLayers);
+    setUpLayers();
 
     // --- interaction ----------------------------------------------------
-    map.on("click", CLUSTER_LAYER, (event) => {
+    map.on("click", LAYER.cluster, (event) => {
       const feature = event.features?.[0];
       const clusterId = feature?.properties?.cluster_id;
       if (clusterId === undefined) return;
@@ -178,7 +180,7 @@ export function MapCanvas({
       });
     });
 
-    map.on("click", POINT_LAYER, (event) => {
+    map.on("click", LAYER.tile, (event) => {
       if (!interactiveRef.current) return;
       const feature = event.features?.[0];
       if (feature?.geometry.type !== "Point") return;
@@ -207,7 +209,7 @@ export function MapCanvas({
 
       popupRef.current = new maplibregl.Popup({
         closeButton: false,
-        offset: 14,
+        offset: 26,
         maxWidth: "none",
         className: "chowk-popup",
       })
@@ -222,23 +224,21 @@ export function MapCanvas({
     });
 
     const setHover = (feature: MapGeoJSONFeature | undefined) => {
-      if (hoveredRef.current !== null) {
-        map.setFeatureState({ source: SOURCE_ID, id: hoveredRef.current }, { hover: false });
-      }
-      hoveredRef.current = feature?.id ?? null;
-      if (hoveredRef.current !== null) {
-        map.setFeatureState({ source: SOURCE_ID, id: hoveredRef.current }, { hover: true });
-      }
+      const officeId = feature?.properties?.officeId as string | undefined;
+      applyFilter(map, LAYER.hover, "officeId", officeId);
     };
 
-    for (const layer of [CLUSTER_LAYER, POINT_LAYER]) {
+    for (const layer of [LAYER.cluster, LAYER.tile] as const) {
       map.on("mouseenter", layer, (event) => {
         map.getCanvas().style.cursor = "pointer";
-        if (layer === POINT_LAYER) setHover(event.features?.[0]);
+        if (layer === LAYER.tile) setHover(event.features?.[0]);
+      });
+      map.on("mousemove", layer, (event) => {
+        if (layer === LAYER.tile) setHover(event.features?.[0]);
       });
       map.on("mouseleave", layer, () => {
         map.getCanvas().style.cursor = "";
-        if (layer === POINT_LAYER) setHover(undefined);
+        if (layer === LAYER.tile) setHover(undefined);
       });
     }
 
@@ -258,10 +258,7 @@ export function MapCanvas({
       (window as unknown as { __chowkMap?: maplibregl.Map }).__chowkMap = map;
     }
 
-    onReadyRef.current?.({
-      flyTo: (lat, lng, zoom = 12) => map.flyTo({ center: [lng, lat], zoom, duration: 800 }),
-      getCenterZoom: () => ({ ...map.getCenter(), zoom: map.getZoom() }),
-    });
+    onReadyRef.current?.(buildApi(map));
 
     return () => {
       resizeObserver.disconnect();
@@ -277,25 +274,203 @@ export function MapCanvas({
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !loadedRef.current) return;
-    const source = map.getSource(SOURCE_ID) as GeoJSONSource | undefined;
-    source?.setData(geojson);
-  }, [geojson]);
+    void pushData(map, geojson, offices);
+  }, [geojson, offices]);
 
   // --- ring the open company -------------------------------------------
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !loadedRef.current) return;
-    applySelected(map, selectedCompanySlug);
+    applyFilter(map, LAYER.selected, "companySlug", selectedCompanySlug);
   }, [selectedCompanySlug]);
 
   return <div ref={containerRef} className="size-full" data-testid="map-canvas" />;
 }
 
-function applySelected(map: maplibregl.Map, slug: string | undefined) {
-  if (!map.getLayer(SELECTED_LAYER)) return;
-  map.setFilter(SELECTED_LAYER, [
+/*
+  Tiles have to exist on the GPU before the symbols that name them are laid
+  out, so the draw always happens first and setData always happens second.
+*/
+async function pushData(
+  map: maplibregl.Map,
+  geojson: ReturnType<typeof toOfficeCollection>,
+  offices: readonly OfficeMapPoint[],
+) {
+  await syncCompanyTiles(map, offices);
+  // A filter change during the await may have removed the map from the page.
+  if (!map.getSource(SOURCE_ID)) return;
+  (map.getSource(SOURCE_ID) as GeoJSONSource).setData(geojson);
+}
+
+function addSourcesAndLayers(map: maplibregl.Map) {
+  map.addSource(SOURCE_ID, {
+    type: "geojson",
+    data: { type: "FeatureCollection", features: [] },
+    cluster: true,
+    clusterRadius: 46,
+    clusterMaxZoom: MAP_CLUSTER_MAX_ZOOM,
+    // Gives points a stable id so hover and selection can address one office.
+    promoteId: "officeId",
+  });
+
+  map.addSource(HERE_SOURCE_ID, {
+    type: "geojson",
+    data: { type: "FeatureCollection", features: [] },
+  });
+
+  const single: maplibregl.FilterSpecification = ["!", ["has", "point_count"]];
+  const clustered: maplibregl.FilterSpecification = ["has", "point_count"];
+
+  /*
+    Rings, tiles and labels are three layers over one source. The two ring
+    layers and the tile layer all ignore collision, so they can never disagree
+    about which pins are on screen. Only the name plates collide — which is
+    the whole point, and the one thing the reference product gets wrong.
+  */
+  map.addLayer({
+    id: LAYER.ring,
+    type: "symbol",
+    source: SOURCE_ID,
+    filter: single,
+    layout: {
+      "icon-image": ["case", ["get", "hiring"], IMAGE.ringHiring, IMAGE.ringQuiet],
+      ...PINNED,
+    },
+  });
+
+  map.addLayer({
+    id: LAYER.hover,
+    type: "symbol",
+    source: SOURCE_ID,
+    filter: ["==", ["get", "officeId"], NO_FEATURE],
+    layout: { "icon-image": IMAGE.ringHover, ...PINNED },
+  });
+
+  map.addLayer({
+    id: LAYER.selected,
+    type: "symbol",
+    source: SOURCE_ID,
+    filter: ["==", ["get", "companySlug"], NO_FEATURE],
+    layout: { "icon-image": IMAGE.ringSelected, ...PINNED },
+  });
+
+  map.addLayer({
+    id: LAYER.tile,
+    type: "symbol",
+    source: SOURCE_ID,
+    filter: single,
+    layout: {
+      "icon-image": ["concat", TILE_PREFIX, ["get", "companySlug"]],
+      ...PINNED,
+    },
+    paint: {
+      // Companies that are not hiring step back without disappearing.
+      "icon-opacity": ["case", ["get", "hiring"], 1, 0.72],
+    },
+  });
+
+  map.addLayer({
+    id: LAYER.label,
+    type: "symbol",
+    source: SOURCE_ID,
+    filter: single,
+    layout: {
+      // Width only: the plate keeps its height and grows sideways with the name.
+      "icon-image": IMAGE.labelPill,
+      "icon-text-fit": "width",
+      "icon-text-fit-padding": [0, 3, 0, 3],
+      "text-field": ["get", "companyName"],
+      "text-font": ["Noto Sans Bold"],
+      "text-size": 11,
+      "text-anchor": "top",
+      "text-offset": [0, 1.9],
+      // High enough that a name never wraps out of a fixed-height plate.
+      "text-max-width": 30,
+      "text-padding": 3,
+      // When two plates fight for the same spot, the company hiring more people wins.
+      "symbol-sort-key": ["-", 0, ["get", "openJobCount"]],
+    },
+    paint: {
+      "text-color": MAP_COLORS.label,
+      "icon-opacity": ["case", ["get", "hiring"], 1, 0.85],
+    },
+  });
+
+  map.addLayer({
+    id: LAYER.cluster,
+    type: "symbol",
+    source: SOURCE_ID,
+    filter: clustered,
+    layout: {
+      "icon-image": IMAGE.countChip,
+      "icon-text-fit": "width",
+      "icon-text-fit-padding": [0, 4, 0, 4],
+      "text-field": ["get", "point_count_abbreviated"],
+      "text-font": ["Noto Sans Bold"],
+      "text-size": 13,
+      "icon-allow-overlap": true,
+      "icon-ignore-placement": true,
+      "text-allow-overlap": true,
+      "text-ignore-placement": true,
+    },
+    paint: { "text-color": MAP_COLORS.clusterText },
+  });
+
+  map.addLayer({
+    id: LAYER.here,
+    type: "symbol",
+    source: HERE_SOURCE_ID,
+    layout: { "icon-image": IMAGE.herePin, ...PINNED },
+  });
+}
+
+/* Pins never hide each other. Only their name plates compete for space. */
+const PINNED = {
+  "icon-allow-overlap": true,
+  "icon-ignore-placement": true,
+  "icon-anchor": "center",
+} as const;
+
+function applyFilter(
+  map: maplibregl.Map,
+  layer: string,
+  property: string,
+  value: string | undefined,
+) {
+  if (!map.getLayer(layer)) return;
+  map.setFilter(layer, [
     "all",
     ["!", ["has", "point_count"]],
-    ["==", ["get", "companySlug"], slug ?? "__none__"],
+    ["==", ["get", property], value ?? NO_FEATURE],
   ]);
+}
+
+function buildApi(map: maplibregl.Map): MapApi {
+  return {
+    flyTo: (lat, lng, zoom = 12) => map.flyTo({ center: [lng, lat], zoom, duration: 800 }),
+    getCenterZoom: () => ({ ...map.getCenter(), zoom: map.getZoom() }),
+    zoomBy: (delta) => map.easeTo({ zoom: map.getZoom() + delta, duration: 250 }),
+    resetView: () =>
+      map.flyTo({
+        center: MAP_INITIAL_VIEW.center,
+        zoom: MAP_INITIAL_VIEW.zoom,
+        bearing: 0,
+        pitch: 0,
+        duration: 900,
+      }),
+    showHere: (lat, lng) => {
+      const source = map.getSource(HERE_SOURCE_ID) as GeoJSONSource | undefined;
+      source?.setData({
+        type: "FeatureCollection",
+        features: [
+          { type: "Feature", properties: {}, geometry: { type: "Point", coordinates: [lng, lat] } },
+        ],
+      });
+      map.flyTo({
+        center: [lng, lat],
+        zoom: Math.max(map.getZoom(), MAP_CITY_ZOOM),
+        duration: 900,
+      });
+    },
+  };
 }

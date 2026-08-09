@@ -42,7 +42,7 @@ function LandingPage() {
       </nav>
 
       <header className="mx-auto max-w-6xl px-6 pb-14 pt-10 sm:pt-16">
-        <h1 className="font-display max-w-4xl text-[clamp(2.5rem,6.5vw,4.8rem)] leading-[1.03] text-ink">
+        <h1 className="font-display max-w-4xl text-[clamp(2.3rem,5.6vw,4.1rem)] leading-[1.14] text-ink">
           Your next job isn't in a{" "}
           <span className="relative whitespace-nowrap text-ink-soft">
             list

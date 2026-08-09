@@ -1,3 +1,4 @@
+import { Prisma } from "@chowk/database";
 import {
   ApplicationStatus,
   AuthProvider,
@@ -10,7 +11,6 @@ import {
   UserRole,
   WorkMode,
 } from "@chowk/schema";
-import { Prisma } from "@chowk/database";
 import type { TypeBoxTypeProvider } from "@fastify/type-provider-typebox";
 import { Value } from "@sinclair/typebox/value";
 import Fastify from "fastify";
@@ -76,7 +76,11 @@ describe("query string parsing", () => {
 describe("MapSearchParams", () => {
   it("accepts the sidebar keys that never reach the API", () => {
     expect(
-      Value.Check(MapSearchParams, { companySlug: "razorpay", jobId: "job_1", workMode: ["REMOTE"] }),
+      Value.Check(MapSearchParams, {
+        companySlug: "razorpay",
+        jobId: "job_1",
+        workMode: ["REMOTE"],
+      }),
     ).toBe(true);
   });
 

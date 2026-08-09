@@ -31,10 +31,12 @@ export function TopBar({ onOpenSearch }: { onOpenSearch: () => void }) {
   };
 
   return (
-    <header className="z-30 flex h-14 shrink-0 items-center gap-3 border-b border-line bg-paper px-4">
+    <header className="z-30 flex h-16 shrink-0 items-center gap-3 border-b border-line bg-paper px-3 sm:px-4">
+      {/* The negative margin keeps the wordmark optically flush with the page
+          edge while the padding still gives the link a real hit target. */}
       <Link
         to="/"
-        className="shrink-0 rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-peepal-500"
+        className="-ml-1.5 shrink-0 rounded-md px-1.5 py-1.5 transition-colors hover:bg-paper-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-peepal-500"
       >
         <Wordmark />
       </Link>
@@ -43,11 +45,11 @@ export function TopBar({ onOpenSearch }: { onOpenSearch: () => void }) {
       <button
         type="button"
         onClick={onOpenSearch}
-        className="ml-2 flex h-9 max-w-sm flex-1 items-center gap-2 rounded-md border border-line bg-paper-2 px-3 text-left text-sm text-ink-soft transition-colors hover:bg-paper-2/70 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-peepal-500"
+        className="ml-2 flex h-10 max-w-sm flex-1 items-center gap-2.5 rounded-full border border-line bg-paper px-4 text-left text-sm text-ink-soft shadow-sm transition-colors hover:border-ink-soft/30 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-peepal-500"
       >
-        <Search className="size-4 shrink-0" aria-hidden="true" />
+        <Search className="size-[18px] shrink-0" aria-hidden="true" />
         <span className="truncate">Search companies, roles, cities</span>
-        <kbd className="font-mono ml-auto hidden shrink-0 rounded border border-line bg-paper px-1.5 py-0.5 text-[10px] text-ink-soft sm:block">
+        <kbd className="font-mono ml-auto hidden shrink-0 rounded-full bg-paper-2 px-2 py-0.5 text-[10px] text-ink-soft sm:block">
           ⌘K
         </kbd>
       </button>
@@ -57,13 +59,13 @@ export function TopBar({ onOpenSearch }: { onOpenSearch: () => void }) {
           <>
             <Counter
               to="/tracker"
-              icon={<Bookmark className="size-3.5" />}
+              icon={<Bookmark className="size-4" />}
               count={savedCount}
               label="Saved"
             />
             <Counter
               to="/tracker"
-              icon={<Check className="size-3.5" />}
+              icon={<Check className="size-4" />}
               count={appliedCount}
               label="Applied"
             />
@@ -73,7 +75,7 @@ export function TopBar({ onOpenSearch }: { onOpenSearch: () => void }) {
                 <button
                   type="button"
                   aria-label="Your account"
-                  className="grid size-9 place-items-center rounded-full border border-line bg-paper-2 text-sm font-semibold text-ink transition-colors hover:bg-paper focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-peepal-500"
+                  className="grid size-9 place-items-center rounded-full border border-line bg-paper text-sm font-semibold text-ink shadow-sm transition-colors hover:bg-paper-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-peepal-500"
                 >
                   {user?.name?.[0]?.toUpperCase() ?? <UserRound className="size-4" />}
                 </button>
@@ -136,7 +138,7 @@ function Counter({
     <Link
       to={to}
       aria-label={`${count} ${label.toLowerCase()}`}
-      className="hidden items-center gap-1.5 rounded-full border border-line bg-paper px-2.5 py-1.5 text-ink-soft transition-colors hover:bg-paper-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-peepal-500 sm:flex"
+      className="hidden items-center gap-1.5 rounded-full border border-line bg-paper px-3 py-1.5 text-ink-soft shadow-sm transition-colors hover:bg-paper-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-peepal-500 sm:flex"
     >
       {icon}
       {/* Tabular numerals so the bar does not shift when a count ticks over. */}
