@@ -16,7 +16,8 @@
     "validate": "pnpm lint && pnpm typecheck && pnpm test",
     "db:up": "docker compose up -d",
     "db:migrate": "pnpm --filter @chowk/database migrate",
-    "db:seed": "pnpm --filter @chowk/database seed"
+    "db:seed": "pnpm --filter @chowk/database seed",
+    "db:seed:check": "pnpm --filter @chowk/database seed:check"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.4.0",

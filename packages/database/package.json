@@ -12,10 +12,12 @@
     "migrate": "prisma migrate dev",
     "migrate:deploy": "prisma migrate deploy",
     "seed": "tsx prisma/seed.ts",
+    "seed:check": "tsx prisma/acceptance.ts",
     "studio": "prisma studio",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@node-rs/argon2": "^2.0.0",
     "@prisma/client": "^6.19.3"
   },
   "devDependencies": {
