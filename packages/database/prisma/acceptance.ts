@@ -183,6 +183,15 @@ async function main() {
     `${bootstrappedWithInvestors} found`,
   );
 
+  const quietWithOpenRoles = await prisma.company.count({
+    where: { hiringStatus: "NOT_HIRING", jobs: { some: { status: "OPEN", deletedAt: null } } },
+  });
+  check(
+    "not-hiring companies have no open roles",
+    quietWithOpenRoles === 0,
+    `${quietWithOpenRoles} contradicting`,
+  );
+
   const jobsWithoutOffice = await prisma.job.count({ where: { officeId: null } });
   const remoteCount = await prisma.job.count({ where: { workMode: "REMOTE" } });
   check(

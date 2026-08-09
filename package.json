@@ -17,7 +17,8 @@
     "db:up": "docker compose up -d",
     "db:migrate": "pnpm --filter @chowk/database migrate",
     "db:seed": "pnpm --filter @chowk/database seed",
-    "db:seed:check": "pnpm --filter @chowk/database seed:check"
+    "db:seed:check": "pnpm --filter @chowk/database seed:check",
+    "facets:check": "pnpm --filter @chowk/server facets:check"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.4.0",

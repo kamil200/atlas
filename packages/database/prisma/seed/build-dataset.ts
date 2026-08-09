@@ -455,10 +455,14 @@ export function buildDataset(rng: Rng, now: number): SeedDataset {
       }
     }
 
-    // Not-hiring companies still appear on the map, just without open roles.
+    /*
+      A quiet company keeps a few roles it has already closed, so it still has
+      a history and still shows up as a stone pin — but never an open one. A
+      "not hiring" badge sitting next to two live vacancies reads as a bug.
+    */
+    const isHiring = plan.hiringStatus === "ACTIVELY_HIRING";
     const [minJobs, maxJobs] = JOB_COUNT_BY_STAGE[plan.fundingStage];
-    const jobCount =
-      plan.hiringStatus === "ACTIVELY_HIRING" ? rng.int(minJobs, maxJobs) : rng.int(0, 2);
+    const jobCount = isHiring ? rng.int(minJobs, maxJobs) : rng.int(0, 3);
 
     for (let i = 0; i < jobCount; i += 1) {
       jobSeq += 1;
@@ -488,6 +492,8 @@ export function buildDataset(rng: Rng, now: number): SeedDataset {
       const salaryMax = hasSalary ? toLakh(ceiling) : null;
 
       const postedAt = new Date(now - rng.int(0, 90) * 24 * 60 * 60 * 1000);
+      // Drawn unconditionally so the RNG stream does not depend on hiring status.
+      const closedByChance = rng.chance(0.08);
 
       jobs.push({
         id: `job_${pad(jobSeq, 5)}`,
@@ -502,7 +508,7 @@ export function buildDataset(rng: Rng, now: number): SeedDataset {
         salaryMax,
         currency: "INR",
         applyUrl: rng.chance(0.7) ? `${plan.website}/careers/${pad(jobSeq, 5)}` : null,
-        status: rng.chance(0.08) ? "CLOSED" : "OPEN",
+        status: isHiring && !closedByChance ? "OPEN" : "CLOSED",
         postedAt,
       });
     }
