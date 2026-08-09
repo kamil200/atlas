@@ -1,0 +1,266 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  USER
+  ADMIN
+}
+
+enum AuthProvider {
+  PASSWORD
+  GOOGLE
+}
+
+enum WorkMode {
+  ONSITE
+  HYBRID
+  REMOTE
+}
+
+enum HiringStatus {
+  ACTIVELY_HIRING
+  NOT_HIRING
+}
+
+enum FundingStage {
+  BOOTSTRAPPED
+  PRE_SEED
+  SEED
+  SERIES_A
+  SERIES_B
+  SERIES_C
+  SERIES_D_PLUS
+  PUBLIC
+}
+
+enum SubmissionStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum ApplicationStatus {
+  SAVED
+  APPLIED
+  INTERVIEWING
+  OFFER
+  REJECTED
+  WITHDRAWN
+}
+
+enum ApplyMethod {
+  SIMPLE_APPLY
+  EXTERNAL
+}
+
+enum JobStatus {
+  OPEN
+  CLOSED
+}
+
+model User {
+  id           String       @id @default(cuid())
+  email        String       @unique
+  passwordHash String? // null when the account is Google-only
+  authProvider AuthProvider @default(PASSWORD)
+  googleId     String?      @unique
+  name         String
+  avatarUrl    String?
+  role         UserRole     @default(USER)
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+  deletedAt    DateTime?
+
+  applications       Application[]
+  resumes            Resume[]
+  companySubmissions CompanySubmission[]
+
+  @@index([deletedAt])
+}
+
+model Company {
+  id               String           @id @default(cuid())
+  slug             String           @unique
+  name             String
+  logoUrl          String?
+  tagline          String?
+  description      String           @db.Text
+  website          String?
+  industries       String[]         @default([])
+  foundedYear      Int?
+  employeeCount    Int?
+  hiringStatus     HiringStatus     @default(ACTIVELY_HIRING)
+  fundingStage     FundingStage?
+  totalFundingUsd  BigInt?
+  valuationUsd     BigInt?
+  submissionStatus SubmissionStatus @default(APPROVED) // seed data is APPROVED
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+  deletedAt        DateTime?
+
+  offices    Office[]
+  jobs       Job[]
+  founders   CompanyFounder[]
+  investors  CompanyInvestor[]
+  submission CompanySubmission?
+
+  @@index([submissionStatus, deletedAt])
+  @@index([hiringStatus, deletedAt])
+  @@index([fundingStage, deletedAt])
+}
+
+model Office {
+  id          String    @id @default(cuid())
+  companyId   String
+  company     Company   @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  city        String
+  country     String    @default("India")
+  addressLine String?
+  lat         Float
+  lng         Float
+  isHq        Boolean   @default(false)
+  createdAt   DateTime  @default(now())
+  deletedAt   DateTime?
+
+  jobs Job[]
+
+  @@index([lat, lng])
+  @@index([city, deletedAt])
+  @@index([companyId])
+}
+
+model Founder {
+  id          String  @id @default(cuid())
+  name        String
+  linkedinUrl String?
+  photoUrl    String?
+
+  companies CompanyFounder[]
+}
+
+model CompanyFounder {
+  companyId String
+  founderId String
+  title     String // "Co-founder & CEO" — the role belongs to this company, so it lives on the join row
+  company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  founder   Founder @relation(fields: [founderId], references: [id], onDelete: Cascade)
+
+  @@id([companyId, founderId])
+  @@index([founderId])
+}
+
+model Investor {
+  id      String  @id @default(cuid())
+  name    String  @unique
+  logoUrl String?
+  website String?
+
+  companies CompanyInvestor[]
+}
+
+model CompanyInvestor {
+  companyId  String
+  investorId String
+  round      FundingStage?
+  company    Company       @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  investor   Investor      @relation(fields: [investorId], references: [id], onDelete: Cascade)
+
+  @@id([companyId, investorId])
+  @@index([investorId])
+}
+
+model Department {
+  id   String @id @default(cuid())
+  name String @unique
+  slug String @unique
+
+  jobs Job[]
+}
+
+model Job {
+  id           String     @id @default(cuid())
+  companyId    String
+  company      Company    @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  officeId     String? // null means remote-only, no pinned office
+  office       Office?    @relation(fields: [officeId], references: [id], onDelete: SetNull)
+  departmentId String
+  department   Department @relation(fields: [departmentId], references: [id])
+  title        String
+  description  String     @db.Text
+  workMode     WorkMode
+  seniority    String? // "Entry" | "Mid" | "Senior" | "Lead" — free text
+  salaryMin    Int? // annual, in `currency` units
+  salaryMax    Int?
+  currency     String     @default("INR")
+  applyUrl     String? // external ATS link; null means simple-apply only
+  status       JobStatus  @default(OPEN)
+  postedAt     DateTime   @default(now())
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  deletedAt    DateTime?
+
+  applications Application[]
+
+  @@index([companyId, status, deletedAt])
+  @@index([officeId, status, deletedAt])
+  @@index([departmentId, status, deletedAt])
+  @@index([workMode, status, deletedAt])
+  @@index([postedAt])
+}
+
+model Application {
+  id          String            @id @default(cuid())
+  userId      String
+  user        User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  jobId       String
+  job         Job               @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  status      ApplicationStatus @default(SAVED)
+  applyMethod ApplyMethod? // set the first time status becomes APPLIED
+  resumeId    String?
+  resume      Resume?           @relation(fields: [resumeId], references: [id], onDelete: SetNull)
+  coverNote   String?           @db.Text
+  appliedAt   DateTime?
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+
+  @@unique([userId, jobId])
+  @@index([userId, status])
+  @@index([jobId, status])
+}
+
+model Resume {
+  id         String    @id @default(cuid())
+  userId     String
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  filename   String
+  storageKey String // key for the storage adapter — never a public URL
+  mimeType   String
+  sizeBytes  Int
+  isDefault  Boolean   @default(false)
+  createdAt  DateTime  @default(now())
+  deletedAt  DateTime?
+
+  applications Application[]
+
+  @@index([userId, deletedAt])
+}
+
+model CompanySubmission {
+  id            String    @id @default(cuid())
+  companyId     String    @unique
+  company       Company   @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  submittedById String
+  submittedBy   User      @relation(fields: [submittedById], references: [id])
+  reviewedById  String? // admin's user id; plain field on purpose — a second User relation buys nothing here
+  adminNote     String?   @db.Text
+  createdAt     DateTime  @default(now())
+  reviewedAt    DateTime?
+
+  @@index([submittedById])
+}
