@@ -2,6 +2,7 @@ import { Loader2, LocateFixed, Minus, Plus } from "lucide-react";
 import { toast } from "sonner";
 import { MAP_CITY_ZOOM } from "@/lib/constants";
 import type { MapApi } from "./MapCanvas";
+import { MusicToggle } from "./MusicToggle";
 
 /* Bottom-centre ink pill. Tabular numerals keep it from twitching as counts change. */
 export function StatsPill({
@@ -81,6 +82,7 @@ export function MapControls({ mapApi }: { mapApi: React.RefObject<MapApi | null>
           <LocateFixed className="size-4" aria-hidden="true" />
         </ControlButton>
       </div>
+      <MusicToggle />
     </div>
   );
 }
