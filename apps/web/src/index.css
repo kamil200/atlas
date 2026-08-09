@@ -1,0 +1,93 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+/*
+  Brand tokens — the whole palette and type scale (brand/BRAND.md §4).
+  Everything in the app pulls colour and font from here. No raw hex in components.
+*/
+@theme {
+  --color-paper: #faf7f0;
+  --color-paper-2: #f2ece1;
+  --color-ink: #211e1a;
+  --color-ink-soft: #6f6659;
+  --color-line: #e5dccc;
+  --color-peepal-400: #55b983;
+  --color-peepal-500: #2e9d64;
+  --color-peepal-600: #1b7f4d;
+  --color-peepal-700: #136640;
+  --color-peepal-tint: #def0e4;
+  --color-marigold-400: #ffc933;
+  --color-marigold-500: #f5b301;
+  --color-marigold-tint: #fcf1ce;
+  --color-danger: #d64545;
+  --color-stone: #b8ae9e;
+
+  --font-display: "Rozha One", Georgia, serif;
+  --font-sans: "Inter Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+
+  --shadow-card: 0 1px 2px rgb(33 30 26 / 0.06), 0 4px 16px rgb(33 30 26 / 0.06);
+  --shadow-pop: 0 2px 4px rgb(33 30 26 / 0.08), 0 12px 32px rgb(33 30 26 / 0.12);
+
+  /* Fast and physical, never floaty (BRAND §5). */
+  --ease-brand: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/*
+  shadcn/ui components are written against these semantic names.
+  Pointing them at brand tokens means a stock shadcn component lands on-brand
+  with no edits, which is why components/ui/ stays untouched.
+*/
+@theme inline {
+  --color-background: var(--color-paper);
+  --color-foreground: var(--color-ink);
+  --color-card: var(--color-paper);
+  --color-card-foreground: var(--color-ink);
+  --color-popover: var(--color-paper);
+  --color-popover-foreground: var(--color-ink);
+  --color-primary: var(--color-ink);
+  --color-primary-foreground: var(--color-paper);
+  --color-secondary: var(--color-paper-2);
+  --color-secondary-foreground: var(--color-ink);
+  --color-muted: var(--color-paper-2);
+  --color-muted-foreground: var(--color-ink-soft);
+  --color-accent: var(--color-peepal-tint);
+  --color-accent-foreground: var(--color-peepal-700);
+  --color-destructive: var(--color-danger);
+  --color-destructive-foreground: var(--color-paper);
+  --color-border: var(--color-line);
+  --color-input: var(--color-line);
+  --color-ring: var(--color-peepal-500);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  body {
+    @apply bg-paper text-ink font-sans antialiased;
+  }
+
+  /* Counts and coordinates must not jitter as they change (BRAND §3). */
+  .font-mono {
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+/* Kill every animation for people who asked for that (BRAND §5). */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

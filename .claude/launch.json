@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "chowk-web",
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": ["--filter", "@chowk/web", "dev"],
+      "port": 5173
+    }
+  ]
+}
