@@ -1,12 +1,12 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 80" role="img" aria-label="Chowk">
   <!-- Mark -->
   <rect x="8" y="8" width="64" height="64" rx="15" fill="#1B7F4D"/>
-  <rect x="16.5" y="16.5" width="19" height="19" rx="6.4" fill="#FAF7F0"/>
-  <rect x="44.5" y="16.5" width="19" height="19" rx="6.4" fill="#FAF7F0"/>
-  <rect x="16.5" y="44.5" width="19" height="19" rx="6.4" fill="#FAF7F0"/>
-  <rect x="44.5" y="44.5" width="19" height="19" rx="6.4" fill="#FAF7F0"/>
+  <rect x="16.5" y="16.5" width="19" height="19" rx="6.4" fill="#FFFFFF"/>
+  <rect x="44.5" y="16.5" width="19" height="19" rx="6.4" fill="#FFFFFF"/>
+  <rect x="16.5" y="44.5" width="19" height="19" rx="6.4" fill="#FFFFFF"/>
+  <rect x="44.5" y="44.5" width="19" height="19" rx="6.4" fill="#FFFFFF"/>
   <circle cx="40" cy="40" r="4.3" fill="#F5B301"/>
   <!-- Wordmark: final asset uses Rozha One; Georgia is the safe fallback -->
-  <text x="86" y="59" font-family="'Rozha One', Georgia, 'Times New Roman', serif" font-size="46" fill="#211E1A" textLength="176" lengthAdjust="spacingAndGlyphs">chowk</text>
+  <text x="86" y="59" font-family="'Rozha One', Georgia, 'Times New Roman', serif" font-size="46" fill="#191A1C" textLength="176" lengthAdjust="spacingAndGlyphs">chowk</text>
   <circle cx="274" cy="55" r="4.3" fill="#F5B301"/>
 </svg>

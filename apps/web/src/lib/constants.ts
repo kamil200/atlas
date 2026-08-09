@@ -12,10 +12,10 @@ export const MAP_CITY_ZOOM = 11;
    so it cannot read CSS variables the way the rest of the UI does. */
 export const MAP_COLORS = {
   hiring: "#1B7F4D",
-  quiet: "#B8AE9E",
+  quiet: "#B0B3BA",
   cluster: "#1B7F4D",
-  clusterText: "#FAF7F0",
+  clusterText: "#FFFFFF",
   selected: "#F5B301",
   hover: "#FFC933",
-  stroke: "#FAF7F0",
+  stroke: "#FFFFFF",
 };

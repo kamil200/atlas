@@ -5,7 +5,7 @@ import { CompanySidebar } from "@/components/company/CompanySidebar";
 import { FilterPanel } from "@/components/filters/FilterPanel";
 import { GreetingOverlay } from "@/components/map/GreetingOverlay";
 import { type MapApi, MapCanvas } from "@/components/map/MapCanvas";
-import { MapControls, MapLegend, StatsPill } from "@/components/map/MapOverlays";
+import { MapControls, MapLegend, MusicPill, StatsPill } from "@/components/map/MapOverlays";
 import { summariseOffices } from "@/components/map/use-cluster-layer";
 import { useMapFilters } from "@/hooks/use-map-filters";
 import { validateMapSearch } from "@/lib/map-search";
@@ -85,6 +85,7 @@ function MapPage() {
           openJobs={stats.openJobs}
           isLoading={mapQuery.isFetching}
         />
+        <MusicPill />
 
         {isEmpty ? (
           <div className="pointer-events-none absolute inset-0 z-10 grid place-items-center">

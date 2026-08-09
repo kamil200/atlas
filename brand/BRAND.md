@@ -22,7 +22,7 @@ The marigold dot is a reusable motif: wordmark full stop, selected-state ring, m
 
 ## 2. Color
 
-Warm paper ground, ink for text and primary CTAs, and a **green-led system**:
+Neutral white ground, ink for text and primary CTAs, and a **green-led system**:
 
 - **Peepal (green)** — the brand color and the working color. The logo tile, map pins, clusters, links, focus rings, selected filters, active bookmark, tabs, hiring badges. If it's Chowk or you can act on it, it's peepal.
 - **Marigold (yellow)** — the garland. The dot, the selected-pin ring, small highlights and celebratory moments. Never large surfaces, never text.
@@ -30,11 +30,11 @@ Warm paper ground, ink for text and primary CTAs, and a **green-led system**:
 
 | Token | Hex | Role |
 |---|---|---|
-| `paper` | `#FAF7F0` | Page ground |
-| `paper-2` | `#F2ECE1` | Raised cards, wells, hover fills |
-| `ink` | `#211E1A` | Text, primary buttons (paper text on ink) |
-| `ink-soft` | `#6F6659` | Secondary text, placeholders |
-| `line` | `#E5DCCC` | Borders, dividers |
+| `paper` | `#FFFFFF` | Page ground |
+| `paper-2` | `#F2F3F6` | Raised cards, wells, hover fills |
+| `ink` | `#191A1C` | Text, primary buttons (paper text on ink) |
+| `ink-soft` | `#6E7078` | Secondary text, placeholders |
+| `line` | `#E3E5E9` | Borders, dividers |
 | `peepal-400` | `#55B983` | Hover glows, subtle fills |
 | `peepal-500` | `#2E9D64` | Focus rings, active accents |
 | `peepal-600` | `#1B7F4D` | Brand tile, pins, clusters, checked states, badges |
@@ -42,11 +42,11 @@ Warm paper ground, ink for text and primary CTAs, and a **green-led system**:
 | `marigold-400` | `#FFC933` | Glows, hover ring on pins |
 | `marigold-500` | `#F5B301` | The dot, selected-pin ring, star moments |
 | `danger` | `#D64545` | Errors, destructive actions |
-| `stone` | `#B8AE9E` | Quiet (not-hiring) pins, disabled |
+| `stone` | `#B0B3BA` | Quiet (not-hiring) pins, disabled |
 
 Tints for chips/wells (derived, don't invent new ones): peepal tint `#DEF0E4` (applied chips, success wells), marigold tint `#FCF1CE` (interviewing chips), pill tint `#E2F1E6` (hero pill fill).
 
-Contrast rules (AA): body text = ink on paper (14.9:1). Links = peepal-700 (6.6:1). Cluster/badge text = paper on peepal-600 (5.0:1) — 12px+ semibold only. Never marigold for text at any size; never peepal lighter than 600 for text under 18px. Primary CTA = ink background + paper text; peepal is an accent and a map color, not a button fill.
+Contrast rules (AA): body text = ink on paper (17.4:1). Links = peepal-700 (7.0:1). Cluster/badge text = paper on peepal-600 (5.0:1) — 12px+ semibold only. Never marigold for text at any size; never peepal lighter than 600 for text under 18px. Primary CTA = ink background + paper text; peepal is an accent and a map color, not a button fill.
 
 Map pin states: actively hiring = peepal-600 (white stroke); quiet/not hiring = stone; hover = marigold-400 ring; selected = marigold-500 ring, 3px — the garland around the tree. Cluster bubble = peepal-600 fill, paper count text, soft peepal halo behind, size stepped by count.
 
@@ -70,11 +70,11 @@ The mono-coordinates garnish is the signature detail: any place a location appea
 @import "tailwindcss";
 
 @theme {
-  --color-paper: #FAF7F0;
-  --color-paper-2: #F2ECE1;
-  --color-ink: #211E1A;
-  --color-ink-soft: #6F6659;
-  --color-line: #E5DCCC;
+  --color-paper: #FFFFFF;
+  --color-paper-2: #F2F3F6;
+  --color-ink: #191A1C;
+  --color-ink-soft: #6E7078;
+  --color-line: #E3E5E9;
   --color-peepal-400: #55B983;
   --color-peepal-500: #2E9D64;
   --color-peepal-600: #1B7F4D;
@@ -84,7 +84,7 @@ The mono-coordinates garnish is the signature detail: any place a location appea
   --color-marigold-500: #F5B301;
   --color-marigold-tint: #FCF1CE;
   --color-danger: #D64545;
-  --color-stone: #B8AE9E;
+  --color-stone: #B0B3BA;
 
   --font-display: "Rozha One", Georgia, serif;
   --font-sans: "Inter Variable", ui-sans-serif, system-ui, sans-serif;
@@ -95,8 +95,8 @@ The mono-coordinates garnish is the signature detail: any place a location appea
   --radius-lg: 16px;
   --radius-xl: 24px;
 
-  --shadow-card: 0 1px 2px rgb(33 30 26 / 0.06), 0 4px 16px rgb(33 30 26 / 0.06);
-  --shadow-pop: 0 2px 4px rgb(33 30 26 / 0.08), 0 12px 32px rgb(33 30 26 / 0.12);
+  --shadow-card: 0 1px 2px rgb(25 26 28 / 0.06), 0 4px 16px rgb(25 26 28 / 0.06);
+  --shadow-pop: 0 2px 4px rgb(25 26 28 / 0.08), 0 12px 32px rgb(25 26 28 / 0.12);
 }
 ```
 
@@ -146,4 +146,4 @@ Buttons say what they do: "Save job", "Apply on company site", "Show 12 roles". 
 - `apps/web/public/favicon.svg` (from brand/), `favicon-32.png`, `apple-touch-icon.png`
 - OG image 1200×630: paper ground, peepal tile mark, "chowk" wordmark, tagline, faint map-grid pattern
 - `<title>` pattern: "Chowk — startup jobs on a map" (landing), "{Company} · Chowk" (deep links)
-- Map style: OpenFreeMap Positron; if feasible with one CSS filter or style tweak, warm the basemap toward paper (sepia 4–6%) so the map sits in the brand world — time-box 20 min, skip if fiddly
+- Map style: OpenFreeMap Positron, repainted layer by layer in `apps/web/src/lib/map-style.ts` — its greys lean slightly blue, so they are neutralised to sit against the white chrome. Not a CSS filter: the pins share the canvas and would get tinted too

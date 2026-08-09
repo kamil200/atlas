@@ -2,40 +2,40 @@ import type { StyleSpecification } from "maplibre-gl";
 import { MAP_STYLE_URL } from "./constants";
 
 /*
-  Positron is a good quiet basemap, but it is cold grey and Chowk lives on warm
-  paper. So we fetch the style once and repaint it in brand colours before the
-  map is built.
+  Positron is a good quiet basemap, but its greys lean slightly blue and Chowk's
+  chrome is a neutral white. So we fetch the style once and repaint it in brand
+  colours before the map is built.
 
   Why not a CSS filter over the canvas: the pins are drawn on the same canvas,
   so a filter would tint them too. Repainting the style leaves the pins alone.
 */
 
-/* Basemap greys, warmed toward paper. Derived from BRAND §2, not new brand colours. */
-const GROUND = "#f6f1e7";
-const GROUND_SOFT = "#f1eadc";
-const SNOW = "#fcfaf6";
-const PARK = "#e6eedf";
-const WOOD = "#e1ebd8";
-const WATER = "#cbdce2";
-const WATER_EDGE = "#bcd0d8";
-const BUILDING = "#ede6d8";
-const BUILDING_EDGE = "#e3daca";
-const ROAD = "#fffdf8";
-const ROAD_QUIET = "#fbf8f2";
-const ROAD_CASING = "#e7decd";
-const ROAD_CASING_STRONG = "#e2d6c1";
-const RAIL = "#e4dbca";
-const RAIL_DASH = "#f7f3ea";
-const BORDER = "#c9bfac";
-const LABEL = "#4a4237";
-const LABEL_STRONG = "#2f2921";
-const LABEL_QUIET = "#8b8172";
-const LABEL_WATER = "#7794a0";
-const HALO = "#faf7f0";
+/* Basemap greys, neutralised to match the paper chrome. Derived from BRAND §2, not new brand colours. */
+const GROUND = "#f2f3f6";
+const GROUND_SOFT = "#eceef2";
+const SNOW = "#fafbfc";
+const PARK = "#e6efe9";
+const WOOD = "#dfeae3";
+const WATER = "#d3e0e8";
+const WATER_EDGE = "#c2d3dd";
+const BUILDING = "#e8eaee";
+const BUILDING_EDGE = "#dde0e6";
+const ROAD = "#ffffff";
+const ROAD_QUIET = "#fafbfc";
+const ROAD_CASING = "#e3e5e9";
+const ROAD_CASING_STRONG = "#d7dae0";
+const RAIL = "#dfe2e7";
+const RAIL_DASH = "#f4f5f7";
+const BORDER = "#bcc0c8";
+const LABEL = "#4a4d55";
+const LABEL_STRONG = "#26282c";
+const LABEL_QUIET = "#868a93";
+const LABEL_WATER = "#7d94a3";
+const HALO = "#ffffff";
 
 /*
   Keyed by the layer ids Positron ships. An id we do not know about keeps its
-  original paint, so a style update can only ever leave a layer un-warmed —
+  original paint, so a style update can only ever leave a layer un-repainted —
   it can never crash the map.
 */
 const PAINT: Record<string, Record<string, string>> = {
@@ -105,13 +105,13 @@ export function loadBrandStyle(): Promise<StyleSpecification | string> {
       if (!response.ok) throw new Error(`style ${response.status}`);
       return response.json() as Promise<StyleSpecification>;
     })
-    .then(warmStyle)
+    .then(repaintStyle)
     // Falling back to the plain URL means a bad network gives a grey map, not no map.
     .catch(() => MAP_STYLE_URL);
   return pending;
 }
 
-function warmStyle(style: StyleSpecification): StyleSpecification {
+function repaintStyle(style: StyleSpecification): StyleSpecification {
   for (const layer of style.layers) {
     const overrides = PAINT[layer.id];
     if (!overrides) continue;

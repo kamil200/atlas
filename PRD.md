@@ -70,13 +70,13 @@ Name **Chowk**; lowercase wordmark `chowk` with a marigold full stop; logo mark 
 
 Tokens (the full Tailwind v4 `@theme` block is in BRAND.md §4 — copy it verbatim into `apps/web/src/index.css` and map shadcn's semantic variables onto it):
 
-- Ground: `paper #FAF7F0`, raised `paper-2 #F2ECE1`, text `ink #211E1A`, borders `line #E5DCCC`
+- Ground: `paper #FFFFFF`, raised `paper-2 #F2F3F6`, text `ink #191A1C`, borders `line #E3E5E9`
 - **Peepal green** (scale 400–700, core `#1B7F4D`, links/badges `#136640`) = the brand AND the working color: tile, pins, clusters, links, focus, checked states, hiring badges. If it's Chowk or you can act on it, it's peepal
 - **Marigold** `#F5B301` = the garland: the dot motif, selected-pin ring, tiny highlights. Never text, never large surfaces
-- `stone #B8AE9E` = quiet/not-hiring pins and disabled; `danger #D64545`; tints `#DEF0E4` (applied), `#FCF1CE` (interviewing), `#E2F1E6` (hero pill)
+- `stone #B0B3BA` = quiet/not-hiring pins and disabled; `danger #D64545`; tints `#DEF0E4` (applied), `#FCF1CE` (interviewing), `#E2F1E6` (hero pill)
 - Primary CTA = ink background, paper text (reference-style black buttons)
 - Type: Rozha One (display), Inter (UI), JetBrains Mono (tiny uppercase meta: `92 COMPANIES · 1,486 JOBS`, coordinates)
-- Radius 8/12/16/24, warm soft shadows, motion 150/250ms ease-out-quart, everything behind `prefers-reduced-motion`
+- Radius 8/12/16/24, soft neutral shadows, motion 150/250ms ease-out-quart, everything behind `prefers-reduced-motion`
 
 Voice: plain, warm, specific. Light Hinglish ONLY in delight moments (greeting, empty states, footer), never in errors, forms, or data. Button labels say what they do. Copy examples live in BRAND.md §6 — reuse them verbatim where they fit.
 
