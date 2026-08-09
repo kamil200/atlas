@@ -1,0 +1,146 @@
+import { Link, useNavigate } from "@tanstack/react-router";
+import { Bookmark, Check, LogOut, Search, ShieldCheck, Sparkles, UserRound } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { useCurrentUser } from "@/hooks/use-current-user";
+import { useSavedJobs } from "@/hooks/use-saved-jobs";
+import { useLogoutMutation } from "@/store/api/auth-api";
+import { baseApi } from "@/store/api/base-api";
+import { useAppDispatch } from "@/store/hooks";
+import { Wordmark } from "./Logo";
+
+export function TopBar({ onOpenSearch }: { onOpenSearch: () => void }) {
+  const { user, isAuthenticated } = useCurrentUser();
+  const { savedCount, appliedCount } = useSavedJobs();
+  const [logout] = useLogoutMutation();
+  const dispatch = useAppDispatch();
+  const navigate = useNavigate();
+
+  const signOut = async () => {
+    await logout();
+    // One line clears every user-scoped cache instead of chasing tags.
+    dispatch(baseApi.util.resetApiState());
+    navigate({ to: "/" });
+  };
+
+  return (
+    <header className="z-30 flex h-14 shrink-0 items-center gap-3 border-b border-line bg-paper px-4">
+      <Link
+        to="/"
+        className="shrink-0 rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-peepal-500"
+      >
+        <Wordmark />
+      </Link>
+
+      {/* Styled as a search field but it opens the palette — same as the reference. */}
+      <button
+        type="button"
+        onClick={onOpenSearch}
+        className="ml-2 flex h-9 max-w-sm flex-1 items-center gap-2 rounded-md border border-line bg-paper-2 px-3 text-left text-sm text-ink-soft transition-colors hover:bg-paper-2/70 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-peepal-500"
+      >
+        <Search className="size-4 shrink-0" aria-hidden="true" />
+        <span className="truncate">Search companies, roles, cities</span>
+        <kbd className="font-mono ml-auto hidden shrink-0 rounded border border-line bg-paper px-1.5 py-0.5 text-[10px] text-ink-soft sm:block">
+          ⌘K
+        </kbd>
+      </button>
+
+      <div className="ml-auto flex items-center gap-2">
+        {isAuthenticated ? (
+          <>
+            <Counter
+              to="/tracker"
+              icon={<Bookmark className="size-3.5" />}
+              count={savedCount}
+              label="Saved"
+            />
+            <Counter
+              to="/tracker"
+              icon={<Check className="size-3.5" />}
+              count={appliedCount}
+              label="Applied"
+            />
+
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button
+                  type="button"
+                  aria-label="Your account"
+                  className="grid size-9 place-items-center rounded-full border border-line bg-paper-2 text-sm font-semibold text-ink transition-colors hover:bg-paper focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-peepal-500"
+                >
+                  {user?.name?.[0]?.toUpperCase() ?? <UserRound className="size-4" />}
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-52">
+                <DropdownMenuLabel className="truncate font-normal text-ink-soft">
+                  {user?.email}
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem asChild>
+                  <Link to="/tracker">Tracker</Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link to="/settings/resumes">Resumes</Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link to="/submit-company">
+                    <Sparkles className="size-4" aria-hidden="true" />
+                    Add a company
+                  </Link>
+                </DropdownMenuItem>
+                {user?.role === "ADMIN" ? (
+                  <DropdownMenuItem asChild>
+                    <Link to="/admin/submissions">
+                      <ShieldCheck className="size-4" aria-hidden="true" />
+                      Review queue
+                    </Link>
+                  </DropdownMenuItem>
+                ) : null}
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onSelect={signOut}>
+                  <LogOut className="size-4" aria-hidden="true" />
+                  Sign out
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </>
+        ) : (
+          <Button asChild size="sm">
+            <Link to="/auth/login">Log in</Link>
+          </Button>
+        )}
+      </div>
+    </header>
+  );
+}
+
+function Counter({
+  to,
+  icon,
+  count,
+  label,
+}: {
+  to: string;
+  icon: React.ReactNode;
+  count: number;
+  label: string;
+}) {
+  return (
+    <Link
+      to={to}
+      aria-label={`${count} ${label.toLowerCase()}`}
+      className="hidden items-center gap-1.5 rounded-full border border-line bg-paper px-2.5 py-1.5 text-ink-soft transition-colors hover:bg-paper-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-peepal-500 sm:flex"
+    >
+      {icon}
+      {/* Tabular numerals so the bar does not shift when a count ticks over. */}
+      <span className="font-mono text-[11px] text-ink">{count}</span>
+    </Link>
+  );
+}
