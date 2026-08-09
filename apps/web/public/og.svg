@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-label="Chowk — startup jobs on a map">
+  <title>Chowk — startup jobs on a map</title>
+  <defs>
+    <pattern id="grid" width="60" height="60" patternUnits="userSpaceOnUse">
+      <path d="M60 0H0V60" fill="none" stroke="#E5DCCC" stroke-width="1.5"/>
+    </pattern>
+  </defs>
+
+  <rect width="1200" height="630" fill="#FAF7F0"/>
+  <rect width="1200" height="630" fill="url(#grid)" opacity="0.55"/>
+
+  <!-- A few pins, as if the map were showing through -->
+  <circle cx="930" cy="180" r="13" fill="#1B7F4D" stroke="#FAF7F0" stroke-width="4"/>
+  <circle cx="1035" cy="300" r="20" fill="#1B7F4D" stroke="#FAF7F0" stroke-width="4"/>
+  <circle cx="905" cy="415" r="10" fill="#B8AE9E" stroke="#FAF7F0" stroke-width="4"/>
+  <circle cx="1080" cy="470" r="13" fill="#1B7F4D" stroke="#FAF7F0" stroke-width="4"/>
+  <circle cx="1035" cy="300" r="30" fill="none" stroke="#F5B301" stroke-width="4"/>
+
+  <!-- Logo mark -->
+  <g transform="translate(90 96)">
+    <rect width="76" height="76" rx="19" fill="#1B7F4D"/>
+    <rect x="11" y="11" width="22" height="22" rx="7" fill="#FAF7F0"/>
+    <rect x="43" y="11" width="22" height="22" rx="7" fill="#FAF7F0"/>
+    <rect x="11" y="43" width="22" height="22" rx="7" fill="#FAF7F0"/>
+    <rect x="43" y="43" width="22" height="22" rx="7" fill="#FAF7F0"/>
+    <circle cx="38" cy="38" r="5.5" fill="#F5B301"/>
+  </g>
+  <text x="186" y="152" font-family="Georgia, serif" font-size="52" fill="#211E1A">chowk</text>
+  <circle cx="316" cy="145" r="7" fill="#F5B301"/>
+
+  <text x="90" y="300" font-family="Georgia, serif" font-size="72" fill="#211E1A">Startup jobs,</text>
+  <text x="90" y="380" font-family="Georgia, serif" font-size="72" fill="#211E1A">on a map.</text>
+
+  <text x="90" y="446" font-family="Helvetica, Arial, sans-serif" font-size="27" fill="#6F6659">Explore who is hiring around the corner, not in a list.</text>
+
+  <text x="90" y="540" font-family="ui-monospace, Menlo, monospace" font-size="20" letter-spacing="3" fill="#136640">90 COMPANIES · 1,418 OPEN ROLES · INDIA</text>
+</svg>

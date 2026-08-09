@@ -3,6 +3,7 @@ import { PanelLeftClose, PanelLeftOpen } from "lucide-react";
 import { useMemo, useRef, useState } from "react";
 import { CompanySidebar } from "@/components/company/CompanySidebar";
 import { FilterPanel } from "@/components/filters/FilterPanel";
+import { GreetingOverlay } from "@/components/map/GreetingOverlay";
 import { type MapApi, MapCanvas } from "@/components/map/MapCanvas";
 import { MapControls, MapLegend, StatsPill } from "@/components/map/MapOverlays";
 import { summariseOffices } from "@/components/map/use-cluster-layer";
@@ -78,6 +79,7 @@ function MapPage() {
 
         <MapLegend />
         <MapControls mapApi={mapApi} />
+        <GreetingOverlay />
         <StatsPill
           companies={stats.companies}
           openJobs={stats.openJobs}
