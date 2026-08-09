@@ -159,11 +159,13 @@ export function MapControls({ mapApi }: { mapApi: React.RefObject<MapApi | null>
 /*
   The player sits bottom-right on its own. Stacked under the zoom buttons it read
   as a map control, which it isn't — it changes nothing about the map.
-  Same bottom-4 baseline as the stats bar so the two line up.
+  It sits above the bottom-4 baseline because that strip is already taken: the
+  attribution chip runs along the bottom edge, and on a narrow screen the stats
+  bar stretches far enough right to reach this corner.
 */
 export function MusicPill() {
   return (
-    <div className="absolute bottom-4 right-4 z-10">
+    <div className="absolute bottom-16 right-4 z-10">
       <MusicToggle />
     </div>
   );
