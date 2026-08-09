@@ -51,7 +51,7 @@ export function MusicToggle() {
       onClick={toggle}
       aria-pressed={playing}
       aria-label={playing ? "Stop the music" : "Play some lofi"}
-      className="grid size-9 place-items-center rounded-md border border-line bg-paper text-ink-soft shadow-card transition-colors hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-peepal-500"
+      className="grid size-9 place-items-center rounded-full border border-line bg-paper text-ink-soft shadow-card transition-colors hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-peepal-500"
     >
       {playing ? (
         <Volume2 className="size-4 text-peepal-600" aria-hidden="true" />

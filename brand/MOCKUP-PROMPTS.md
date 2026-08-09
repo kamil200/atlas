@@ -11,7 +11,7 @@ Build a single-file HTML mockup (inline CSS only, no external assets, no JS need
 
 Brand tokens (use exactly):
 - paper #FFFFFF (page bg), paper-2 #F2F3F6 (wells + hover fills), ink #191A1C (text + primary buttons with paper text), ink-soft #6E7078, line #E3E5E9 (borders)
-- peepal green #1B7F4D (brand, map pins/clusters, hero pill, checked states), peepal deep #136640 (links, badges), marigold #F5B301 (tiny dot accents + selected ring only), stone #B8AE9E (quiet/not-hiring pins)
+- peepal green #1B7F4D (brand, map pins/clusters, hero pill, checked states), peepal deep #136640 (links, badges), marigold #F5B301 (tiny dot accents + selected ring only), stone #B0B3BA (quiet/not-hiring pins)
 - Tints: #E2F1E6 (green pill fill), #DEF0E4 (applied chip), #FCF1CE (interviewing chip)
 - Display font: Young Serif (fallback Georgia). Body: Inter (fallback system-ui). Mono garnish: JetBrains Mono (fallback ui-monospace) for tiny uppercase meta labels like "92 COMPANIES · 1,486 JOBS"
 - Radius 12-24px, warm soft shadows, generous whitespace

@@ -151,4 +151,4 @@ Buttons say what they do: "Save job", "Apply on company site", "Show 12 roles". 
 - `apps/web/public/favicon.svg` (from brand/), `favicon-32.png`, `apple-touch-icon.png`
 - OG image 1200×630: paper ground, peepal tile mark, "chowk" wordmark, tagline, faint map-grid pattern
 - `<title>` pattern: "Chowk — startup jobs on a map" (landing), "{Company} · Chowk" (deep links)
-- Map style: OpenFreeMap Positron; if feasible with one CSS filter or style tweak, warm the basemap toward paper (sepia 4–6%) so the map sits in the brand world — time-box 20 min, skip if fiddly
+- Map style: OpenFreeMap Positron, repainted layer by layer in `apps/web/src/lib/map-style.ts` — its greys lean slightly blue, so they are neutralised to sit against the white chrome. Not a CSS filter: the pins share the canvas and would get tinted too

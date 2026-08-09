@@ -152,7 +152,18 @@ export function MapControls({ mapApi }: { mapApi: React.RefObject<MapApi | null>
           <LocateFixed className="size-4" aria-hidden="true" />
         </ControlButton>
       </div>
+    </div>
+  );
+}
 
+/*
+  The player sits bottom-right on its own. Stacked under the zoom buttons it read
+  as a map control, which it isn't — it changes nothing about the map.
+  Same bottom-4 baseline as the stats bar so the two line up.
+*/
+export function MusicPill() {
+  return (
+    <div className="absolute bottom-4 right-4 z-10">
       <MusicToggle />
     </div>
   );

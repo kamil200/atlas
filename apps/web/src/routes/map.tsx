@@ -4,7 +4,13 @@ import { CompanySidebar } from "@/components/company/CompanySidebar";
 import { FilterPanel } from "@/components/filters/FilterPanel";
 import { GreetingOverlay } from "@/components/map/GreetingOverlay";
 import { type MapApi, MapCanvas } from "@/components/map/MapCanvas";
-import { CityJumper, MapControls, MapLegend, MapStatsBar } from "@/components/map/MapOverlays";
+import {
+  CityJumper,
+  MapControls,
+  MapLegend,
+  MapStatsBar,
+  MusicPill,
+} from "@/components/map/MapOverlays";
 import { summariseOffices } from "@/components/map/use-cluster-layer";
 import { useMapFilters } from "@/hooks/use-map-filters";
 import { validateMapSearch } from "@/lib/map-search";
@@ -53,6 +59,7 @@ function MapPage() {
       <MapLegend />
       <CityJumper mapApi={mapApi} />
       <MapControls mapApi={mapApi} />
+      <MusicPill />
       <GreetingOverlay />
 
       <MapStatsBar

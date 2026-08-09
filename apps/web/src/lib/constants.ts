@@ -1,6 +1,6 @@
 export const APP_NAME = "Chowk";
 
-/* Keyless vector tiles. Positron is light and quiet, and map-style.ts warms it to paper. */
+/* Keyless vector tiles. Positron is light and quiet, and map-style.ts repaints it to match the paper chrome. */
 export const MAP_STYLE_URL = "https://tiles.openfreemap.org/styles/positron";
 
 /* Roughly the middle of India, zoomed out far enough to see every seeded city. */
@@ -16,13 +16,13 @@ export const MAP_CLUSTER_MAX_ZOOM = 11;
 export const MAP_COLORS = {
   hiring: "#1B7F4D",
   hiringGlow: "rgba(46, 157, 100, 0.55)",
-  quiet: "#B8AE9E",
+  quiet: "#B0B3BA",
   cluster: "#1B7F4D",
-  clusterText: "#FAF7F0",
+  clusterText: "#FFFFFF",
   selected: "#F5B301",
   selectedGlow: "rgba(245, 179, 1, 0.6)",
   hover: "#FFC933",
-  stroke: "#FAF7F0",
+  stroke: "#FFFFFF",
   label: "#211E1A",
   labelQuiet: "#6F6659",
 };
