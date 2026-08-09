@@ -14,7 +14,8 @@
     "seed": "tsx prisma/seed.ts",
     "seed:check": "tsx prisma/acceptance.ts",
     "studio": "prisma studio",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
   },
   "dependencies": {
     "@node-rs/argon2": "^2.0.0",
@@ -24,6 +25,7 @@
     "@types/node": "^24.0.0",
     "prisma": "^6.19.3",
     "tsx": "^4.20.0",
-    "typescript": "^5.9.0"
+    "typescript": "^5.9.0",
+    "vitest": "^4.1.10"
   }
 }
