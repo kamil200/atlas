@@ -46,6 +46,26 @@ export function MarkerPopup({
         {office.isHq ? <span className="text-ink-soft"> · head office</span> : null}
       </p>
 
+      {/*
+        Two things worth knowing before you click through: whether this is a
+        real hiring push rather than one stray vacancy, and whether anything
+        landed recently. Both are computed server-side from the same roles.
+      */}
+      {office.isHot || office.isNew ? (
+        <div className="mt-2 flex flex-wrap gap-1.5">
+          {office.isHot ? (
+            <span className="rounded-full bg-peepal-tint px-2 py-0.5 text-[11px] font-medium text-peepal-700">
+              Hiring across several teams
+            </span>
+          ) : null}
+          {office.isNew ? (
+            <span className="rounded-full bg-marigold-tint px-2 py-0.5 text-[11px] font-medium text-[#6F5600]">
+              Posted this week
+            </span>
+          ) : null}
+        </div>
+      ) : null}
+
       <p className="font-mono mt-1 text-[10px] uppercase tracking-[0.08em] text-ink-soft">
         {formatCoordinates(office.lat, office.lng)}
       </p>

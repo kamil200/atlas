@@ -55,6 +55,37 @@ export const CompanySummary = Type.Object({
 export type CompanySummary = Static<typeof CompanySummary>;
 
 /*
+  Hiring shape, worked out from the company's own open roles. Nothing here is
+  stored; it is all derived at read time, so it can never drift from the jobs
+  it describes.
+*/
+export const CompanyStats = Type.Object({
+  openJobCount: Type.Integer(),
+  /** Roles posted in the last seven days. Drives the "new this week" line. */
+  postedThisWeek: Type.Integer(),
+  cityCount: Type.Integer(),
+  departmentCount: Type.Integer(),
+  /*
+    Eight buckets, oldest first, each one week of postings. The last entry is
+    the current week. Drawn as a small bar chart, so a company that has gone
+    quiet looks different from one that is ramping up.
+  */
+  weeklyPostings: Type.Array(Type.Integer()),
+});
+export type CompanyStats = Static<typeof CompanyStats>;
+
+/* What a band of seniority actually pays here, from the real posted ranges. */
+export const SalaryBand = Type.Object({
+  seniority: Type.String(),
+  jobCount: Type.Integer(),
+  minSalary: Type.Integer(),
+  medianSalary: Type.Integer(),
+  maxSalary: Type.Integer(),
+  currency: Type.String(),
+});
+export type SalaryBand = Static<typeof SalaryBand>;
+
+/*
   Money is BigInt in the database but plain number here — USD amounts are far
   below 2^53, and JSON.stringify throws on a BigInt. The conversion happens in
   the server's serializers, never in a route handler.
@@ -82,6 +113,8 @@ export const CompanyDetail = Type.Object({
   founders: Type.Array(FounderDto),
   investors: Type.Array(InvestorDto),
   jobs: Type.Array(JobSummary),
+  stats: CompanyStats,
+  salaryBands: Type.Array(SalaryBand),
 });
 export type CompanyDetail = Static<typeof CompanyDetail>;
 
@@ -97,6 +130,10 @@ export const OfficeMapPoint = Type.Object({
   isHq: Type.Boolean(),
   hiringStatus: StringEnum(HiringStatus),
   openJobCount: Type.Integer(),
+  /** Five or more matching roles here. The pin gets a busier treatment. */
+  isHot: Type.Boolean(),
+  /** At least one of those roles went up in the last seven days. */
+  isNew: Type.Boolean(),
 });
 export type OfficeMapPoint = Static<typeof OfficeMapPoint>;
 

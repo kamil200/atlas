@@ -9,6 +9,12 @@ import {
 } from "@atlas/schema";
 import type { FastifyPluginAsyncTypebox } from "@fastify/type-provider-typebox";
 import {
+  deriveSalaryBands,
+  deriveStats,
+  freshSince,
+  HOT_JOB_COUNT,
+} from "../modules/companies/derive-stats";
+import {
   compileCompanyWhere,
   compileJobWhere,
   compileOfficeWhere,
@@ -97,8 +103,19 @@ const companyRoutes: FastifyPluginAsyncTypebox = async (app) => {
         }
       }
 
+      /*
+        Stats and salary bands are derived from the same list of roles the page
+        renders below them, so the headline numbers can never contradict the
+        jobs a visitor can count for themselves.
+      */
+      const summaries = jobs.map(toJobSummary);
+      const now = new Date();
+
       return sendResponse(reply, 200, {
-        company: toCompanyDetail(company, jobs.map(toJobSummary), officeJobCounts),
+        company: toCompanyDetail(company, summaries, officeJobCounts, {
+          stats: deriveStats(summaries, now),
+          salaryBands: deriveSalaryBands(summaries),
+        }),
       });
     },
   );
@@ -117,7 +134,7 @@ const companyRoutes: FastifyPluginAsyncTypebox = async (app) => {
       const { page: _page, pageSize: _pageSize, ...filters } = request.query;
 
       const jobWhere = compileJobWhere(filters);
-      const [offices, pinnedCounts, remoteCounts] = await Promise.all([
+      const [offices, pinnedCounts, remoteCounts, freshPinned, freshRemote] = await Promise.all([
         app.prisma.office.findMany({
           where: compileOfficeWhere(filters),
           include: {
@@ -137,27 +154,57 @@ const companyRoutes: FastifyPluginAsyncTypebox = async (app) => {
           where: { ...jobWhere, officeId: null },
           _count: { _all: true },
         }),
+        /*
+          Which offices have something posted this week, and which companies
+          posted a fresh remote role. Two queries for the same reason the counts
+          above are two: a remote role belongs to the company, not to an office,
+          and lumping them together would mark every head office as new the
+          moment any one company posted remotely.
+        */
+        app.prisma.job.groupBy({
+          by: ["officeId"],
+          where: { ...jobWhere, officeId: { not: null }, postedAt: { gte: freshSince() } },
+          _count: { _all: true },
+        }),
+        app.prisma.job.groupBy({
+          by: ["companyId"],
+          where: { ...jobWhere, officeId: null, postedAt: { gte: freshSince() } },
+          _count: { _all: true },
+        }),
       ]);
 
       const pinnedByOffice = new Map(
         pinnedCounts.map((row) => [row.officeId ?? "", row._count._all]),
       );
       const remoteByCompany = new Map(remoteCounts.map((row) => [row.companyId, row._count._all]));
+      const freshByOffice = new Map(
+        freshPinned.map((row) => [row.officeId ?? "", row._count._all]),
+      );
+      const freshRemoteByCompany = new Set(freshRemote.map((row) => row.companyId));
 
-      const points = offices.map((office) => ({
-        officeId: office.id,
-        companyId: office.company.id,
-        companySlug: office.company.slug,
-        companyName: office.company.name,
-        logoUrl: office.company.logoUrl,
-        lat: office.lat,
-        lng: office.lng,
-        isHq: office.isHq,
-        hiringStatus: office.company.hiringStatus,
-        openJobCount:
+      const points = offices.map((office) => {
+        const openJobCount =
           (pinnedByOffice.get(office.id) ?? 0) +
-          (office.isHq ? (remoteByCompany.get(office.company.id) ?? 0) : 0),
-      }));
+          (office.isHq ? (remoteByCompany.get(office.company.id) ?? 0) : 0);
+
+        return {
+          officeId: office.id,
+          companyId: office.company.id,
+          companySlug: office.company.slug,
+          companyName: office.company.name,
+          logoUrl: office.company.logoUrl,
+          lat: office.lat,
+          lng: office.lng,
+          isHq: office.isHq,
+          hiringStatus: office.company.hiringStatus,
+          openJobCount,
+          isHot: openJobCount >= HOT_JOB_COUNT,
+          // Remote roles have no office, so their freshness lands on the HQ too.
+          isNew:
+            (freshByOffice.get(office.id) ?? 0) > 0 ||
+            (office.isHq && freshRemoteByCompany.has(office.company.id)),
+        };
+      });
 
       /*
         Which offices earn a pin under a job-level filter is decided by

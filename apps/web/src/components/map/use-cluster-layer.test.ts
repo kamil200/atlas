@@ -20,6 +20,8 @@ function office(overrides: Partial<OfficeMapPoint> = {}): OfficeMapPoint {
     isHq: true,
     hiringStatus: "ACTIVELY_HIRING",
     openJobCount: 16,
+    isHot: true,
+    isNew: false,
     ...overrides,
   };
 }

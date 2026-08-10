@@ -2,11 +2,13 @@ import type { Prisma } from "@atlas/database";
 import type {
   ApplicationDto,
   CompanyDetail,
+  CompanyStats,
   CompanySummary,
   JobDetail,
   JobSummary,
   OfficeDto,
   ResumeDto,
+  SalaryBand,
   SubmissionWithCompany,
   UserDto,
 } from "@atlas/schema";
@@ -101,6 +103,7 @@ export function toCompanyDetail(
   company: CompanyWithRelations,
   jobs: JobSummary[],
   officeJobCounts: Map<string, number>,
+  derived: { stats: CompanyStats; salaryBands: SalaryBand[] },
 ): CompanyDetail {
   const offices: OfficeDto[] = company.offices.map((office) => ({
     id: office.id,
@@ -152,6 +155,8 @@ export function toCompanyDetail(
       round: link.round,
     })),
     jobs,
+    stats: derived.stats,
+    salaryBands: derived.salaryBands,
   };
 }
 

@@ -6,6 +6,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useSavedJobs } from "@/hooks/use-saved-jobs";
 import { useGetCompanyBySlugQuery } from "@/store/api/discovery-api";
+import { HiringStatsCard, SalaryBandsCard } from "./HiringStats";
 import { JobDetailPanel } from "./JobDetailPanel";
 import { JobRow } from "./JobRow";
 
@@ -136,6 +137,9 @@ export function CompanySidebar({
 
               <TabsContent value="overview" className="min-h-0 flex-1 overflow-y-auto px-5 pb-6">
                 <p className="mt-4 text-sm leading-relaxed text-ink">{company.description}</p>
+
+                <HiringStatsCard stats={company.stats} />
+                <SalaryBandsCard bands={company.salaryBands} />
 
                 <dl className="mt-5 grid grid-cols-2 gap-x-4 gap-y-3">
                   <Fact label="Founded" value={company.foundedYear?.toString()} />

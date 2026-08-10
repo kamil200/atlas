@@ -19,6 +19,18 @@ import { toCompanyDetail } from "../src/utils/serializers";
 
 type DbEnum = { name: string; values: { name: string }[] };
 
+/* These tests are about BigInt serialisation, so the derived stats stay empty. */
+const EMPTY_DERIVED = {
+  stats: {
+    openJobCount: 0,
+    postedThisWeek: 0,
+    cityCount: 0,
+    departmentCount: 0,
+    weeklyPostings: [0, 0, 0, 0, 0, 0, 0, 0],
+  },
+  salaryBands: [],
+};
+
 /*
   Builds the smallest server that still parses a query string the way the real
   one does. The ajv options here must match app.ts, which is the whole point.
@@ -160,7 +172,7 @@ describe("BigInt serialisation", () => {
       investors: [],
     };
 
-    const dto = toCompanyDetail(company, [], new Map());
+    const dto = toCompanyDetail(company, [], new Map(), EMPTY_DERIVED);
 
     expect(typeof dto.totalFundingUsd).toBe("number");
     expect(dto.totalFundingUsd).toBe(741_000_000);
@@ -197,7 +209,7 @@ describe("BigInt serialisation", () => {
       investors: [],
     };
 
-    const dto = toCompanyDetail(bootstrapped, [], new Map());
+    const dto = toCompanyDetail(bootstrapped, [], new Map(), EMPTY_DERIVED);
     expect(dto.totalFundingUsd).toBeNull();
   });
 });
