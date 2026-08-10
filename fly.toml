@@ -1,4 +1,6 @@
-# Rename `app` before the first deploy; it has to be unique across Fly.
+# Optional, and not free. Koyeb is the documented host (see README); this file
+# exists because Fly runs the same Dockerfile unchanged for about $3.50 a month
+# if the free tier's cold starts become annoying. Rename `app` before deploying.
 app = "atlas-jobs"
 primary_region = "bom"
 

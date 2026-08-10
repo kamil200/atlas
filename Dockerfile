@@ -1,6 +1,6 @@
 # One image, one process: Fastify serves the API and the built web app from the
-# same origin. That keeps cookies and OAuth redirects simple, and it is one Fly
-# machine rather than two deployments that have to agree about CORS.
+# same origin. That keeps cookies and OAuth redirects simple, and it is one
+# container rather than two deployments that have to agree about CORS.
 
 FROM node:24-slim AS base
 ENV PNPM_HOME="/pnpm" PATH="/pnpm:$PATH"
@@ -10,59 +10,60 @@ RUN apt-get update -y && apt-get install -y --no-install-recommends openssl ca-c
   && rm -rf /var/lib/apt/lists/*
 WORKDIR /app
 
-# --- dependencies -----------------------------------------------------------
-# Manifests are copied on their own so a source-only change does not reinstall
-# the whole dependency tree on every build.
-FROM base AS deps
+# Manifests are copied on their own, before any source, so editing a file does
+# not invalidate the dependency layer and reinstall everything.
+FROM base AS manifests
 COPY pnpm-lock.yaml pnpm-workspace.yaml package.json ./
 COPY apps/server/package.json apps/server/
 COPY apps/web/package.json apps/web/
 COPY packages/database/package.json packages/database/
 COPY packages/schema/package.json packages/schema/
-RUN pnpm install --frozen-lockfile
 
 # --- build ------------------------------------------------------------------
-FROM deps AS build
+# The full tree, including every dev tool, used only to produce apps/web/dist.
+FROM manifests AS build
+RUN pnpm install --frozen-lockfile
 COPY . .
-# The Prisma client is generated code; it has to exist before anything typechecks.
 RUN pnpm --filter @atlas/database exec prisma generate
 RUN pnpm --filter @atlas/web build
 
-# Drop the build-only tree.
+# --- production dependencies -------------------------------------------------
+# A second, independent install that never sees the web app.
 #
-# `pnpm prune --prod` alone does almost nothing here: every workspace package
-# stays in the graph, so the web app's runtime dependencies (MapLibre, lucide)
-# are kept even though they are already bundled into dist and nothing imports
-# them from node_modules again. The toolchain has to go by name.
+# This is the whole trick. `pnpm prune --prod` on the build tree barely helps,
+# because every workspace package stays in the graph and the web app's
+# dependencies are `dependencies` — so MapLibre, React and lucide survive even
+# though they are already bundled into dist and nothing imports them again.
 #
-# tsx and the Prisma CLI are genuinely runtime dependencies in this image — one
-# runs the server, the other applies migrations at boot — which is why they were
-# moved out of devDependencies rather than deleted here.
-# Only packages that provably do not run in this image. `effect` and
-# `typescript` look like build tooling and are not: the Prisma CLI requires both
-# at runtime, and deleting them makes `migrate deploy` fail at boot with
-# MODULE_NOT_FOUND. Anything not on this list stays.
-RUN rm -rf /app/apps/web/src /app/apps/web/public \
- && rm -rf /app/node_modules/.pnpm/@biomejs* \
-           /app/node_modules/.pnpm/@turbo* /app/node_modules/.pnpm/turbo@* \
-           /app/node_modules/.pnpm/@rolldown* /app/node_modules/.pnpm/vite@* \
-           /app/node_modules/.pnpm/maplibre-gl@* /app/node_modules/.pnpm/lucide-react@* \
-           /app/node_modules/.pnpm/vitest@* /app/node_modules/.pnpm/@vitest*
+# Filtering the install to the server and what it depends on drops the web app
+# from the graph entirely, and --prod drops the toolchain with it.
+FROM manifests AS prod-deps
+RUN pnpm install --frozen-lockfile --prod --filter @atlas/server...
+# The whole packages tree, because prisma.config.ts imports src/load-env and
+# generate reads the config before it reads the schema.
+COPY packages ./packages
+RUN pnpm --filter @atlas/database exec prisma generate
 
 # --- runtime ----------------------------------------------------------------
 FROM base AS runtime
 ENV NODE_ENV=production
 ENV WEB_DIST_DIR=/app/apps/web/dist
 
-COPY --from=build /app /app
+# Dependencies first, then source over the top. .dockerignore keeps node_modules
+# out of the source copy, so this never clobbers the install.
+COPY --from=prod-deps /app /app
+COPY packages ./packages
+COPY apps/server ./apps/server
+COPY --from=build /app/apps/web/dist ./apps/web/dist
 
-# Resumes land here. Fly gives it a volume in fly.toml; without one they are
-# lost on redeploy, which the README says plainly.
+# Where uploaded resumes go. On a host with no persistent volume they live only
+# as long as the container, which is fine for a demo and stated in the README.
+# The storage adapter is S3-swappable when that stops being fine.
 ENV RESUME_STORAGE_DIR=/data/resumes
 RUN mkdir -p /data/resumes
 
 EXPOSE 3000
 # Migrations run at boot rather than in the build, because the build has no
 # database to talk to. `migrate deploy` only applies committed migrations and
-# never generates one, so it is safe to run on every machine start.
+# never generates one, so it is safe to run on every start.
 CMD ["sh", "-c", "pnpm --filter @atlas/database exec prisma migrate deploy && pnpm --filter @atlas/server start"]

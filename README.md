@@ -140,59 +140,71 @@ Deliberately skipped: MapLibre visual tests (no WebGL in jsdom), snapshots, and 
 
 ## Deploying
 
-One Fly machine serves both the API and the built web app from the same origin, with Postgres on Neon. That is deliberate: two deployments would have to agree about CORS, cookie domains, and OAuth redirect origins, and none of that buys anything at this size.
+Free, and it stays free. One Koyeb container serves both the API and the built web app from the same origin, with Postgres on Neon. Single origin is deliberate: two deployments would have to agree about CORS, cookie domains, and OAuth redirect origins, and none of that buys anything at this size.
 
-The image is verified locally before any of this. `docker build -t atlas . && docker run -p 8080:3000 -e DATABASE_URL=… -e JWT_SECRET=… -e COOKIE_SECRET=… atlas` boots, applies migrations, serves the SPA at `/`, and answers `/api/health`. Worth doing first; it catches everything except the Fly and Neon wiring.
+Neither service needs a credit card.
 
-**0. Accounts and CLI.** `brew install flyctl`, then `fly auth login`. Sign up at neon.tech.
-
-**1. Database.** Create a Neon project and copy the pooled connection string. Prisma needs `sslmode=require`.
-
-**2. Fly app.** Pick a unique name and set it as `app` in `fly.toml`.
+Verify the image locally before touching either of them. This catches everything except the hosting wiring.
 
 ```bash
-fly launch --no-deploy --copy-config --name your-app-name
+docker build -t atlas . && docker run -p 8080:3000 \
+  -e DATABASE_URL="postgresql://atlas:atlas@host.docker.internal:5434/atlas" \
+  -e JWT_SECRET="$(openssl rand -base64 48)" \
+  -e COOKIE_SECRET="$(openssl rand -base64 48)" \
+  -e FRONTEND_URL="http://localhost:8080" atlas
 ```
 
-**3. Secrets.** Everything the server validates at boot lives here. It crashes on startup rather than at the first request that needs a missing value.
+**1. Database.** Create a project at neon.tech and copy the pooled connection string. Prisma needs `sslmode=require`. Leave autosuspend on. The free plan allows 100 compute-hours a month and a permanently awake 0.25 CU instance would want about 182, so autosuspend is what keeps it inside the limit. The cost is the database taking a moment to wake on the first request.
+
+**2. Service.** Point Koyeb at the GitHub repo and choose the Dockerfile builder, the Free instance type, and Frankfurt or Washington. Set the health check to HTTP on port 3000 at `/api/health`. The web console is the reliable route; the `koyeb` CLI can do the same thing but its flag names move around, so this is written for the console.
+
+**3. Environment.** `PORT=3000` and `NODE_ENV=production` as plain variables. `DATABASE_URL`, `JWT_SECRET` and `COOKIE_SECRET` as secrets, and `FRONTEND_URL` set to the app's public URL once Koyeb assigns it. The server validates all of these at boot and crashes immediately if one is missing, rather than failing later on the first request that needed it.
+
+**4. Seed once**, since the demo data is the product. Migrations apply themselves at container start, but seeding is deliberately manual so a restart can never wipe live data. Run it against the Neon URL from your own machine.
 
 ```bash
-fly secrets set \
-  DATABASE_URL="postgresql://…?sslmode=require" \
-  JWT_SECRET="$(openssl rand -base64 48)" \
-  COOKIE_SECRET="$(openssl rand -base64 48)" \
-  FRONTEND_URL="https://your-app-name.fly.dev"
+DATABASE_URL="postgresql://…?sslmode=require" pnpm --filter @atlas/database seed
 ```
 
-**4. Volume** for uploaded resumes. Without it they sit on the machine's ephemeral disk and vanish on the next deploy.
+### What the free tier costs you
 
-```bash
-fly volumes create atlas_data --size 1 --region bom
-```
+Three real limits, none of them fatal for a portfolio piece.
 
-**5. Deploy.** Migrations run at machine start, not at build time, because the build has no database to talk to. `prisma migrate deploy` only applies committed migrations and never generates one, so it is safe on every boot.
+The instance is 512MB of RAM, 0.1 vCPU and 2GB of disk. That is why the image is built the way it is; a 1.3GB image on a 2GB disk with a tenth of a core is the difference between a usable demo and a broken one.
 
-```bash
-fly deploy
-```
+It scales to zero after an hour without traffic and this cannot be disabled, so the first visitor after a quiet spell waits for a cold start. Everything after that is instant.
 
-**6. Seed once**, since the demo data is the product.
+There are no persistent volumes, so uploaded resumes live only as long as the container. Fine for a demo, and the storage adapter in `modules/storage` is S3-swappable for when it stops being fine.
 
-```bash
-fly ssh console -C "pnpm --filter @atlas/database seed"
-```
+If any of that becomes annoying, Fly.io runs the same Dockerfile unchanged for roughly $3.50 a month with a machine kept permanently warm.
 
 ### Social sign-in
 
-Optional. A provider with no client id *and* secret simply does not appear on the sign-in page, and password auth carries the demo. Register each redirect URI verbatim with the provider, then:
+Optional. A provider with no client id *and* secret simply does not appear on the sign-in page, and password auth carries the demo. Add each as a secret and register the redirect URI verbatim with the provider.
 
-```bash
-fly secrets set \
-  GOOGLE_CLIENT_ID="…" GOOGLE_CLIENT_SECRET="…" \
-  GOOGLE_REDIRECT_URI="https://your-app-name.fly.dev/api/auth/google/callback" \
-  LINKEDIN_CLIENT_ID="…" LINKEDIN_CLIENT_SECRET="…" \
-  LINKEDIN_REDIRECT_URI="https://your-app-name.fly.dev/api/auth/linkedin/callback"
-```
+- `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `GOOGLE_REDIRECT_URI` as `https://<app>.koyeb.app/api/auth/google/callback`
+- `LINKEDIN_CLIENT_ID`, `LINKEDIN_CLIENT_SECRET`, `LINKEDIN_REDIRECT_URI` as `https://<app>.koyeb.app/api/auth/linkedin/callback`
+
+LinkedIn needs the "Sign In with LinkedIn using OpenID Connect" product enabled on the app, which grants the `openid profile email` scopes this uses.
+
+### Image size
+
+779MB, down from 1.34GB, and the reason is worth knowing because the obvious approaches do not work.
+
+`pnpm prune --prod` on the built tree barely helps. Every workspace package stays in the graph and the web app's dependencies are `dependencies`, so MapLibre, React and lucide all survive even though they are already bundled into `dist` and nothing imports them again.
+
+Deleting the toolchain by name is worse. It looks fine and then fails at boot: `effect` and `typescript` read like build tools but the Prisma CLI requires both, and removing them produced a container that died on start with `MODULE_NOT_FOUND`. That was caught by running the image, not by building it.
+
+What works is a second, independent install that never sees the web app. `pnpm install --prod --filter @atlas/server...` resolves only the server and what it depends on, so the web app leaves the graph entirely and the toolchain leaves with it. The runtime stage copies that tree, the server source, and `apps/web/dist` — nothing else.
+
+The remaining bulk is the Prisma client and query engine at about 126MB, which is the floor without heavier surgery. Compiling the server so `tsx` is not a runtime dependency would take off another slice; that is a build-system change and is on the v2 list rather than done badly here.
+
+### Social sign-in
+
+Optional. A provider with no client id *and* secret simply does not appear on the sign-in page, and password auth carries the demo. Add each as a secret and register the redirect URI verbatim with the provider.
+
+- `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `GOOGLE_REDIRECT_URI` as `https://<app>.koyeb.app/api/auth/google/callback`
+- `LINKEDIN_CLIENT_ID`, `LINKEDIN_CLIENT_SECRET`, `LINKEDIN_REDIRECT_URI` as `https://<app>.koyeb.app/api/auth/linkedin/callback`
 
 LinkedIn needs the "Sign In with LinkedIn using OpenID Connect" product enabled on the app, which grants the `openid profile email` scopes this uses.
 
