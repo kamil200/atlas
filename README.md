@@ -140,11 +140,11 @@ Deliberately skipped: MapLibre visual tests (no WebGL in jsdom), snapshots, and 
 
 ## Deploying
 
-Free, and it stays free. One Koyeb container serves both the API and the built web app from the same origin, with Postgres on Neon. Single origin is deliberate: two deployments would have to agree about CORS, cookie domains, and OAuth redirect origins, and none of that buys anything at this size.
+Free, one account, no separate database provider. Render's Hobby workspace is $0/month and includes a free web service and free Postgres, and it builds this Dockerfile directly.
 
-Neither service needs a credit card.
+One Render service serves both the API and the built web app from the same origin. That is deliberate: two deployments would have to agree about CORS, cookie domains and OAuth redirect origins, and none of that buys anything at this size.
 
-Verify the image locally before touching either of them. This catches everything except the hosting wiring.
+Verify the image locally first. This catches everything except the hosting wiring.
 
 ```bash
 docker build -t atlas . && docker run -p 8080:3000 \
@@ -154,44 +154,40 @@ docker build -t atlas . && docker run -p 8080:3000 \
   -e FRONTEND_URL="http://localhost:8080" atlas
 ```
 
-**1. Database.** Create a project at neon.tech and copy the pooled connection string. Prisma needs `sslmode=require`. Leave autosuspend on. The free plan allows 100 compute-hours a month and a permanently awake 0.25 CU instance would want about 182, so autosuspend is what keeps it inside the limit. The cost is the database taking a moment to wake on the first request.
+**1. Blueprint.** Sign up at render.com, then **New → Blueprint** and point it at this repo. [`render.yaml`](render.yaml) provisions the web service and the Postgres instance together, injects `DATABASE_URL` from the database it creates, and generates `JWT_SECRET` and `COOKIE_SECRET` server-side. No secret is copied by hand or pasted into a terminal.
 
-**2. Service.** Point Koyeb at the GitHub repo and choose the Dockerfile builder, the Free instance type, and Frankfurt or Washington. Set the health check to HTTP on port 3000 at `/api/health`. The web console is the reliable route; the `koyeb` CLI can do the same thing but its flag names move around, so this is written for the console.
+**2. Set `FRONTEND_URL`** to the URL Render assigns, once it exists. It is the only value left blank on purpose, because it cannot be known before the service is created. OAuth redirects and the sign-in error redirect use it; everything else works without it.
 
-**3. Environment.** `PORT=3000` and `NODE_ENV=production` as plain variables. `DATABASE_URL`, `JWT_SECRET` and `COOKIE_SECRET` as secrets, and `FRONTEND_URL` set to the app's public URL once Koyeb assigns it. The server validates all of these at boot and crashes immediately if one is missing, rather than failing later on the first request that needed it.
-
-**4. Schema and data**, both run once from your own machine against the Neon URL. Neither happens at container start, on purpose: the container scales to zero, so migrating at boot would make every cold start pay for a check that almost always finds nothing to do, and several instances waking together would race for the migration lock. Seeding is manual for the stronger reason that a restart must never be able to wipe live data.
+**3. Schema and data**, both run once from your own machine against the database's external connection string, which Render shows on the database page. Neither happens at container start, on purpose: the free service sleeps when idle, so migrating at boot would make every wake pay for a check that almost always finds nothing to do, and instances waking together would race for the migration lock. Seeding is manual for the stronger reason that a restart must never be able to wipe live data.
 
 ```bash
-DATABASE_URL="postgresql://…?sslmode=require" pnpm db:migrate:deploy
+DATABASE_URL="<render external connection string>" pnpm db:migrate:deploy
 ```
-
-Run the same command again after any future schema change, before deploying the code that depends on it. If you forget, the server still boots and `/api/health` still passes, but it logs a warning naming the missing table, and real requests fail. That warning is the tell.
-
-Then the demo data, since it is the product.
 
 ```bash
-DATABASE_URL="postgresql://…?sslmode=require" pnpm db:seed
+DATABASE_URL="<render external connection string>" pnpm db:seed
 ```
+
+Run the migrate command again after any future schema change, before deploying the code that needs it. If you forget, the server still boots and `/api/health` still passes, but it logs a warning naming the missing table. That warning is the tell.
 
 ### What the free tier costs you
 
-Three real limits, none of them fatal for a portfolio piece.
+The service is 0.1 CPU and 512MB of RAM. That is why the image is built the way it is, and why migrations were taken out of the boot path; a 1.3GB image that migrates on every wake, on a tenth of a core, is the difference between a usable demo and a broken one.
 
-The instance is 512MB of RAM, 0.1 vCPU and 2GB of disk. That is why the image is built the way it is; a 1.3GB image on a 2GB disk with a tenth of a core is the difference between a usable demo and a broken one.
+It sleeps when idle and wakes on the next request, so the first visitor after a quiet spell waits. Everything after that is normal.
 
-It scales to zero after an hour without traffic and this cannot be disabled, so the first visitor after a quiet spell waits for a cold start. Everything after that is instant.
+There is no persistent disk on the free plan, so uploaded resumes live only as long as the container. Fine for a demo, and the storage adapter in `modules/storage` is S3-swappable for when it stops being fine.
 
-There are no persistent volumes, so uploaded resumes live only as long as the container. Fine for a demo, and the storage adapter in `modules/storage` is S3-swappable for when it stops being fine.
+Two things to check rather than assume, because free tiers move: whether Render still asks for a card on signup, and the retention policy on free Postgres. If the database turns out to expire, Neon's free tier needs no card and is a drop-in replacement — set `DATABASE_URL` to its pooled string and delete the `databases` block from `render.yaml`.
 
-If any of that becomes annoying, Fly.io runs the same Dockerfile unchanged for roughly $3.50 a month with a machine kept permanently warm.
+`fly.toml` is kept as a paid escape hatch. Fly runs the same Dockerfile unchanged for roughly $3.50 a month with a machine permanently warm, which removes the sleep entirely.
 
 ### Social sign-in
 
 Optional. A provider with no client id *and* secret simply does not appear on the sign-in page, and password auth carries the demo. Add each as a secret and register the redirect URI verbatim with the provider.
 
-- `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `GOOGLE_REDIRECT_URI` as `https://<app>.koyeb.app/api/auth/google/callback`
-- `LINKEDIN_CLIENT_ID`, `LINKEDIN_CLIENT_SECRET`, `LINKEDIN_REDIRECT_URI` as `https://<app>.koyeb.app/api/auth/linkedin/callback`
+- `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `GOOGLE_REDIRECT_URI` as `https://<app>.onrender.com/api/auth/google/callback`
+- `LINKEDIN_CLIENT_ID`, `LINKEDIN_CLIENT_SECRET`, `LINKEDIN_REDIRECT_URI` as `https://<app>.onrender.com/api/auth/linkedin/callback`
 
 LinkedIn needs the "Sign In with LinkedIn using OpenID Connect" product enabled on the app, which grants the `openid profile email` scopes this uses.
 
@@ -206,23 +202,6 @@ Deleting the toolchain by name is worse. It looks fine and then fails at boot: `
 What works is a second, independent install that never sees the web app. `pnpm install --prod --filter @atlas/server...` resolves only the server and what it depends on, so the web app leaves the graph entirely and the toolchain leaves with it. The runtime stage copies that tree, the server source, and `apps/web/dist` — nothing else.
 
 The remaining bulk is the Prisma client and query engine at about 126MB, which is the floor without heavier surgery. Compiling the server so `tsx` is not a runtime dependency would take off another slice; that is a build-system change and is on the v2 list rather than done badly here.
-
-### Social sign-in
-
-Optional. A provider with no client id *and* secret simply does not appear on the sign-in page, and password auth carries the demo. Add each as a secret and register the redirect URI verbatim with the provider.
-
-- `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `GOOGLE_REDIRECT_URI` as `https://<app>.koyeb.app/api/auth/google/callback`
-- `LINKEDIN_CLIENT_ID`, `LINKEDIN_CLIENT_SECRET`, `LINKEDIN_REDIRECT_URI` as `https://<app>.koyeb.app/api/auth/linkedin/callback`
-
-LinkedIn needs the "Sign In with LinkedIn using OpenID Connect" product enabled on the app, which grants the `openid profile email` scopes this uses.
-
-### Image size
-
-964MB. Most of it is the pnpm virtual store: every workspace package's production tree is kept, so the web app's dependencies survive even though they are already bundled into `dist` and nothing imports them again at runtime. The Dockerfile deletes the toolchain it can prove is unused, and no more than that — `effect` and `typescript` look like build tooling but the Prisma CLI needs both at boot, and removing them fails with `MODULE_NOT_FOUND`.
-
-The real fix is to compile the server to JavaScript so `tsx` is not a runtime dependency, then use `pnpm deploy --prod` to emit a self-contained tree for the server alone. That is a build-system change rather than a Dockerfile one, so it is on the v2 list rather than done badly here.
-
----
 
 ## Brand
 
