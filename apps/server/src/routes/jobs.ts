@@ -8,7 +8,7 @@ import {
   SuccessResponse,
 } from "@chowk/schema";
 import type { FastifyPluginAsyncTypebox } from "@fastify/type-provider-typebox";
-import { compileJobWhere } from "../modules/filters/compile-filters";
+import { compileJobWhere, VISIBLE_COMPANY } from "../modules/filters/compile-filters";
 import { ErrorCodes, sendError, sendResponse } from "../utils/send-response";
 import { jobInclude, toJobDetail, toJobSummary } from "../utils/serializers";
 
@@ -20,9 +20,17 @@ const jobRoutes: FastifyPluginAsyncTypebox = async (app) => {
       const { page = 1, pageSize = 20, sort = "recent", ...filters } = request.query;
       const where = compileJobWhere(filters);
 
-      // Jobs with no advertised salary sort last rather than first.
-      const orderBy: Prisma.JobOrderByWithRelationInput =
-        sort === "salary" ? { salaryMax: { sort: "desc", nulls: "last" } } : { postedAt: "desc" };
+      /*
+        Jobs with no advertised salary sort last rather than first. The id
+        tiebreaker is not decoration: hundreds of rows share a salary band or a
+        posting date, and without a total order the database is free to return
+        them in a different sequence per page, so paging through drops some jobs
+        and repeats others.
+      */
+      const orderBy: Prisma.JobOrderByWithRelationInput[] =
+        sort === "salary"
+          ? [{ salaryMax: { sort: "desc", nulls: "last" } }, { id: "asc" }]
+          : [{ postedAt: "desc" }, { id: "asc" }];
 
       const [total, rows] = await Promise.all([
         app.prisma.job.count({ where }),
@@ -54,11 +62,7 @@ const jobRoutes: FastifyPluginAsyncTypebox = async (app) => {
     },
     async (request, reply) => {
       const job = await app.prisma.job.findFirst({
-        where: {
-          id: request.query.id,
-          deletedAt: null,
-          company: { submissionStatus: "APPROVED", deletedAt: null },
-        },
+        where: { id: request.query.id, deletedAt: null, company: VISIBLE_COMPANY },
         include: jobInclude,
       });
 

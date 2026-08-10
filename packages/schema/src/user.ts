@@ -27,3 +27,16 @@ export type LoginBody = Static<typeof LoginBody>;
 
 export const AuthUserData = Type.Object({ user: UserDto });
 export type AuthUserData = Static<typeof AuthUserData>;
+
+/*
+  Which social sign-ins this server actually has credentials for. The sign-in
+  page asks first, so it never shows a button that dead-ends on a provider
+  nobody configured.
+*/
+export const AuthProvidersData = Type.Object({
+  providers: Type.Object({
+    google: Type.Boolean(),
+    linkedin: Type.Boolean(),
+  }),
+});
+export type AuthProvidersData = Static<typeof AuthProvidersData>;

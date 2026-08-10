@@ -24,6 +24,12 @@ const schema = {
       type: "string",
       default: "http://localhost:3000/api/auth/google/callback",
     },
+    LINKEDIN_CLIENT_ID: { type: "string", default: "" },
+    LINKEDIN_CLIENT_SECRET: { type: "string", default: "" },
+    LINKEDIN_REDIRECT_URI: {
+      type: "string",
+      default: "http://localhost:3000/api/auth/linkedin/callback",
+    },
     RESUME_STORAGE_DIR: { type: "string", default: "./uploads" },
   },
 } as const;
@@ -38,6 +44,9 @@ export type AppConfig = {
   GOOGLE_CLIENT_ID: string;
   GOOGLE_CLIENT_SECRET: string;
   GOOGLE_REDIRECT_URI: string;
+  LINKEDIN_CLIENT_ID: string;
+  LINKEDIN_CLIENT_SECRET: string;
+  LINKEDIN_REDIRECT_URI: string;
   RESUME_STORAGE_DIR: string;
 };
 

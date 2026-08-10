@@ -24,10 +24,18 @@ export function GreetingOverlay() {
 
   useEffect(() => {
     if (sessionStorage.getItem(SESSION_KEY)) return;
-    sessionStorage.setItem(SESSION_KEY, "1");
     setVisible(true);
 
-    const dismiss = () => setLeaving(true);
+    /*
+      The session key is written on dismiss, not on mount. Writing it here meant
+      StrictMode's second mount read the key its own first mount had just
+      written, bailed before arming the timer, and left the greeting parked over
+      the map for the rest of the session in development.
+    */
+    const dismiss = () => {
+      sessionStorage.setItem(SESSION_KEY, "1");
+      setLeaving(true);
+    };
     const timer = setTimeout(dismiss, FADE_AFTER_MS);
     window.addEventListener("pointerdown", dismiss, { once: true });
     window.addEventListener("keydown", dismiss, { once: true });

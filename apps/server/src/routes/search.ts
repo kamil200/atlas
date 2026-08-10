@@ -1,6 +1,6 @@
 import { SEARCH_GROUP_LIMIT, SearchQuery, SearchResponse, SuccessResponse } from "@chowk/schema";
 import type { FastifyPluginAsyncTypebox } from "@fastify/type-provider-typebox";
-import { VISIBLE_COMPANY, VISIBLE_JOB } from "../modules/filters/compile-filters";
+import { escapeLike, VISIBLE_COMPANY, VISIBLE_JOB } from "../modules/filters/compile-filters";
 import { sendResponse } from "../utils/send-response";
 
 /*
@@ -13,7 +13,8 @@ const searchRoutes: FastifyPluginAsyncTypebox = async (app) => {
     "/search",
     { schema: { querystring: SearchQuery, response: { 200: SuccessResponse(SearchResponse) } } },
     async (request, reply) => {
-      const q = request.query.q.trim();
+      // Escaped, or a query of "%" would quietly return the whole database.
+      const q = escapeLike(request.query.q.trim());
 
       const [companies, jobs, locations] = await Promise.all([
         app.prisma.company.findMany({

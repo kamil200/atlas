@@ -23,7 +23,13 @@ function AdminSubmissionsPage() {
 
 function AdminSubmissionsContent() {
   const { data, isLoading } = useGetAdminSubmissionsQuery("PENDING");
-  const [review, { isLoading: isReviewing }] = useReviewSubmissionMutation();
+  /*
+    originalArgs tells us which row is actually in flight. A single isLoading
+    flag disabled Approve and Reject on every row in the queue while any one
+    decision was saving.
+  */
+  const [review, { isLoading: isReviewing, originalArgs }] = useReviewSubmissionMutation();
+  const decidingId = isReviewing ? originalArgs?.id : undefined;
   const [notes, setNotes] = useState<Record<string, string>>({});
 
   const decide = async (id: string, status: "APPROVED" | "REJECTED") => {
@@ -85,7 +91,7 @@ function AdminSubmissionsContent() {
               <div className="mt-3 flex gap-2">
                 <Button
                   size="sm"
-                  disabled={isReviewing}
+                  disabled={decidingId === submission.id}
                   onClick={() => decide(submission.id, "APPROVED")}
                 >
                   <Check className="size-4" aria-hidden="true" />
@@ -94,7 +100,7 @@ function AdminSubmissionsContent() {
                 <Button
                   size="sm"
                   variant="outline"
-                  disabled={isReviewing}
+                  disabled={decidingId === submission.id}
                   onClick={() => decide(submission.id, "REJECTED")}
                 >
                   <X className="size-4" aria-hidden="true" />

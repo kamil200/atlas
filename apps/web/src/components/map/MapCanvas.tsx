@@ -73,6 +73,13 @@ export function MapCanvas({
   const popupRef = useRef<maplibregl.Popup | null>(null);
   const popupRootRef = useRef<Root | null>(null);
 
+  /*
+    Guards for the two ways an async tile draw can land at the wrong moment:
+    after a newer push has already written, or after the map is gone.
+  */
+  const pushIdRef = useRef(0);
+  const removedRef = useRef(false);
+
   const geojson = useMemo(() => toOfficeCollection(offices), [offices]);
 
   /*
@@ -96,6 +103,9 @@ export function MapCanvas({
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
+
+    // StrictMode mounts, tears down, and mounts again — this map is live once more.
+    removedRef.current = false;
 
     const closePopup = () => {
       popupRootRef.current?.unmount();
@@ -156,7 +166,13 @@ export function MapCanvas({
       loadedRef.current = true;
 
       // Data and selection may both have arrived before the style finished.
-      void pushData(map, geojsonRef.current, officesRef.current);
+      pushIdRef.current += 1;
+      const pushId = pushIdRef.current;
+      pushData(map, geojsonRef.current, officesRef.current, () => {
+        return !removedRef.current && pushIdRef.current === pushId;
+      }).catch((error) => {
+        if (import.meta.env.DEV) console.error("Map data push failed", error);
+      });
       applyFilter(map, LAYER.selected, "companySlug", selectedRef.current);
     };
 
@@ -264,6 +280,8 @@ export function MapCanvas({
       resizeObserver.disconnect();
       closePopup();
       loadedRef.current = false;
+      // Set before remove(), so anything still awaiting knows not to touch the map.
+      removedRef.current = true;
       map.remove();
       mapRef.current = null;
     };
@@ -274,7 +292,15 @@ export function MapCanvas({
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !loadedRef.current) return;
-    void pushData(map, geojson, offices);
+
+    // Only the newest push is allowed to write, and only while the map lives.
+    pushIdRef.current += 1;
+    const pushId = pushIdRef.current;
+    const isCurrent = () => !removedRef.current && pushIdRef.current === pushId;
+
+    pushData(map, geojson, offices, isCurrent).catch((error) => {
+      if (import.meta.env.DEV) console.error("Map data push failed", error);
+    });
   }, [geojson, offices]);
 
   // --- ring the open company -------------------------------------------
@@ -295,11 +321,21 @@ async function pushData(
   map: maplibregl.Map,
   geojson: ReturnType<typeof toOfficeCollection>,
   offices: readonly OfficeMapPoint[],
+  isCurrent: () => boolean,
 ) {
-  await syncCompanyTiles(map, offices);
-  // A filter change during the await may have removed the map from the page.
-  if (!map.getSource(SOURCE_ID)) return;
-  (map.getSource(SOURCE_ID) as GeoJSONSource).setData(geojson);
+  await syncCompanyTiles(map, offices, isCurrent);
+
+  /*
+    Drawing tiles waits on fonts and on a logo per company, so two pushes
+    started close together can finish in either order. Without this check the
+    slower one wins and the map ends up showing a filter nobody selected —
+    every pin back on screen while the panel and the URL both say Design.
+  */
+  if (!isCurrent()) return;
+
+  const source = map.getSource(SOURCE_ID) as GeoJSONSource | undefined;
+  if (!source) return;
+  source.setData(geojson);
 }
 
 function addSourcesAndLayers(map: maplibregl.Map) {

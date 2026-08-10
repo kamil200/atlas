@@ -22,7 +22,6 @@ type Dimension = {
   key: FilterKey;
   facet: keyof FacetsResponse;
   label: string;
-  searchable?: boolean;
 };
 
 const DIMENSIONS: Dimension[] = [
@@ -32,8 +31,16 @@ const DIMENSIONS: Dimension[] = [
   { key: "city", facet: "city", label: "City" },
   { key: "country", facet: "country", label: "Country" },
   { key: "fundingStage", facet: "fundingStage", label: "Funding stage" },
-  { key: "investorId", facet: "investors", label: "Investors", searchable: true },
+  { key: "investorId", facet: "investors", label: "Investors" },
 ];
+
+/*
+  Long lists get a search box and a short preview rather than a hard cut.
+  Investors runs to 150 buckets and cities keep growing, and a list that
+  silently stopped at twenty was hiding options with no way to reach them.
+*/
+const SEARCH_FROM = 12;
+const COLLAPSED_COUNT = 8;
 
 export type FilterPanelProps = {
   facets?: FacetsResponse;
@@ -55,7 +62,8 @@ export function FilterPanel({
   onClearAll,
   demoMode = false,
 }: FilterPanelProps) {
-  const [investorQuery, setInvestorQuery] = useState("");
+  const [queries, setQueries] = useState<Partial<Record<FilterKey, string>>>({});
+  const [expanded, setExpanded] = useState<Partial<Record<FilterKey, boolean>>>({});
 
   return (
     <div className="flex h-full flex-col">
@@ -85,12 +93,28 @@ export function FilterPanel({
           {DIMENSIONS.map((dimension) => {
             const buckets = facets?.[dimension.facet] ?? [];
             const chosen = selected[dimension.key] ?? [];
-            const visible =
-              dimension.searchable && investorQuery
-                ? buckets.filter((bucket) =>
-                    bucket.label.toLowerCase().includes(investorQuery.toLowerCase()),
-                  )
-                : buckets;
+
+            const query = queries[dimension.key] ?? "";
+            const isSearchable = buckets.length > SEARCH_FROM;
+            const matched = query
+              ? buckets.filter((bucket) => bucket.label.toLowerCase().includes(query.toLowerCase()))
+              : buckets;
+
+            /*
+              Anything already ticked stays on screen even when it sits past the
+              preview, or you could check a city, collapse the list, and be left
+              with a count chip pointing at nothing you can see.
+            */
+            const showAll = query.length > 0 || expanded[dimension.key] === true;
+            const visible = showAll
+              ? matched
+              : [
+                  ...matched.slice(0, COLLAPSED_COUNT),
+                  ...matched
+                    .slice(COLLAPSED_COUNT)
+                    .filter((bucket) => chosen.includes(bucket.value)),
+                ];
+            const remaining = matched.length - visible.length;
 
             return (
               <AccordionItem key={dimension.key} value={dimension.key} className="border-line">
@@ -105,11 +129,17 @@ export function FilterPanel({
                   </span>
                 </AccordionTrigger>
                 <AccordionContent className="px-3 pb-3">
-                  {dimension.searchable ? (
+                  {isSearchable ? (
                     <Input
-                      value={investorQuery}
-                      onChange={(event) => setInvestorQuery(event.target.value)}
-                      placeholder="Search investors"
+                      value={query}
+                      onChange={(event) =>
+                        setQueries((current) => ({
+                          ...current,
+                          [dimension.key]: event.target.value,
+                        }))
+                      }
+                      placeholder={`Search ${dimension.label.toLowerCase()}`}
+                      aria-label={`Search ${dimension.label.toLowerCase()}`}
                       className="mb-2 h-8 text-sm"
                     />
                   ) : null}
@@ -119,16 +149,31 @@ export function FilterPanel({
                   ) : visible.length === 0 ? (
                     <p className="py-2 text-xs text-ink-soft">Nothing here with these filters.</p>
                   ) : (
-                    <ul className="space-y-0.5">
-                      {visible.slice(0, dimension.searchable ? 40 : 20).map((bucket) => (
-                        <FilterRow
-                          key={bucket.value}
-                          bucket={bucket}
-                          checked={chosen.includes(bucket.value)}
-                          onToggle={() => onToggle(dimension.key, bucket.value)}
-                        />
-                      ))}
-                    </ul>
+                    <>
+                      <ul className="space-y-0.5">
+                        {visible.map((bucket) => (
+                          <FilterRow
+                            key={bucket.value}
+                            dimensionKey={dimension.key}
+                            bucket={bucket}
+                            checked={chosen.includes(bucket.value)}
+                            onToggle={() => onToggle(dimension.key, bucket.value)}
+                          />
+                        ))}
+                      </ul>
+
+                      {remaining > 0 ? (
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setExpanded((current) => ({ ...current, [dimension.key]: true }))
+                          }
+                          className="mt-1.5 px-1 text-xs font-medium text-peepal-700 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-peepal-500"
+                        >
+                          Show {remaining} more
+                        </button>
+                      ) : null}
+                    </>
                   )}
                 </AccordionContent>
               </AccordionItem>
@@ -141,17 +186,26 @@ export function FilterPanel({
 }
 
 function FilterRow({
+  dimensionKey,
   bucket,
   checked,
   onToggle,
 }: {
+  dimensionKey: string;
   bucket: FacetBucket;
   checked: boolean;
   onToggle: () => void;
 }) {
   // Zero-count options stay visible but disabled, so the list never jumps around.
   const disabled = bucket.count === 0 && !checked;
-  const id = `facet-${bucket.value}`;
+
+  /*
+    The dimension has to be in the id. Singapore is both a city and a country,
+    so two rows shared the id "facet-Singapore" — and a label points at whichever
+    element the document finds first, which meant clicking Country: Singapore
+    ticked City: Singapore instead.
+  */
+  const id = `facet-${dimensionKey}-${bucket.value}`;
 
   return (
     <li>

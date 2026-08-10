@@ -72,12 +72,21 @@ function LandingPage() {
               <ArrowRight className="size-4" aria-hidden="true" />
             </Link>
           </Button>
-          <p className="font-mono text-[11px] uppercase tracking-[0.08em] text-ink-soft">
-            {isLoading
-              ? "Counting the chowk…"
-              : `${stats.companies} companies · ${stats.openJobs.toLocaleString("en-IN")} open roles · updated daily`}
-          </p>
+          {/*
+            Said plainly, because the first person through this door is often
+            someone deciding in five seconds whether to bother. The whole map is
+            browsable cold; only saving and applying need an account.
+          */}
+          {isAuthenticated ? null : (
+            <span className="text-sm text-ink-soft">No account needed to look around.</span>
+          )}
         </div>
+
+        <p className="font-mono mt-5 text-[11px] uppercase tracking-[0.08em] text-ink-soft">
+          {isLoading
+            ? "Counting the chowk…"
+            : `${stats.companies} companies · ${stats.openJobs.toLocaleString("en-IN")} open roles · updated daily`}
+        </p>
       </header>
 
       {/* The real map component, read-only, so the hero is the product. */}

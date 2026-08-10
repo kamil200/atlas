@@ -36,21 +36,50 @@ export default fp(async (app: FastifyInstance) => {
     sign: { expiresIn: `${SESSION_DAYS}d` },
   });
 
-  app.decorate("authenticate", async (request: FastifyRequest, reply: FastifyReply) => {
+  /*
+    A token is proof of who signed in, not proof that the account still exists
+    or still has its role. Tokens live 7 days, so trusting the claims alone let
+    a deleted account keep applying to jobs and a demoted admin keep the admin
+    queue for the rest of that week. One indexed lookup per request settles it.
+
+    Returns false when it has already sent a 401, so callers stop there.
+  */
+  const loadSessionUser = async (request: FastifyRequest, reply: FastifyReply) => {
     try {
       await request.jwtVerify();
     } catch {
+      return null;
+    }
+
+    const user = await app.prisma.user.findFirst({
+      where: { id: request.user.sub, deletedAt: null },
+      select: { id: true, role: true },
+    });
+
+    if (!user) {
+      // Signed token, but the account is gone. Drop the cookie so it stops coming back.
+      app.clearSession(reply);
+      return null;
+    }
+
+    // Role comes from the row, never from the claim, so a demotion takes effect at once.
+    request.user = { sub: user.id, role: user.role };
+    return user;
+  };
+
+  app.decorate("authenticate", async (request: FastifyRequest, reply: FastifyReply) => {
+    const user = await loadSessionUser(request, reply);
+    if (!user) {
       return sendError(reply, 401, ErrorCodes.UNAUTHORIZED, "Sign in to continue.");
     }
   });
 
   app.decorate("requireAdmin", async (request: FastifyRequest, reply: FastifyReply) => {
-    try {
-      await request.jwtVerify();
-    } catch {
+    const user = await loadSessionUser(request, reply);
+    if (!user) {
       return sendError(reply, 401, ErrorCodes.UNAUTHORIZED, "Sign in to continue.");
     }
-    if (request.user.role !== "ADMIN") {
+    if (user.role !== "ADMIN") {
       return sendError(reply, 403, ErrorCodes.FORBIDDEN, "You do not have access to this.");
     }
   });

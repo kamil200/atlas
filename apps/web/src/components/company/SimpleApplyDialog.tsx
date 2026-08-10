@@ -1,6 +1,6 @@
 import type { JobSummary } from "@chowk/schema";
 import { Link } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import {
@@ -37,17 +37,19 @@ export function SimpleApplyDialog({
   const { data, isLoading } = useGetResumesQuery(undefined, { skip: !open || !isAuthenticated });
   const [simpleApply, { isLoading: isSubmitting }] = useSimpleApplyMutation();
 
-  const [resumeId, setResumeId] = useState<string>("");
+  const [chosenResumeId, setChosenResumeId] = useState<string>("");
   const [coverNote, setCoverNote] = useState("");
 
   const resumes = data?.items ?? [];
 
-  // Preselect the default resume once the list arrives.
-  useEffect(() => {
-    if (!resumeId && resumes.length > 0) {
-      setResumeId((resumes.find((resume) => resume.isDefault) ?? resumes[0]).id);
-    }
-  }, [resumeId, resumes]);
+  /*
+    Derived, not mirrored. The pick only counts while that resume still exists,
+    so deleting it in another tab falls back to the default instead of leaving
+    this dialog submitting an id the server no longer knows.
+  */
+  const resumeId = resumes.some((resume) => resume.id === chosenResumeId)
+    ? chosenResumeId
+    : ((resumes.find((resume) => resume.isDefault) ?? resumes[0])?.id ?? "");
 
   const submit = async () => {
     try {
@@ -95,7 +97,7 @@ export function SimpleApplyDialog({
           <div className="space-y-4">
             <div className="space-y-1.5">
               <Label htmlFor="resume">Resume</Label>
-              <Select value={resumeId} onValueChange={setResumeId}>
+              <Select value={resumeId} onValueChange={setChosenResumeId}>
                 <SelectTrigger id="resume" className="w-full">
                   <SelectValue placeholder="Pick a resume" />
                 </SelectTrigger>

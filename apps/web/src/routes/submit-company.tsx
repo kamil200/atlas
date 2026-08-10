@@ -26,7 +26,20 @@ export const Route = createFileRoute("/submit-company")({ component: SubmitCompa
   Using the array index instead would make React reuse the wrong input when a
   row is removed from the middle.
 */
-type OfficeRow = SubmitOfficeInput & { key: string };
+/*
+  Coordinates are held as the raw text typed, not as numbers.
+
+  A number input reports an empty value for anything half-finished — including
+  the lone "-" you must type first to reach a western longitude — and Number("")
+  is 0. Binding straight to a number therefore rewrote the field to 0 mid
+  keystroke, so no office outside the eastern hemisphere could be entered at all.
+  The text is parsed and range-checked once, on submit.
+*/
+type OfficeRow = Omit<SubmitOfficeInput, "lat" | "lng"> & {
+  key: string;
+  lat: string;
+  lng: string;
+};
 
 let officeKeySeq = 0;
 function newOffice(isHq: boolean): OfficeRow {
@@ -35,10 +48,19 @@ function newOffice(isHq: boolean): OfficeRow {
     key: `office-${officeKeySeq}`,
     city: "",
     country: "India",
-    lat: 12.9352,
-    lng: 77.6245,
+    lat: "12.9352",
+    lng: "77.6245",
     isHq,
   };
+}
+
+/* Returns the number when the text is a real coordinate in range, else null. */
+function parseCoordinate(raw: string, limit: number): number | null {
+  const trimmed = raw.trim();
+  if (trimmed === "") return null;
+  const value = Number(trimmed);
+  if (!Number.isFinite(value) || value < -limit || value > limit) return null;
+  return value;
 }
 
 function SubmitCompanyPage() {
@@ -62,7 +84,7 @@ function SubmitCompanyContent() {
   const [offices, setOffices] = useState<OfficeRow[]>([newOffice(true)]);
   const [error, setError] = useState<string>();
 
-  const updateOffice = (key: string, patch: Partial<SubmitOfficeInput>) => {
+  const updateOffice = (key: string, patch: Partial<Omit<OfficeRow, "key">>) => {
     setOffices((current) =>
       current.map((office) => (office.key === key ? { ...office, ...patch } : office)),
     );
@@ -71,6 +93,21 @@ function SubmitCompanyContent() {
   const send = async (event: React.FormEvent) => {
     event.preventDefault();
     setError(undefined);
+
+    const parsedOffices: SubmitOfficeInput[] = [];
+    for (const { key: _key, lat, lng, ...rest } of offices) {
+      const latitude = parseCoordinate(lat, 90);
+      const longitude = parseCoordinate(lng, 180);
+
+      if (latitude === null || longitude === null) {
+        setError(
+          `Check the coordinates for ${rest.city || "that office"}. Latitude runs -90 to 90, longitude -180 to 180.`,
+        );
+        return;
+      }
+      parsedOffices.push({ ...rest, lat: latitude, lng: longitude });
+    }
+
     try {
       await submit({
         name,
@@ -84,7 +121,7 @@ function SubmitCompanyContent() {
           .slice(0, 8),
         hiringStatus: "ACTIVELY_HIRING",
         fundingStage: fundingStage ? (fundingStage as keyof typeof FundingStage) : undefined,
-        offices: offices.map(({ key: _key, ...office }) => office),
+        offices: parsedOffices,
         founders: [],
       }).unwrap();
 
@@ -201,22 +238,22 @@ function SubmitCompanyContent() {
                   <Label htmlFor={`lat-${index}`}>Latitude</Label>
                   <Input
                     id={`lat-${index}`}
-                    type="number"
-                    step="0.0001"
+                    type="text"
+                    inputMode="decimal"
                     required
                     value={office.lat}
-                    onChange={(e) => updateOffice(office.key, { lat: Number(e.target.value) })}
+                    onChange={(e) => updateOffice(office.key, { lat: e.target.value })}
                   />
                 </div>
                 <div className="space-y-1.5">
                   <Label htmlFor={`lng-${index}`}>Longitude</Label>
                   <Input
                     id={`lng-${index}`}
-                    type="number"
-                    step="0.0001"
+                    type="text"
+                    inputMode="decimal"
                     required
                     value={office.lng}
-                    onChange={(e) => updateOffice(office.key, { lng: Number(e.target.value) })}
+                    onChange={(e) => updateOffice(office.key, { lng: e.target.value })}
                   />
                 </div>
               </div>
@@ -292,7 +329,8 @@ function StatusChip({ status }: { status: "PENDING" | "APPROVED" | "REJECTED" })
       ? "bg-peepal-tint text-peepal-700"
       : status === "REJECTED"
         ? "bg-danger/10 text-danger"
-        : "bg-marigold-tint text-[#8A6D00]";
+        : // Same AA fix as the tracker's Interviewing chip.
+          "bg-marigold-tint text-[#6F5600]";
   const label =
     status === "APPROVED" ? "Approved" : status === "REJECTED" ? "Rejected" : "In review";
   return (

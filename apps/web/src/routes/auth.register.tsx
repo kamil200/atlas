@@ -1,16 +1,26 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { AuthShell, AuthSubmitError } from "@/components/auth/AuthShell";
+import { OAuthButtons } from "@/components/auth/OAuthButtons";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useRegisterMutation } from "@/store/api/auth-api";
+import { parseNext } from "@/lib/next-location";
+import { useGetAuthProvidersQuery, useRegisterMutation } from "@/store/api/auth-api";
 
-export const Route = createFileRoute("/auth/register")({ component: RegisterPage });
+export const Route = createFileRoute("/auth/register")({
+  component: RegisterPage,
+  // Same `next` contract as the sign-in page, so switching between the two
+  // does not lose the page someone was on.
+  validateSearch: (search: Record<string, unknown>): { next?: string } =>
+    typeof search.next === "string" ? { next: search.next } : {},
+});
 
 function RegisterPage() {
+  const { next } = Route.useSearch();
   const navigate = useNavigate();
   const [register, { isLoading }] = useRegisterMutation();
+  const { data: providers } = useGetAuthProvidersQuery();
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -26,7 +36,7 @@ function RegisterPage() {
     }
     try {
       await register({ name, email, password }).unwrap();
-      navigate({ to: "/map" });
+      navigate(parseNext(next));
     } catch (caught) {
       setError((caught as { message?: string }).message ?? "That did not work. Try again.");
     }
@@ -39,12 +49,18 @@ function RegisterPage() {
       footer={
         <>
           Already have one?{" "}
-          <Link to="/auth/login" className="font-medium text-peepal-700 hover:underline">
+          <Link
+            to="/auth/login"
+            search={next ? { next } : {}}
+            className="font-medium text-peepal-700 hover:underline"
+          >
             Sign in
           </Link>
         </>
       }
     >
+      {providers ? <OAuthButtons available={providers.providers} next={next} /> : null}
+
       <form onSubmit={submit} className="space-y-4">
         <div className="space-y-1.5">
           <Label htmlFor="name">Name</Label>

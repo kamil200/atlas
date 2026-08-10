@@ -1,4 +1,4 @@
-import type { FundingStage, Prisma } from "@prisma/client";
+import type { FundingStage, Prisma, Seniority } from "@prisma/client";
 import { ANCHOR_COMPANIES } from "./anchor-companies";
 import { COMPANIES_WITH_LOGOS } from "./company-logos.generated";
 import {
@@ -8,6 +8,9 @@ import {
   OFFICE_JITTER_DEGREES,
 } from "./localities";
 import {
+  BUSINESS_MODEL_BY_INDUSTRY,
+  BUSINESS_MODELS,
+  DEPARTMENT_SKILLS,
   DEPARTMENTS,
   FILL_NAME_PREFIXES,
   FILL_NAME_SUFFIXES,
@@ -18,7 +21,7 @@ import {
   INVESTORS,
   SALARY_BANDS,
   SENIORITY_PREFIXES,
-  type Seniority,
+  TITLE_SKILLS,
 } from "./reference-data";
 import type { Rng } from "./rng";
 
@@ -96,10 +99,10 @@ const SALARY_MULTIPLIER_BY_STAGE: Record<FundingStage, number> = {
 
 /* Roughly how a real startup's open roles break down. */
 const SENIORITY_WEIGHTS: readonly (readonly [Seniority, number])[] = [
-  ["Entry", 20],
-  ["Mid", 40],
-  ["Senior", 30],
-  ["Lead", 10],
+  ["ENTRY", 20],
+  ["MID", 40],
+  ["SENIOR", 30],
+  ["LEAD", 10],
 ];
 
 const WORK_MODE_WEIGHTS = [
@@ -176,6 +179,15 @@ function moneyInRange(rng: Rng, range: [number, number] | null): bigint | null {
   return BigInt(Math.round(raw / unit) * unit);
 }
 
+type FounderPlan = {
+  name: string;
+  title: string;
+  bio: string | null;
+  linkedinUrl: string | null;
+  twitterUrl: string | null;
+  githubUrl: string | null;
+};
+
 type CompanyPlan = {
   id: string;
   slug: string;
@@ -184,12 +196,16 @@ type CompanyPlan = {
   tagline: string;
   description: string;
   website: string;
+  linkedinUrl: string | null;
+  twitterUrl: string | null;
   industries: string[];
+  businessModel: string[];
   foundedYear: number;
   employeeCount: number;
   fundingStage: FundingStage;
   totalFundingUsd: bigint | null;
   valuationUsd: bigint | null;
+  isVerified: boolean;
   hiringStatus: "ACTIVELY_HIRING" | "NOT_HIRING";
   offices: {
     city: string;
@@ -199,8 +215,34 @@ type CompanyPlan = {
     lng: number;
     isHq: boolean;
   }[];
-  founders: { name: string; title: string }[];
+  founders: FounderPlan[];
 };
+
+/*
+  A fictional company's business model falls out of its industries, so a
+  marketplace never reads as pure SaaS. The vocabulary order is fixed so the
+  chips render the same way on every card.
+*/
+function businessModelForIndustries(industries: readonly string[]): string[] {
+  const tags = new Set(
+    industries.flatMap((industry) => BUSINESS_MODEL_BY_INDUSTRY[industry] ?? []),
+  );
+  const matched = BUSINESS_MODELS.filter((model) => tags.has(model));
+  // Everything sells to somebody, so an unmapped industry still gets a tag.
+  return matched.length > 0 ? [...matched] : ["B2B"];
+}
+
+/*
+  The two or three skills the title itself implies, padded out of the
+  department pool. Two Backend Engineer roles then overlap without reading as
+  copies of each other.
+*/
+function skillsForRole(rng: Rng, departmentSlug: string, baseTitle: string): string[] {
+  const core = TITLE_SKILLS[baseTitle] ?? [];
+  const pool = (DEPARTMENT_SKILLS[departmentSlug] ?? []).filter((skill) => !core.includes(skill));
+  const wanted = rng.int(3, 6) - core.length;
+  return [...core, ...rng.pickSome(pool, wanted)];
+}
 
 function buildFillCompanyNames(rng: Rng, taken: Set<string>): { name: string; slug: string }[] {
   const combos: string[] = [];
@@ -266,15 +308,31 @@ export function buildDataset(rng: Rng, now: number): SeedDataset {
       tagline: anchor.tagline,
       description: anchor.description,
       website: anchor.website,
+      linkedinUrl: anchor.linkedinUrl,
+      twitterUrl: anchor.twitterUrl,
       industries: anchor.industries,
+      businessModel: anchor.businessModel,
       foundedYear: anchor.foundedYear,
       employeeCount: anchor.employeeCount,
       fundingStage: anchor.fundingStage,
       totalFundingUsd: anchor.totalFundingUsd === null ? null : BigInt(anchor.totalFundingUsd),
       valuationUsd: anchor.valuationUsd === null ? null : BigInt(anchor.valuationUsd),
+      // Anchors are real companies whose details were checked by hand.
+      isVerified: true,
       hiringStatus: rng.chance(0.85) ? "ACTIVELY_HIRING" : "NOT_HIRING",
       offices,
-      founders: anchor.founders,
+      /*
+        Missing socials stay null. Guessing a profile URL for a real person
+        gets you a broken link on their card, which is worse than no link.
+      */
+      founders: anchor.founders.map((founder) => ({
+        name: founder.name,
+        title: founder.title,
+        bio: founder.bio ?? null,
+        linkedinUrl: founder.linkedinUrl ?? null,
+        twitterUrl: founder.twitterUrl ?? null,
+        githubUrl: founder.githubUrl ?? null,
+      })),
     });
   });
 
@@ -344,11 +402,22 @@ export function buildDataset(rng: Rng, now: number): SeedDataset {
       });
     }
 
+    /*
+      Invented people get an invented LinkedIn and nothing else. A bio would
+      only be filler, and there is no real profile to point a follow button at.
+    */
     const founderCount = rng.int(2, 3);
-    const founders = Array.from({ length: founderCount }, (_, i) => ({
-      name: `${rng.pick(FOUNDER_FIRST_NAMES)} ${rng.pick(FOUNDER_LAST_NAMES)}`,
-      title: i === 0 ? "Co-founder & CEO" : rng.pick(FOUNDER_TITLES),
-    }));
+    const founders: FounderPlan[] = Array.from({ length: founderCount }, (_, i) => {
+      const name = `${rng.pick(FOUNDER_FIRST_NAMES)} ${rng.pick(FOUNDER_LAST_NAMES)}`;
+      return {
+        name,
+        title: i === 0 ? "Co-founder & CEO" : rng.pick(FOUNDER_TITLES),
+        bio: null,
+        linkedinUrl: `https://www.linkedin.com/in/${slugify(name)}`,
+        twitterUrl: null,
+        githubUrl: null,
+      };
+    });
 
     plans.push({
       id: `co_${pad(ANCHOR_COMPANIES.length + index + 1)}`,
@@ -359,12 +428,17 @@ export function buildDataset(rng: Rng, now: number): SeedDataset {
       tagline: rng.pick(FILL_TAGLINES),
       description: rng.pick(FILL_DESCRIPTION_TEMPLATES)(entry.name, primaryIndustry),
       website: `https://www.${entry.slug}.in`,
+      // No socials: these companies do not exist, so neither do their accounts.
+      linkedinUrl: null,
+      twitterUrl: null,
       industries,
+      businessModel: businessModelForIndustries(industries),
       foundedYear: rng.int(2015, 2024),
       employeeCount: rng.int(8, 900),
       fundingStage: stage,
       totalFundingUsd: moneyInRange(rng, money.funding),
       valuationUsd: moneyInRange(rng, money.valuation),
+      isVerified: false,
       hiringStatus: rng.chance(0.85) ? "ACTIVELY_HIRING" : "NOT_HIRING",
       offices,
       founders,
@@ -405,13 +479,17 @@ export function buildDataset(rng: Rng, now: number): SeedDataset {
       tagline: plan.tagline,
       description: plan.description,
       website: plan.website,
+      linkedinUrl: plan.linkedinUrl,
+      twitterUrl: plan.twitterUrl,
       industries: plan.industries,
+      businessModel: plan.businessModel,
       foundedYear: plan.foundedYear,
       employeeCount: plan.employeeCount,
       hiringStatus: plan.hiringStatus,
       fundingStage: plan.fundingStage,
       totalFundingUsd: plan.totalFundingUsd,
       valuationUsd: plan.valuationUsd,
+      isVerified: plan.isVerified,
       submissionStatus: "APPROVED",
     });
 
@@ -445,7 +523,10 @@ export function buildDataset(rng: Rng, now: number): SeedDataset {
       founders.push({
         id: founderId,
         name: founder.name,
-        linkedinUrl: `https://www.linkedin.com/in/${slugify(founder.name)}`,
+        bio: founder.bio,
+        linkedinUrl: founder.linkedinUrl,
+        twitterUrl: founder.twitterUrl,
+        githubUrl: founder.githubUrl,
         photoUrl: null,
       });
       companyFounders.push({ companyId: plan.id, founderId, title: founder.title });
@@ -474,7 +555,11 @@ export function buildDataset(rng: Rng, now: number): SeedDataset {
       jobSeq += 1;
       const department = rng.weighted(DEPARTMENTS.map((d) => [d, d.weight] as const));
       const seniority = rng.weighted(SENIORITY_WEIGHTS);
-      const title = `${rng.pick(SENIORITY_PREFIXES[seniority])}${rng.pick(department.titles)}`;
+      const prefix = rng.pick(SENIORITY_PREFIXES[seniority]);
+      // The unprefixed title is what picks the skills, so "Senior Backend
+      // Engineer" and "Backend Engineer" start from the same core.
+      const baseTitle = rng.pick(department.titles);
+      const title = `${prefix}${baseTitle}`;
       const workMode = rng.weighted(WORK_MODE_WEIGHTS);
 
       // Remote roles are not pinned to an office; the map surfaces them on the HQ.
@@ -510,6 +595,7 @@ export function buildDataset(rng: Rng, now: number): SeedDataset {
         description: rng.pick(JOB_DESCRIPTION_TEMPLATES)(title, plan.name, department.name),
         workMode,
         seniority,
+        skills: skillsForRole(rng, department.slug, baseTitle),
         salaryMin,
         salaryMax,
         currency: "INR",

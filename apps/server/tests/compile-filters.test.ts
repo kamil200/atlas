@@ -4,6 +4,7 @@ import {
   compileCompanyWhere,
   compileJobWhere,
   compileOfficeWhere,
+  escapeLike,
   hasJobLevelFilter,
   VISIBLE_COMPANY,
   VISIBLE_JOB,
@@ -162,6 +163,32 @@ describe("offices", () => {
     expect(where.city).toEqual({ in: ["Pune"] });
     expect(where.company).toBeDefined();
   });
+
+  /*
+    An office earns a pin only if it holds a matching role, or it is the HQ and
+    the company has a matching remote one. The map used to re-decide this after
+    the query and the two rules drifted, so a facet offered a city the map then
+    drew no pin for.
+  */
+  it("requires a matching role once a job-level filter is on", () => {
+    const where = compileOfficeWhere({ department: ["design"] });
+
+    expect(where.OR).toEqual([
+      { jobs: { some: { ...VISIBLE_JOB, department: { slug: { in: ["design"] } } } } },
+      {
+        isHq: true,
+        company: {
+          jobs: {
+            some: { ...VISIBLE_JOB, department: { slug: { in: ["design"] } }, officeId: null },
+          },
+        },
+      },
+    ]);
+  });
+
+  it("adds no role requirement when only a place is chosen", () => {
+    expect(compileOfficeWhere({ city: ["Pune"] }).OR).toBeUndefined();
+  });
 });
 
 describe("hasJobLevelFilter", () => {
@@ -176,6 +203,18 @@ describe("hasJobLevelFilter", () => {
   it("ignores empty arrays, which is what an unticked box leaves behind", () => {
     expect(hasJobLevelFilter({ workMode: [], department: [] })).toBe(false);
   });
+
+  /*
+    A blank value is not a filter. `?workMode=` arrives as [""] and used to
+    compile to `workMode IN ('')`, emptying the site for anyone on a stale URL.
+    The enum in FilterParams cannot express a blank one, hence the cast.
+  */
+  it("ignores a blank value, which is what a hand-edited URL leaves behind", () => {
+    const blank = { workMode: [""], department: [" "] } as unknown as FilterParams;
+
+    expect(hasJobLevelFilter(blank)).toBe(false);
+    expect(JSON.stringify(compileJobWhere(blank))).not.toContain('""');
+  });
 });
 
 describe("free-text search", () => {
@@ -189,5 +228,39 @@ describe("free-text search", () => {
 
   it("ignores whitespace-only input", () => {
     expect(clauses(compileCompanyWhere({ q: "   " })).some((clause) => "OR" in clause)).toBe(false);
+  });
+
+  it("hands the database an escaped term, so a typed wildcard stays literal", () => {
+    const company = clauses(compileCompanyWhere({ q: "50% off" })).find(
+      (clause) => "OR" in clause,
+    ) as { OR: Record<string, unknown>[] };
+    const job = clauses(compileJobWhere({ q: "50% off" })).find((clause) => "OR" in clause) as {
+      OR: Record<string, unknown>[];
+    };
+
+    expect(company.OR[0]).toEqual({ name: { contains: "50\\% off", mode: "insensitive" } });
+    expect(job.OR[0]).toEqual({ title: { contains: "50\\% off", mode: "insensitive" } });
+  });
+});
+
+/*
+  Prisma compiles `contains` to LIKE without escaping. A search for "%" then
+  matched every row instead of none, which is the opposite of what someone
+  typing "50% off" or "node_modules" expects.
+*/
+describe("escapeLike", () => {
+  it("escapes the three characters LIKE treats as special", () => {
+    expect(escapeLike("50%")).toBe("50\\%");
+    expect(escapeLike("node_modules")).toBe("node\\_modules");
+    expect(escapeLike("back\\slash")).toBe("back\\\\slash");
+  });
+
+  it("escapes every occurrence, not just the first", () => {
+    expect(escapeLike("%_%")).toBe("\\%\\_\\%");
+  });
+
+  it("leaves ordinary text exactly as typed", () => {
+    expect(escapeLike("Razorpay design")).toBe("Razorpay design");
+    expect(escapeLike("")).toBe("");
   });
 });

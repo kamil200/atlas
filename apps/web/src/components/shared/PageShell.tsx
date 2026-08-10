@@ -1,4 +1,4 @@
-import { Link } from "@tanstack/react-router";
+import { Link, useRouterState } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import { useCurrentUser } from "@/hooks/use-current-user";
 
@@ -39,6 +39,8 @@ export function RequireAuth({
   adminOnly?: boolean;
 }) {
   const { user, isAuthenticated, isLoading } = useCurrentUser();
+  // Carry where they were, so signing in lands them back here and not on the map.
+  const here = useRouterState({ select: (state) => state.location.href });
 
   if (isLoading) {
     return (
@@ -59,7 +61,9 @@ export function RequireAuth({
             Your saved roles and applications live behind a login.
           </p>
           <Button asChild className="mt-5">
-            <Link to="/auth/login">Sign in</Link>
+            <Link to="/auth/login" search={{ next: here }}>
+              Sign in
+            </Link>
           </Button>
         </div>
       </div>

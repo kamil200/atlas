@@ -6,7 +6,8 @@ import {
   SuccessResponse,
 } from "@chowk/schema";
 import type { FastifyPluginAsyncTypebox } from "@fastify/type-provider-typebox";
-import { sendResponse } from "../utils/send-response";
+import { isUniqueViolation } from "../utils/prisma-errors";
+import { ErrorCodes, sendError, sendResponse } from "../utils/send-response";
 import { submissionInclude, toSubmissionDto } from "../utils/serializers";
 
 const mutationRateLimit = { rateLimit: { max: 20, timeWindow: "1 minute" } };
@@ -37,47 +38,76 @@ const submissionRoutes: FastifyPluginAsyncTypebox = async (app) => {
     },
     async (request, reply) => {
       const body = request.body;
-      const slug = await uniqueSlug(app, slugify(body.name));
 
-      // One HQ, always: whatever the form says, the first office is the head office.
+      /*
+        One HQ, always. Take the first office flagged as head office, or the
+        first office when none is. Trusting the form let two offices both come
+        back as HQ, and the map counts a company's remote roles against its HQ —
+        so every remote role got counted twice, once per HQ pin.
+      */
+      const hqIndex = Math.max(
+        body.offices.findIndex((office) => office.isHq),
+        0,
+      );
       const offices = body.offices.map((office, index) => ({
         city: office.city.trim(),
         country: office.country.trim(),
         addressLine: office.addressLine?.trim() || null,
         lat: office.lat,
         lng: office.lng,
-        isHq: body.offices.some((o) => o.isHq) ? office.isHq : index === 0,
+        isHq: index === hqIndex,
       }));
 
-      const company = await app.prisma.company.create({
-        data: {
-          slug,
-          name: body.name.trim(),
-          tagline: body.tagline?.trim() || null,
-          description: body.description.trim(),
-          website: body.website?.trim() || null,
-          industries: body.industries,
-          foundedYear: body.foundedYear ?? null,
-          employeeCount: body.employeeCount ?? null,
-          hiringStatus: body.hiringStatus,
-          fundingStage: body.fundingStage ?? null,
-          submissionStatus: "PENDING",
-          offices: { create: offices },
-          founders: {
-            create: body.founders.map((founder) => ({
-              title: founder.title.trim(),
-              founder: {
-                create: {
-                  name: founder.name.trim(),
-                  linkedinUrl: founder.linkedinUrl?.trim() || null,
+      const createWithSlug = (slug: string) =>
+        app.prisma.company.create({
+          data: {
+            slug,
+            name: body.name.trim(),
+            tagline: body.tagline?.trim() || null,
+            description: body.description.trim(),
+            website: body.website?.trim() || null,
+            industries: body.industries,
+            foundedYear: body.foundedYear ?? null,
+            employeeCount: body.employeeCount ?? null,
+            hiringStatus: body.hiringStatus,
+            fundingStage: body.fundingStage ?? null,
+            submissionStatus: "PENDING",
+            offices: { create: offices },
+            founders: {
+              create: body.founders.map((founder) => ({
+                title: founder.title.trim(),
+                founder: {
+                  create: {
+                    name: founder.name.trim(),
+                    linkedinUrl: founder.linkedinUrl?.trim() || null,
+                  },
                 },
-              },
-            })),
+              })),
+            },
+            submission: { create: { submittedById: request.user.sub } },
           },
-          submission: { create: { submittedById: request.user.sub } },
-        },
-        select: { id: true, submissionStatus: true },
-      });
+          select: { id: true, submissionStatus: true },
+        });
+
+      /*
+        Picking a free slug and inserting it are two steps, so another
+        submission of the same name can take the slug in between. Retry with a
+        freshly picked one rather than surfacing the index error as a 500.
+      */
+      const base = slugify(body.name);
+      let company: Awaited<ReturnType<typeof createWithSlug>> | null = null;
+
+      for (let attempt = 0; attempt < 3 && company === null; attempt += 1) {
+        try {
+          company = await createWithSlug(await uniqueSlug(app, base));
+        } catch (error) {
+          if (attempt === 2 || !isUniqueViolation(error)) throw error;
+        }
+      }
+
+      if (!company) {
+        return sendError(reply, 409, ErrorCodes.CONFLICT, "That company is already listed.");
+      }
 
       return sendResponse(reply, 201, {
         companyId: company.id,

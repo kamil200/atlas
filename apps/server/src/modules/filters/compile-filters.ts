@@ -41,8 +41,27 @@ function withoutDimension(filters: FilterParams, omit?: FacetDimension): FilterP
   return rest;
 }
 
-function hasValues(values: readonly string[] | undefined): values is readonly string[] {
-  return Array.isArray(values) && values.length > 0;
+/*
+  A blank value is not a filter. `?city=` arrives as [""], which would otherwise
+  compile to `city IN ('')` and zero out the whole result set for anyone on a
+  stale or hand-edited URL.
+*/
+function values<T extends string>(raw: readonly T[] | undefined): T[] {
+  if (!Array.isArray(raw)) return [];
+  return raw.map((value) => value.trim() as T).filter((value) => value.length > 0);
+}
+
+function hasValues<T extends string>(raw: readonly T[] | undefined): boolean {
+  return values(raw).length > 0;
+}
+
+/*
+  Prisma's `contains` compiles to LIKE without escaping, so a query of "_" or
+  "%" would match every row instead of none. Someone searching "50% off" or
+  "node_modules" should get an empty state, not the entire dataset.
+*/
+export function escapeLike(term: string): string {
+  return term.replace(/[\\%_]/g, "\\$&");
 }
 
 /** True when a filter constrains jobs rather than companies or offices. */
@@ -56,11 +75,11 @@ function jobLevelClause(filters: FilterParams): Prisma.JobWhereInput | null {
   let active = false;
 
   if (hasValues(filters.workMode)) {
-    clause.workMode = { in: [...filters.workMode] };
+    clause.workMode = { in: values(filters.workMode) };
     active = true;
   }
   if (hasValues(filters.department)) {
-    clause.department = { slug: { in: [...filters.department] } };
+    clause.department = { slug: { in: values(filters.department) } };
     active = true;
   }
 
@@ -73,11 +92,11 @@ function officeLocationClause(filters: FilterParams): Prisma.OfficeWhereInput | 
   let active = false;
 
   if (hasValues(filters.country)) {
-    clause.country = { in: [...filters.country] };
+    clause.country = { in: values(filters.country) };
     active = true;
   }
   if (hasValues(filters.city)) {
-    clause.city = { in: [...filters.city] };
+    clause.city = { in: values(filters.city) };
     active = true;
   }
 
@@ -92,13 +111,13 @@ export function compileCompanyWhere(
   const and: Prisma.CompanyWhereInput[] = [VISIBLE_COMPANY];
 
   if (hasValues(active.hiringStatus)) {
-    and.push({ hiringStatus: { in: [...active.hiringStatus] } });
+    and.push({ hiringStatus: { in: values(active.hiringStatus) } });
   }
   if (hasValues(active.fundingStage)) {
-    and.push({ fundingStage: { in: [...active.fundingStage] } });
+    and.push({ fundingStage: { in: values(active.fundingStage) } });
   }
   if (hasValues(active.investorId)) {
-    and.push({ investors: { some: { investorId: { in: [...active.investorId] } } } });
+    and.push({ investors: { some: { investorId: { in: values(active.investorId) } } } });
   }
 
   const location = officeLocationClause(active);
@@ -110,11 +129,12 @@ export function compileCompanyWhere(
 
   const q = active.q?.trim();
   if (q) {
+    const term = escapeLike(q);
     and.push({
       OR: [
-        { name: { contains: q, mode: "insensitive" } },
-        { tagline: { contains: q, mode: "insensitive" } },
-        { jobs: { some: { ...VISIBLE_JOB, title: { contains: q, mode: "insensitive" } } } },
+        { name: { contains: term, mode: "insensitive" } },
+        { tagline: { contains: term, mode: "insensitive" } },
+        { jobs: { some: { ...VISIBLE_JOB, title: { contains: term, mode: "insensitive" } } } },
       ],
     });
   }
@@ -152,10 +172,11 @@ export function compileJobWhere(
 
   const q = active.q?.trim();
   if (q) {
+    const term = escapeLike(q);
     and.push({
       OR: [
-        { title: { contains: q, mode: "insensitive" } },
-        { company: { name: { contains: q, mode: "insensitive" } } },
+        { title: { contains: term, mode: "insensitive" } },
+        { company: { name: { contains: term, mode: "insensitive" } } },
       ],
     });
   }
@@ -166,6 +187,12 @@ export function compileJobWhere(
 /*
   Offices of matching companies, narrowed to the ones in the selected place.
   Drives both the map pins and the country/city facet counts.
+
+  Once a job-level filter is on, an office only earns a pin if it actually holds
+  a matching role. Remote roles are pinned nowhere, so they count toward the head
+  office — the same rule the map uses when it draws them on the HQ. Both the pins
+  and the counts read this one clause, so a facet can never promise a pin the map
+  then refuses to draw.
 */
 export function compileOfficeWhere(
   filters: FilterParams,
@@ -173,10 +200,22 @@ export function compileOfficeWhere(
 ): Prisma.OfficeWhereInput {
   const active = withoutDimension(filters, options.omit);
   const location = officeLocationClause(active);
+  const jobLevel = jobLevelClause(active);
 
   return {
     deletedAt: null,
     company: compileCompanyWhere(filters, options),
     ...(location ?? {}),
+    ...(jobLevel
+      ? {
+          OR: [
+            { jobs: { some: { ...VISIBLE_JOB, ...jobLevel } } },
+            {
+              isHq: true,
+              company: { jobs: { some: { ...VISIBLE_JOB, ...jobLevel, officeId: null } } },
+            },
+          ],
+        }
+      : {}),
   };
 }

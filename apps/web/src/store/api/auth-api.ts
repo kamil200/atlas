@@ -1,4 +1,4 @@
-import type { AuthUserData, LoginBody, RegisterBody } from "@chowk/schema";
+import type { AuthProvidersData, AuthUserData, LoginBody, RegisterBody } from "@chowk/schema";
 import { baseApi } from "./base-api";
 
 export const authApi = baseApi.injectEndpoints({
@@ -6,6 +6,16 @@ export const authApi = baseApi.injectEndpoints({
     getMe: builder.query<AuthUserData, void>({
       query: () => "/auth/me",
       providesTags: ["Me"],
+    }),
+
+    /*
+      Which social sign-ins this server has credentials for. Asked once and
+      cached forever — it only changes when the server restarts with different
+      environment variables.
+    */
+    getAuthProviders: builder.query<AuthProvidersData, void>({
+      query: () => "/auth/providers",
+      keepUnusedDataFor: 3600,
     }),
 
     login: builder.mutation<AuthUserData, LoginBody>({
@@ -25,4 +35,10 @@ export const authApi = baseApi.injectEndpoints({
   }),
 });
 
-export const { useGetMeQuery, useLoginMutation, useRegisterMutation, useLogoutMutation } = authApi;
+export const {
+  useGetMeQuery,
+  useGetAuthProvidersQuery,
+  useLoginMutation,
+  useRegisterMutation,
+  useLogoutMutation,
+} = authApi;

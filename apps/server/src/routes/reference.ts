@@ -6,6 +6,7 @@ import {
   SuccessResponse,
 } from "@chowk/schema";
 import type { FastifyPluginAsyncTypebox } from "@fastify/type-provider-typebox";
+import { escapeLike } from "../modules/filters/compile-filters";
 import { sendResponse } from "../utils/send-response";
 
 /* Small lookup lists the filter panel needs, plus the health probe. */
@@ -30,7 +31,7 @@ const referenceRoutes: FastifyPluginAsyncTypebox = async (app) => {
     async (request, reply) => {
       const q = request.query.q?.trim();
       const items = await app.prisma.investor.findMany({
-        where: q ? { name: { contains: q, mode: "insensitive" } } : undefined,
+        where: q ? { name: { contains: escapeLike(q), mode: "insensitive" } } : undefined,
         orderBy: { name: "asc" },
         take: 50,
       });

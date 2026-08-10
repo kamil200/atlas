@@ -1,3 +1,5 @@
+import type { Seniority } from "@prisma/client";
+
 /*
   Departments, the job titles each one posts, and the investor pool.
   Weights decide how the ~1,500 jobs are split; Engineering takes about 40%
@@ -376,24 +378,313 @@ export const FOUNDER_TITLES: readonly string[] = [
   "Co-founder & CPO",
 ];
 
-export const SENIORITIES = ["Entry", "Mid", "Senior", "Lead"] as const;
-export type Seniority = (typeof SENIORITIES)[number];
+/* The database enum decides the values, so the two can never drift. */
+export const SENIORITIES: readonly Seniority[] = ["ENTRY", "MID", "SENIOR", "LEAD"];
 
 /*
   Title prefixes per seniority. Mid-level roles carry no prefix, which is how
   job boards actually read.
 */
 export const SENIORITY_PREFIXES: Record<Seniority, readonly string[]> = {
-  Entry: ["Associate ", "Junior "],
-  Mid: [""],
-  Senior: ["Senior "],
-  Lead: ["Lead ", "Staff ", "Principal "],
+  ENTRY: ["Associate ", "Junior "],
+  MID: [""],
+  SENIOR: ["Senior "],
+  LEAD: ["Lead ", "Staff ", "Principal "],
 };
 
 /* Annual INR bands before the funding-stage multiplier is applied. */
 export const SALARY_BANDS: Record<Seniority, { min: number; max: number }> = {
-  Entry: { min: 800_000, max: 1_500_000 },
-  Mid: { min: 1_500_000, max: 3_000_000 },
-  Senior: { min: 3_000_000, max: 6_000_000 },
-  Lead: { min: 6_000_000, max: 9_000_000 },
+  ENTRY: { min: 800_000, max: 1_500_000 },
+  MID: { min: 1_500_000, max: 3_000_000 },
+  SENIOR: { min: 3_000_000, max: 6_000_000 },
+  LEAD: { min: 6_000_000, max: 9_000_000 },
+};
+
+/*
+  Skills shown as chips on a job card. Every title gets two or three that a
+  real posting for it would definitely list, and the rest are drawn from the
+  department pool below — so two Backend Engineer roles overlap without being
+  identical.
+*/
+export const TITLE_SKILLS: Record<string, readonly string[]> = {
+  // Engineering
+  "Backend Engineer": ["Node.js", "PostgreSQL", "REST APIs"],
+  "Frontend Engineer": ["React", "TypeScript", "CSS"],
+  "Full Stack Engineer": ["React", "Node.js", "PostgreSQL"],
+  "Android Engineer": ["Kotlin", "Jetpack Compose"],
+  "iOS Engineer": ["Swift", "SwiftUI"],
+  "Platform Engineer": ["Kubernetes", "Go", "Distributed Systems"],
+  "Mobile Engineer": ["React Native", "Kotlin"],
+  "Software Engineer": ["Data Structures", "System Design"],
+  "Engineering Manager": ["People Management", "Hiring"],
+  "Security Engineer": ["Application Security", "Threat Modelling"],
+  // Product
+  "Product Manager": ["Roadmapping", "User Research"],
+  "Technical Product Manager": ["API Design", "Roadmapping"],
+  "Group Product Manager": ["Product Strategy", "Team Leadership"],
+  "Product Analyst": ["SQL", "Amplitude"],
+  "Growth Product Manager": ["Experimentation", "Funnel Analysis"],
+  // Design
+  "Product Designer": ["Figma", "Interaction Design"],
+  "UX Designer": ["Figma", "Wireframing"],
+  "UX Researcher": ["User Interviews", "Usability Testing"],
+  "Visual Designer": ["Figma", "Visual Design"],
+  "Design Systems Designer": ["Design Systems", "Figma"],
+  "Brand Designer": ["Brand Identity", "Illustration"],
+  // Data
+  "Data Engineer": ["Python", "Airflow", "SQL"],
+  "Data Analyst": ["SQL", "Excel"],
+  "Analytics Engineer": ["dbt", "SQL"],
+  "Business Intelligence Analyst": ["Power BI", "SQL"],
+  "Data Scientist": ["Python", "Statistics", "SQL"],
+  // AI/ML
+  "Machine Learning Engineer": ["Python", "PyTorch"],
+  "Applied Scientist": ["Python", "Applied Research"],
+  "Research Engineer": ["Python", "PyTorch"],
+  "MLOps Engineer": ["MLOps", "Kubernetes"],
+  "NLP Engineer": ["NLP", "Transformers"],
+  "Computer Vision Engineer": ["Computer Vision", "OpenCV"],
+  // Sales
+  "Account Executive": ["B2B Sales", "Negotiation"],
+  "Sales Development Representative": ["Cold Outreach", "Lead Qualification"],
+  "Enterprise Sales Manager": ["Enterprise Sales", "Account Planning"],
+  "Inside Sales Executive": ["Inside Sales", "CRM Hygiene"],
+  "Sales Operations Analyst": ["Salesforce", "Forecasting"],
+  "Partnerships Manager": ["Partnerships", "Negotiation"],
+  // Marketing
+  "Performance Marketing Manager": ["Google Ads", "Meta Ads"],
+  "Content Marketer": ["Content Strategy", "Copywriting"],
+  "Brand Marketing Manager": ["Brand Positioning", "Campaign Management"],
+  "SEO Specialist": ["SEO", "Keyword Research"],
+  "Lifecycle Marketing Manager": ["Email Marketing", "Marketing Automation"],
+  "Social Media Manager": ["Social Media", "Community Management"],
+  // Customer Success
+  "Customer Success Manager": ["Account Management", "Churn Reduction"],
+  "Onboarding Specialist": ["Onboarding", "Customer Communication"],
+  "Account Manager": ["Account Management", "Upselling"],
+  "Customer Success Operations Analyst": ["CRM", "SQL"],
+  // Operations
+  "Operations Manager": ["Process Design", "Stakeholder Management"],
+  "City Operations Lead": ["Field Operations", "P&L Ownership"],
+  "Supply Chain Analyst": ["Supply Chain", "Excel"],
+  "Business Operations Manager": ["Process Design", "SQL"],
+  "Category Manager": ["Category Management", "Vendor Management"],
+  // Finance
+  "Financial Analyst": ["Financial Modelling", "Excel"],
+  "Accounts Manager": ["Accounting", "Tally"],
+  Controller: ["Accounting", "Audit"],
+  "FP&A Manager": ["FP&A", "Financial Modelling"],
+  "Treasury Analyst": ["Cash Flow Management", "Excel"],
+  // People
+  "Technical Recruiter": ["Sourcing", "Interviewing"],
+  "HR Business Partner": ["Performance Management", "Employee Relations"],
+  "People Operations Manager": ["HRIS", "Onboarding"],
+  "Talent Acquisition Specialist": ["Recruiting", "Sourcing"],
+  "Learning and Development Manager": ["Learning Design", "Facilitation"],
+  // Legal
+  "Legal Counsel": ["Commercial Contracts", "Regulatory Compliance"],
+  "Compliance Manager": ["Regulatory Compliance", "Risk Assessment"],
+  "Contracts Manager": ["Contract Drafting", "Negotiation"],
+  // Support
+  "Customer Support Executive": ["Zendesk", "Customer Communication"],
+  "Technical Support Engineer": ["Troubleshooting", "SQL"],
+  "Support Operations Analyst": ["SLA Management", "Ticket Triage"],
+  "Escalations Specialist": ["Escalation Handling", "Root Cause Analysis"],
+  // QA
+  "QA Engineer": ["Manual Testing", "Test Planning"],
+  "Automation Test Engineer": ["Selenium", "Test Automation"],
+  SDET: ["Test Automation", "Java"],
+  "Performance Test Engineer": ["JMeter", "Load Testing"],
+  "QA Analyst": ["Test Cases", "Bug Triage"],
+  // DevOps
+  "DevOps Engineer": ["Docker", "CI/CD"],
+  "Site Reliability Engineer": ["Kubernetes", "Incident Response"],
+  "Infrastructure Engineer": ["Terraform", "Linux"],
+  "Cloud Engineer": ["AWS", "Terraform"],
+  "Build and Release Engineer": ["Jenkins", "CI/CD"],
+};
+
+/* Keyed by department slug. Padding for the title skills above. */
+export const DEPARTMENT_SKILLS: Record<string, readonly string[]> = {
+  engineering: [
+    "TypeScript",
+    "Python",
+    "Java",
+    "Go",
+    "Redis",
+    "Kafka",
+    "AWS",
+    "System Design",
+    "Docker",
+    "Git",
+  ],
+  product: [
+    "SQL",
+    "A/B Testing",
+    "User Research",
+    "Roadmapping",
+    "Figma",
+    "Analytics",
+    "Stakeholder Management",
+    "PRD Writing",
+  ],
+  design: [
+    "Figma",
+    "Prototyping",
+    "Design Systems",
+    "User Research",
+    "Accessibility",
+    "Motion Design",
+    "Wireframing",
+    "Visual Design",
+  ],
+  data: [
+    "SQL",
+    "Python",
+    "dbt",
+    "Airflow",
+    "Snowflake",
+    "Spark",
+    "Looker",
+    "Data Modelling",
+    "ETL",
+  ],
+  "ai-ml": [
+    "Python",
+    "PyTorch",
+    "TensorFlow",
+    "MLOps",
+    "LLMs",
+    "Feature Engineering",
+    "Model Deployment",
+    "Hugging Face",
+    "Vector Databases",
+  ],
+  sales: [
+    "B2B Sales",
+    "Pipeline Management",
+    "Salesforce",
+    "Negotiation",
+    "Account Planning",
+    "Forecasting",
+    "Lead Qualification",
+    "HubSpot",
+  ],
+  marketing: [
+    "SEO",
+    "Content Strategy",
+    "Google Ads",
+    "Marketing Automation",
+    "Copywriting",
+    "Analytics",
+    "Email Marketing",
+    "Brand Positioning",
+  ],
+  "customer-success": [
+    "Onboarding",
+    "Account Management",
+    "Churn Reduction",
+    "CRM",
+    "Escalation Handling",
+    "Upselling",
+    "Customer Advocacy",
+    "QBRs",
+  ],
+  operations: [
+    "Process Design",
+    "Excel",
+    "SQL",
+    "Vendor Management",
+    "Supply Chain",
+    "SOP Design",
+    "Capacity Planning",
+    "Stakeholder Management",
+  ],
+  finance: [
+    "Financial Modelling",
+    "Excel",
+    "Accounting",
+    "GST Compliance",
+    "FP&A",
+    "Audit",
+    "Variance Analysis",
+    "Cash Flow Management",
+  ],
+  people: [
+    "Recruiting",
+    "Sourcing",
+    "HRIS",
+    "Employer Branding",
+    "Interviewing",
+    "Onboarding",
+    "Performance Management",
+    "Compensation Benchmarking",
+  ],
+  legal: [
+    "Contract Drafting",
+    "Commercial Contracts",
+    "Regulatory Compliance",
+    "Data Privacy",
+    "Corporate Governance",
+    "DPDP Act",
+    "Risk Assessment",
+  ],
+  support: [
+    "Zendesk",
+    "Freshdesk",
+    "Troubleshooting",
+    "SLA Management",
+    "Ticket Triage",
+    "Customer Communication",
+    "Documentation",
+  ],
+  qa: [
+    "Test Automation",
+    "Selenium",
+    "Cypress",
+    "API Testing",
+    "Postman",
+    "Regression Testing",
+    "Test Planning",
+    "Appium",
+  ],
+  devops: [
+    "Kubernetes",
+    "Docker",
+    "Terraform",
+    "AWS",
+    "CI/CD",
+    "Linux",
+    "Prometheus",
+    "Grafana",
+    "Ansible",
+  ],
+};
+
+/*
+  How a company sells, which is a different question from what it sells.
+  Anchors carry hand-written tags; the fictional companies borrow theirs from
+  their industries so a "Marketplace" company never reads as pure SaaS.
+*/
+export const BUSINESS_MODELS = ["B2B", "B2C", "D2C", "Marketplace", "SaaS"] as const;
+
+export const BUSINESS_MODEL_BY_INDUSTRY: Record<string, readonly string[]> = {
+  Fintech: ["B2C"],
+  SaaS: ["B2B", "SaaS"],
+  "E-commerce": ["B2C", "Marketplace"],
+  Logistics: ["B2B"],
+  Healthtech: ["B2C"],
+  Edtech: ["B2C"],
+  Consumer: ["B2C"],
+  Marketplace: ["Marketplace"],
+  "Developer Tools": ["B2B", "SaaS"],
+  AI: ["B2B"],
+  Mobility: ["B2C"],
+  D2C: ["D2C", "B2C"],
+  "Enterprise Software": ["B2B", "SaaS"],
+  Gaming: ["B2C"],
+  Agritech: ["B2B"],
+  Insurtech: ["B2C"],
+  Cybersecurity: ["B2B", "SaaS"],
+  Climate: ["B2B"],
 };

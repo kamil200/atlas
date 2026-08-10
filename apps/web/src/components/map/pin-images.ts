@@ -60,8 +60,16 @@ export function registerSharedImages(map: maplibregl.Map) {
   Draws a tile for every company on the map that does not have one yet.
   Logos are fetched in parallel; a company with no logo, or a logo that fails
   to load, falls back to its initials without blocking anyone else.
+
+  `isLive` is checked after every await. Removing a MapLibre map throws its
+  style away, and hasImage/addImage read that style without checking, so a logo
+  that lands after the map is gone would throw rather than quietly do nothing.
 */
-export async function syncCompanyTiles(map: maplibregl.Map, offices: readonly OfficeMapPoint[]) {
+export async function syncCompanyTiles(
+  map: maplibregl.Map,
+  offices: readonly OfficeMapPoint[],
+  isLive: () => boolean = () => true,
+) {
   let drawn = drawnTiles.get(map);
   if (!drawn) {
     drawn = new Set();
@@ -77,12 +85,13 @@ export async function syncCompanyTiles(map: maplibregl.Map, offices: readonly Of
   const ratio = spriteRatio();
   // Text in a tile is drawn with Inter, so wait for it rather than draw fallback glyphs.
   await document.fonts.ready;
+  if (!isLive()) return;
 
   await Promise.all(
     [...wanted.values()].map(async (office) => {
       const logo = office.logoUrl ? await loadLogo(office.logoUrl) : null;
       // A second sync may have finished this company while its logo was in flight.
-      if (drawn.has(office.companySlug)) return;
+      if (!isLive() || drawn.has(office.companySlug)) return;
       const tile = drawCompanyTile(office.companyName, office.companySlug, logo, ratio);
       add(map, tileImageId(office.companySlug), tile, ratio);
       drawn.add(office.companySlug);

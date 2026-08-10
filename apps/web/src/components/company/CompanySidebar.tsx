@@ -26,9 +26,10 @@ export function CompanySidebar({
   onOpenJob: (jobId: string | undefined) => void;
   onFlyTo: (lat: number, lng: number) => void;
 }) {
-  const { data, isLoading, isError, refetch } = useGetCompanyBySlugQuery(companySlug ?? "", {
-    skip: !companySlug,
-  });
+  const { data, isLoading, isError, isUninitialized, refetch } = useGetCompanyBySlugQuery(
+    companySlug ?? "",
+    { skip: !companySlug },
+  );
   const { byJobId, toggle } = useSavedJobs();
 
   const company = data?.company;
@@ -42,7 +43,13 @@ export function CompanySidebar({
         className="w-full gap-0 overflow-hidden p-0 sm:max-w-[460px]"
         aria-describedby={undefined}
       >
-        {isLoading ? (
+        {/*
+          isUninitialized matters on the way out. Closing the sheet clears the
+          slug, which skips the query, so there is no data and no error — and
+          the panel used to repaint as "we could not load that company" for the
+          300ms it spends sliding away.
+        */}
+        {isLoading || isUninitialized ? (
           <SidebarSkeleton />
         ) : isError || !company ? (
           <div className="p-6">

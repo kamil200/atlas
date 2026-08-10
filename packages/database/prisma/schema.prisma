@@ -15,6 +15,7 @@ enum UserRole {
 enum AuthProvider {
   PASSWORD
   GOOGLE
+  LINKEDIN
 }
 
 enum WorkMode {
@@ -64,12 +65,22 @@ enum JobStatus {
   CLOSED
 }
 
+enum Seniority {
+  ENTRY
+  MID
+  SENIOR
+  LEAD
+}
+
 model User {
   id           String       @id @default(cuid())
   email        String       @unique
-  passwordHash String? // null when the account is Google-only
+  passwordHash String? // null when the account signed up through a provider
   authProvider AuthProvider @default(PASSWORD)
+  // One column per provider. Both are unique, so a single account can be
+  // reached by password, Google and LinkedIn once they are linked by email.
   googleId     String?      @unique
+  linkedinId   String?      @unique
   name         String
   avatarUrl    String?
   role         UserRole     @default(USER)
@@ -92,13 +103,17 @@ model Company {
   tagline          String?
   description      String           @db.Text
   website          String?
+  linkedinUrl      String?
+  twitterUrl       String?
   industries       String[]         @default([])
+  businessModel    String[]         @default([]) // how it sells — "B2B", "Marketplace" — not what it sells
   foundedYear      Int?
   employeeCount    Int?
   hiringStatus     HiringStatus     @default(ACTIVELY_HIRING)
   fundingStage     FundingStage?
   totalFundingUsd  BigInt?
   valuationUsd     BigInt?
+  isVerified       Boolean          @default(false) // a real company checked by hand, not a generated one
   submissionStatus SubmissionStatus @default(APPROVED) // seed data is APPROVED
   createdAt        DateTime         @default(now())
   updatedAt        DateTime         @updatedAt
@@ -138,7 +153,10 @@ model Office {
 model Founder {
   id          String  @id @default(cuid())
   name        String
+  bio         String? @db.Text
   linkedinUrl String?
+  twitterUrl  String?
+  githubUrl   String?
   photoUrl    String?
 
   companies CompanyFounder[]
@@ -194,7 +212,8 @@ model Job {
   title        String
   description  String     @db.Text
   workMode     WorkMode
-  seniority    String? // "Entry" | "Mid" | "Senior" | "Lead" — free text
+  seniority    Seniority?
+  skills       String[]   @default([]) // chips on the job card; free text because nothing filters on them yet
   salaryMin    Int? // annual, in `currency` units
   salaryMax    Int?
   currency     String     @default("INR")
@@ -211,6 +230,7 @@ model Job {
   @@index([officeId, status, deletedAt])
   @@index([departmentId, status, deletedAt])
   @@index([workMode, status, deletedAt])
+  @@index([seniority, status, deletedAt])
   @@index([postedAt])
 }
 

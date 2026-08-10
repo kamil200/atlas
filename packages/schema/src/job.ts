@@ -1,6 +1,6 @@
 import { type Static, Type } from "@sinclair/typebox";
 import { IsoDate, Nullable, PageQuery, StringEnum } from "./common";
-import { JobStatus, WorkMode } from "./enums";
+import { JobStatus, Seniority, WorkMode } from "./enums";
 import { FilterParams } from "./filters";
 
 /*
@@ -20,7 +20,9 @@ export const JobSummary = Type.Object({
   city: Nullable(Type.String()),
   country: Nullable(Type.String()),
   workMode: StringEnum(WorkMode),
-  seniority: Nullable(Type.String()),
+  seniority: Nullable(StringEnum(Seniority)),
+  // Chips on the job row. Free text, so the client renders whatever it gets.
+  skills: Type.Array(Type.String()),
   salaryMin: Nullable(Type.Integer()),
   salaryMax: Nullable(Type.Integer()),
   currency: Type.String(),

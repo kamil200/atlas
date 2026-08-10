@@ -12,7 +12,8 @@ import {
   compileCompanyWhere,
   compileJobWhere,
   compileOfficeWhere,
-  hasJobLevelFilter,
+  VISIBLE_COMPANY,
+  VISIBLE_JOB,
 } from "../modules/filters/compile-filters";
 import { ErrorCodes, sendError, sendResponse } from "../utils/send-response";
 import {
@@ -74,7 +75,7 @@ const companyRoutes: FastifyPluginAsyncTypebox = async (app) => {
     },
     async (request, reply) => {
       const company = await app.prisma.company.findFirst({
-        where: { slug: request.query.slug, submissionStatus: "APPROVED", deletedAt: null },
+        where: { slug: request.query.slug, ...VISIBLE_COMPANY },
         include: companyDetailInclude,
       });
 
@@ -84,9 +85,9 @@ const companyRoutes: FastifyPluginAsyncTypebox = async (app) => {
 
       // The profile always lists every open role, whatever the map filters say.
       const jobs = await app.prisma.job.findMany({
-        where: { companyId: company.id, status: "OPEN", deletedAt: null },
+        where: { companyId: company.id, ...VISIBLE_JOB },
         include: jobInclude,
-        orderBy: { postedAt: "desc" },
+        orderBy: [{ postedAt: "desc" }, { id: "asc" }],
       });
 
       const officeJobCounts = new Map<string, number>();
@@ -159,15 +160,12 @@ const companyRoutes: FastifyPluginAsyncTypebox = async (app) => {
       }));
 
       /*
-        With no job filter an office with zero open roles still belongs on the
-        map. Once someone filters by department or work mode, a pin with no
-        matching role would be claiming roles the filter excluded.
+        Which offices earn a pin under a job-level filter is decided by
+        compileOfficeWhere, not here. It used to be re-decided at this line, and
+        the two rules drifted — the facet panel offered cities the map then drew
+        no pin for.
       */
-      const visible = hasJobLevelFilter(filters)
-        ? points.filter((point) => point.openJobCount > 0)
-        : points;
-
-      return sendResponse(reply, 200, { offices: visible });
+      return sendResponse(reply, 200, { offices: points });
     },
   );
 };

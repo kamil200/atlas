@@ -14,6 +14,7 @@ export type UserRole = (typeof UserRole)[keyof typeof UserRole];
 export const AuthProvider = {
   PASSWORD: "PASSWORD",
   GOOGLE: "GOOGLE",
+  LINKEDIN: "LINKEDIN",
 } as const;
 export type AuthProvider = (typeof AuthProvider)[keyof typeof AuthProvider];
 
@@ -71,6 +72,14 @@ export const JobStatus = {
 } as const;
 export type JobStatus = (typeof JobStatus)[keyof typeof JobStatus];
 
+export const Seniority = {
+  ENTRY: "ENTRY",
+  MID: "MID",
+  SENIOR: "SENIOR",
+  LEAD: "LEAD",
+} as const;
+export type Seniority = (typeof Seniority)[keyof typeof Seniority];
+
 /* Labels shown in filter rows and chips. Kept next to the values they name. */
 export const FUNDING_STAGE_LABELS: Record<FundingStage, string> = {
   BOOTSTRAPPED: "Bootstrapped",
@@ -92,6 +101,13 @@ export const WORK_MODE_LABELS: Record<WorkMode, string> = {
 export const HIRING_STATUS_LABELS: Record<HiringStatus, string> = {
   ACTIVELY_HIRING: "Actively hiring",
   NOT_HIRING: "Not hiring",
+};
+
+export const SENIORITY_LABELS: Record<Seniority, string> = {
+  ENTRY: "Entry",
+  MID: "Mid",
+  SENIOR: "Senior",
+  LEAD: "Lead",
 };
 
 export const APPLICATION_STATUS_LABELS: Record<ApplicationStatus, string> = {

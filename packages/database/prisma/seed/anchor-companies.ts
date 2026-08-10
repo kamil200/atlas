@@ -5,8 +5,21 @@ import type { FundingStage } from "@prisma/client";
   rather than lorem ipsum. Figures are public and approximate — the README
   says plainly that this is demo data, not a live listings feed.
 
+  Socials and founder bios are public record only. A missing field means we
+  could not confirm the value, not that it does not exist — a wrong LinkedIn
+  URL is a broken link on a real person's card, which is worse than no link.
+
   hqCity/hqArea must match an entry in localities.ts.
 */
+
+export type AnchorFounder = {
+  name: string;
+  title: string;
+  bio?: string;
+  linkedinUrl?: string;
+  twitterUrl?: string;
+  githubUrl?: string;
+};
 
 export type AnchorCompany = {
   slug: string;
@@ -14,7 +27,11 @@ export type AnchorCompany = {
   tagline: string;
   description: string;
   website: string;
+  linkedinUrl: string | null;
+  twitterUrl: string | null;
   industries: string[];
+  /* How it sells, not what it sells. Values come from BUSINESS_MODELS. */
+  businessModel: string[];
   foundedYear: number;
   employeeCount: number;
   fundingStage: FundingStage;
@@ -23,7 +40,7 @@ export type AnchorCompany = {
   hqCity: string;
   hqArea: string;
   extraOffices?: { city: string; area: string }[];
-  founders: { name: string; title: string }[];
+  founders: AnchorFounder[];
 };
 
 export const ANCHOR_COMPANIES: readonly AnchorCompany[] = [
@@ -34,7 +51,10 @@ export const ANCHOR_COMPANIES: readonly AnchorCompany[] = [
     description:
       "Razorpay builds the payments stack most Indian internet businesses run on — a payment gateway, a neobanking suite for payroll and vendor payouts, and lending products for merchants.",
     website: "https://razorpay.com",
+    linkedinUrl: "https://www.linkedin.com/company/razorpay",
+    twitterUrl: "https://x.com/Razorpay",
     industries: ["Fintech", "SaaS", "Enterprise Software"],
+    businessModel: ["B2B", "SaaS"],
     foundedYear: 2014,
     employeeCount: 3000,
     fundingStage: "SERIES_D_PLUS",
@@ -44,8 +64,17 @@ export const ANCHOR_COMPANIES: readonly AnchorCompany[] = [
     hqArea: "Koramangala",
     extraOffices: [{ city: "Bengaluru", area: "Bellandur" }],
     founders: [
-      { name: "Harshil Mathur", title: "Co-founder & CEO" },
-      { name: "Shashank Kumar", title: "Co-founder & Managing Director" },
+      {
+        name: "Harshil Mathur",
+        title: "Co-founder & CEO",
+        bio: "Harshil Mathur started Razorpay in 2014 with his IIT Roorkee batchmate Shashank Kumar, after the two found it near impossible for a small Indian company to accept money online. He was a field engineer at Schlumberger before that, and the company went through Y Combinator in 2015. He has run it as CEO since launch.",
+        twitterUrl: "https://x.com/harshilmathur",
+      },
+      {
+        name: "Shashank Kumar",
+        title: "Co-founder & Managing Director",
+        bio: "Shashank Kumar co-founded Razorpay after IIT Roorkee and a stint as a software engineer at Microsoft. He led engineering and product through the early years and now serves as Managing Director.",
+      },
     ],
   },
   {
@@ -55,7 +84,10 @@ export const ANCHOR_COMPANIES: readonly AnchorCompany[] = [
     description:
       "CRED started as a credit card bill payment app that paid members in rewards and grew into a members-only commerce, lending, and payments product aimed at high-trust consumers.",
     website: "https://cred.club",
+    linkedinUrl: "https://www.linkedin.com/company/cred-club",
+    twitterUrl: "https://x.com/CRED_club",
     industries: ["Fintech", "Consumer"],
+    businessModel: ["B2C"],
     foundedYear: 2018,
     employeeCount: 800,
     fundingStage: "SERIES_D_PLUS",
@@ -63,7 +95,14 @@ export const ANCHOR_COMPANIES: readonly AnchorCompany[] = [
     valuationUsd: 6_400_000_000,
     hqCity: "Bengaluru",
     hqArea: "Indiranagar",
-    founders: [{ name: "Kunal Shah", title: "Founder & CEO" }],
+    founders: [
+      {
+        name: "Kunal Shah",
+        title: "Founder & CEO",
+        bio: "Kunal Shah founded CRED in 2018, six years after selling his previous company FreeCharge to Snapdeal. He studied philosophy at Wilson College in Mumbai and is one of India's most active angel investors. He writes constantly about consumer behaviour and status games.",
+        twitterUrl: "https://x.com/kunalb11",
+      },
+    ],
   },
   {
     slug: "zerodha",
@@ -72,7 +111,10 @@ export const ANCHOR_COMPANIES: readonly AnchorCompany[] = [
     description:
       "Zerodha runs the Kite trading platform and is India's biggest retail brokerage by active clients. It is famously bootstrapped and profitable, and has never raised outside capital.",
     website: "https://zerodha.com",
+    linkedinUrl: "https://www.linkedin.com/company/zerodha",
+    twitterUrl: "https://x.com/zerodhaonline",
     industries: ["Fintech", "Consumer"],
+    businessModel: ["B2C"],
     foundedYear: 2010,
     employeeCount: 1200,
     fundingStage: "BOOTSTRAPPED",
@@ -81,8 +123,18 @@ export const ANCHOR_COMPANIES: readonly AnchorCompany[] = [
     hqCity: "Bengaluru",
     hqArea: "JP Nagar",
     founders: [
-      { name: "Nithin Kamath", title: "Co-founder & CEO" },
-      { name: "Nikhil Kamath", title: "Co-founder" },
+      {
+        name: "Nithin Kamath",
+        title: "Co-founder & CEO",
+        bio: "Nithin Kamath started Zerodha in 2010 after a decade of trading his own account and running a sub-broker desk. He built the company without outside capital and argues publicly against the incentives of his own industry. He also runs Rainmatter, which backs fintech and climate startups.",
+        twitterUrl: "https://x.com/Nithin0dha",
+      },
+      {
+        name: "Nikhil Kamath",
+        title: "Co-founder",
+        bio: "Nikhil Kamath co-founded Zerodha with his older brother Nithin and heads the asset management side through True Beacon. He left school at 14 and worked at a call centre before trading full time. He signed the Giving Pledge in 2021.",
+        twitterUrl: "https://x.com/nikhilkamathcio",
+      },
     ],
   },
   {
@@ -92,7 +144,10 @@ export const ANCHOR_COMPANIES: readonly AnchorCompany[] = [
     description:
       "Swiggy runs food delivery, the Instamart quick-commerce business, and Dineout restaurant bookings across hundreds of Indian cities.",
     website: "https://www.swiggy.com",
+    linkedinUrl: "https://www.linkedin.com/company/swiggy-in",
+    twitterUrl: "https://x.com/Swiggy",
     industries: ["Consumer", "Logistics", "Marketplace"],
+    businessModel: ["B2C", "Marketplace"],
     foundedYear: 2014,
     employeeCount: 5500,
     fundingStage: "PUBLIC",
@@ -105,9 +160,21 @@ export const ANCHOR_COMPANIES: readonly AnchorCompany[] = [
       { city: "Mumbai", area: "Andheri East" },
     ],
     founders: [
-      { name: "Sriharsha Majety", title: "Co-founder & CEO" },
-      { name: "Nandan Reddy", title: "Co-founder" },
-      { name: "Rahul Jaimini", title: "Co-founder" },
+      {
+        name: "Sriharsha Majety",
+        title: "Co-founder & CEO",
+        bio: "Sriharsha Majety co-founded Swiggy in 2014 after an earlier logistics venture with the same team did not take off. He studied at BITS Pilani and IIM Calcutta. He led the company through its public listing in 2024.",
+      },
+      {
+        name: "Nandan Reddy",
+        title: "Co-founder",
+        bio: "Nandan Reddy co-founded Swiggy with Sriharsha Majety, whom he met at BITS Pilani, after the two spent a year on a logistics business that became the delivery network. He has since focused on new business lines inside the company.",
+      },
+      {
+        name: "Rahul Jaimini",
+        title: "Co-founder",
+        bio: "Rahul Jaimini was Swiggy's founding engineer and built the first version of the product after leaving Myntra. He is an IIT Kharagpur graduate. He left in 2020 to co-found Pesto Tech.",
+      },
     ],
   },
   {
@@ -117,7 +184,10 @@ export const ANCHOR_COMPANIES: readonly AnchorCompany[] = [
     description:
       "Zepto runs a dark-store network that promises grocery delivery in about ten minutes, expanding into a broader quick-commerce catalogue and a café business.",
     website: "https://www.zeptonow.com",
+    linkedinUrl: "https://www.linkedin.com/company/zeptonow",
+    twitterUrl: "https://x.com/ZeptoNow",
     industries: ["E-commerce", "Logistics", "Consumer"],
+    businessModel: ["B2C"],
     foundedYear: 2021,
     employeeCount: 2500,
     fundingStage: "SERIES_D_PLUS",
@@ -127,8 +197,16 @@ export const ANCHOR_COMPANIES: readonly AnchorCompany[] = [
     hqArea: "Powai",
     extraOffices: [{ city: "Bengaluru", area: "Bellandur" }],
     founders: [
-      { name: "Aadit Palicha", title: "Co-founder & CEO" },
-      { name: "Kaivalya Vohra", title: "Co-founder & CTO" },
+      {
+        name: "Aadit Palicha",
+        title: "Co-founder & CEO",
+        bio: "Aadit Palicha started Zepto in 2021 with his school friend Kaivalya Vohra, after both left Stanford's computer science programme. They had run a grocery delivery service in Mumbai through the pandemic before landing on the ten-minute model. He was 19 when the company launched.",
+      },
+      {
+        name: "Kaivalya Vohra",
+        title: "Co-founder & CTO",
+        bio: "Kaivalya Vohra co-founded Zepto with Aadit Palicha and leads its engineering. The two met at school in Dubai and both dropped out of Stanford to build the company.",
+      },
     ],
   },
   {
@@ -138,7 +216,10 @@ export const ANCHOR_COMPANIES: readonly AnchorCompany[] = [
     description:
       "Groww is a retail investment platform covering mutual funds, stocks, derivatives, and fixed deposits, built for people making their first investment.",
     website: "https://groww.in",
+    linkedinUrl: "https://www.linkedin.com/company/groww",
+    twitterUrl: "https://x.com/_groww",
     industries: ["Fintech", "Consumer"],
+    businessModel: ["B2C"],
     foundedYear: 2016,
     employeeCount: 1400,
     fundingStage: "PUBLIC",
@@ -147,10 +228,26 @@ export const ANCHOR_COMPANIES: readonly AnchorCompany[] = [
     hqCity: "Bengaluru",
     hqArea: "Bellandur",
     founders: [
-      { name: "Lalit Keshre", title: "Co-founder & CEO" },
-      { name: "Harsh Jain", title: "Co-founder" },
-      { name: "Ishan Bansal", title: "Co-founder" },
-      { name: "Neeraj Singh", title: "Co-founder & CTO" },
+      {
+        name: "Lalit Keshre",
+        title: "Co-founder & CEO",
+        bio: "Lalit Keshre co-founded Groww in 2016 with three colleagues from Flipkart, aiming at people buying their first mutual fund. He is an IIT Bombay graduate and had earlier started an edtech company. He has been CEO since.",
+      },
+      {
+        name: "Harsh Jain",
+        title: "Co-founder",
+        bio: "Harsh Jain co-founded Groww with three colleagues from Flipkart, where he worked in product and growth. He leads growth at the company.",
+      },
+      {
+        name: "Ishan Bansal",
+        title: "Co-founder",
+        bio: "Ishan Bansal co-founded Groww with his Flipkart colleagues and looks after finance and corporate development. He handled the company's fundraising through its private rounds.",
+      },
+      {
+        name: "Neeraj Singh",
+        title: "Co-founder & CTO",
+        bio: "Neeraj Singh co-founded Groww and runs its engineering. He worked as an engineer at Flipkart before starting the company.",
+      },
     ],
   },
   {
@@ -160,7 +257,10 @@ export const ANCHOR_COMPANIES: readonly AnchorCompany[] = [
     description:
       "Meesho is a zero-commission marketplace built around small sellers and value-conscious buyers in tier-2 and tier-3 India.",
     website: "https://www.meesho.com",
+    linkedinUrl: "https://www.linkedin.com/company/meesho",
+    twitterUrl: "https://x.com/Meesho_Official",
     industries: ["E-commerce", "Marketplace", "Consumer"],
+    businessModel: ["B2C", "Marketplace"],
     foundedYear: 2015,
     employeeCount: 1800,
     fundingStage: "SERIES_D_PLUS",
@@ -169,8 +269,17 @@ export const ANCHOR_COMPANIES: readonly AnchorCompany[] = [
     hqCity: "Bengaluru",
     hqArea: "HSR Layout",
     founders: [
-      { name: "Vidit Aatrey", title: "Co-founder & CEO" },
-      { name: "Sanjeev Barnwal", title: "Co-founder & CTO" },
+      {
+        name: "Vidit Aatrey",
+        title: "Co-founder & CEO",
+        bio: "Vidit Aatrey co-founded Meesho in 2015 with his IIT Delhi batchmate Sanjeev Barnwal, starting with a reselling model that ran on WhatsApp and Facebook groups. He worked at InMobi and ITC before that. The company went through Y Combinator in 2016.",
+        twitterUrl: "https://x.com/viditaatrey",
+      },
+      {
+        name: "Sanjeev Barnwal",
+        title: "Co-founder & CTO",
+        bio: "Sanjeev Barnwal co-founded Meesho and leads its engineering. He is an IIT Delhi graduate and worked at Sony in Japan before returning to India to start the company.",
+      },
     ],
   },
   {
@@ -180,7 +289,10 @@ export const ANCHOR_COMPANIES: readonly AnchorCompany[] = [
     description:
       "Postman is an API development platform used by millions of developers for designing, testing, documenting, and monitoring APIs.",
     website: "https://www.postman.com",
+    linkedinUrl: "https://www.linkedin.com/company/postman-platform",
+    twitterUrl: "https://x.com/getpostman",
     industries: ["Developer Tools", "SaaS", "Enterprise Software"],
+    businessModel: ["B2B", "SaaS"],
     foundedYear: 2014,
     employeeCount: 900,
     fundingStage: "SERIES_D_PLUS",
@@ -190,9 +302,22 @@ export const ANCHOR_COMPANIES: readonly AnchorCompany[] = [
     hqArea: "Indiranagar",
     extraOffices: [{ city: "San Francisco", area: "SoMa" }],
     founders: [
-      { name: "Abhinav Asthana", title: "Co-founder & CEO" },
-      { name: "Ankit Sobti", title: "Co-founder & CTO" },
-      { name: "Abhijit Kane", title: "Co-founder" },
+      {
+        name: "Abhinav Asthana",
+        title: "Co-founder & CEO",
+        bio: "Abhinav Asthana built Postman as a side project in 2012 while working at Yahoo, because testing APIs by hand was wasting his evenings. He gave it away as a free Chrome extension, and it grew into the company he now runs. He studied at BITS Pilani.",
+        twitterUrl: "https://x.com/a85",
+      },
+      {
+        name: "Ankit Sobti",
+        title: "Co-founder & CTO",
+        bio: "Ankit Sobti co-founded Postman with Abhinav Asthana and leads engineering. The two worked together at Yahoo before the side project became a company.",
+      },
+      {
+        name: "Abhijit Kane",
+        title: "Co-founder",
+        bio: "Abhijit Kane co-founded Postman with Abhinav Asthana and Ankit Sobti, whom he knew from BITS Pilani. He has led product and platform work at the company.",
+      },
     ],
   },
   {
@@ -202,7 +327,10 @@ export const ANCHOR_COMPANIES: readonly AnchorCompany[] = [
     description:
       "Zoho makes more than fifty business applications spanning CRM, finance, HR, and collaboration, and is known for staying private, profitable, and rural-first.",
     website: "https://www.zoho.com",
+    linkedinUrl: "https://www.linkedin.com/company/zoho",
+    twitterUrl: "https://x.com/zoho",
     industries: ["SaaS", "Enterprise Software"],
+    businessModel: ["B2B", "SaaS"],
     foundedYear: 1996,
     employeeCount: 15000,
     fundingStage: "BOOTSTRAPPED",
@@ -212,8 +340,17 @@ export const ANCHOR_COMPANIES: readonly AnchorCompany[] = [
     hqArea: "Guindy",
     extraOffices: [{ city: "Chennai", area: "Perungudi (OMR)" }],
     founders: [
-      { name: "Sridhar Vembu", title: "Co-founder & Chief Scientist" },
-      { name: "Tony Thomas", title: "Co-founder" },
+      {
+        name: "Sridhar Vembu",
+        title: "Co-founder & Chief Scientist",
+        bio: "Sridhar Vembu co-founded Zoho in 1996 and ran it as CEO until 2024, when he moved to the Chief Scientist role. He has kept the company private and profitable and moved much of it to rural Tamil Nadu, on the argument that good engineers do not need to live in cities. He holds a PhD from Princeton.",
+        twitterUrl: "https://x.com/svembu",
+      },
+      {
+        name: "Tony Thomas",
+        title: "Co-founder",
+        bio: "Tony Thomas co-founded the company in 1996, when it was a network management software business called AdventNet. It was renamed Zoho years later as the business software suite took over.",
+      },
     ],
   },
   {
@@ -223,7 +360,10 @@ export const ANCHOR_COMPANIES: readonly AnchorCompany[] = [
     description:
       "Freshworks sells customer support, IT service management, and CRM software to mid-market businesses, and was the first Indian SaaS company to list on Nasdaq.",
     website: "https://www.freshworks.com",
+    linkedinUrl: "https://www.linkedin.com/company/freshworks",
+    twitterUrl: "https://x.com/freshworks",
     industries: ["SaaS", "Enterprise Software"],
+    businessModel: ["B2B", "SaaS"],
     foundedYear: 2010,
     employeeCount: 5000,
     fundingStage: "PUBLIC",
@@ -233,8 +373,17 @@ export const ANCHOR_COMPANIES: readonly AnchorCompany[] = [
     hqArea: "Perungudi (OMR)",
     extraOffices: [{ city: "Bengaluru", area: "Whitefield" }],
     founders: [
-      { name: "Girish Mathrubootham", title: "Founder & Executive Chairman" },
-      { name: "Shan Krishnasamy", title: "Co-founder & CTO" },
+      {
+        name: "Girish Mathrubootham",
+        title: "Founder & Executive Chairman",
+        bio: "Girish Mathrubootham started Freshworks in Chennai in 2010, after a bad customer service experience with a courier company convinced him the software behind support desks was broken. He had been a product manager at Zoho. He took the company public on Nasdaq in 2021, the first Indian SaaS business to list there.",
+        twitterUrl: "https://x.com/mrgirish",
+      },
+      {
+        name: "Shan Krishnasamy",
+        title: "Co-founder & CTO",
+        bio: "Shan Krishnasamy co-founded Freshworks with Girish Mathrubootham and built its first product. The two worked together at Zoho before starting the company.",
+      },
     ],
   },
   {
@@ -244,7 +393,10 @@ export const ANCHOR_COMPANIES: readonly AnchorCompany[] = [
     description:
       "PhonePe processes a large share of India's UPI transactions and has expanded into insurance distribution, wealth products, and the Indus app store.",
     website: "https://www.phonepe.com",
+    linkedinUrl: "https://www.linkedin.com/company/phonepe",
+    twitterUrl: "https://x.com/PhonePe",
     industries: ["Fintech", "Consumer"],
+    businessModel: ["B2B", "B2C"],
     foundedYear: 2015,
     employeeCount: 5000,
     fundingStage: "SERIES_D_PLUS",
@@ -253,9 +405,21 @@ export const ANCHOR_COMPANIES: readonly AnchorCompany[] = [
     hqCity: "Bengaluru",
     hqArea: "Bellandur",
     founders: [
-      { name: "Sameer Nigam", title: "Co-founder & CEO" },
-      { name: "Rahul Chari", title: "Co-founder & CTO" },
-      { name: "Burzin Engineer", title: "Co-founder" },
+      {
+        name: "Sameer Nigam",
+        title: "Co-founder & CEO",
+        bio: "Sameer Nigam co-founded PhonePe in 2015 after selling his earlier company Mime360 to Flipkart, where he then ran engineering. PhonePe launched on UPI within months of the protocol going live. He has been CEO since.",
+      },
+      {
+        name: "Rahul Chari",
+        title: "Co-founder & CTO",
+        bio: "Rahul Chari co-founded PhonePe with Sameer Nigam and leads its engineering. The two had worked together at Mime360 and then at Flipkart.",
+      },
+      {
+        name: "Burzin Engineer",
+        title: "Co-founder",
+        bio: "Burzin Engineer co-founded PhonePe and served as its Chief Reliability Officer, the person responsible for keeping a payments system up at national scale. He worked at Yahoo and Flipkart before that.",
+      },
     ],
   },
   {
@@ -265,7 +429,10 @@ export const ANCHOR_COMPANIES: readonly AnchorCompany[] = [
     description:
       "Cars24 runs an end-to-end used-car marketplace covering inspection, pricing, financing, and transfer paperwork.",
     website: "https://www.cars24.com",
+    linkedinUrl: "https://www.linkedin.com/company/cars24",
+    twitterUrl: null,
     industries: ["Marketplace", "Mobility", "Fintech"],
+    businessModel: ["B2C", "Marketplace"],
     foundedYear: 2015,
     employeeCount: 3500,
     fundingStage: "SERIES_D_PLUS",
@@ -274,9 +441,21 @@ export const ANCHOR_COMPANIES: readonly AnchorCompany[] = [
     hqCity: "Gurugram",
     hqArea: "Udyog Vihar",
     founders: [
-      { name: "Vikram Chopra", title: "Co-founder & CEO" },
-      { name: "Mehul Agrawal", title: "Co-founder" },
-      { name: "Ruchit Agarwal", title: "Co-founder & CFO" },
+      {
+        name: "Vikram Chopra",
+        title: "Co-founder & CEO",
+        bio: "Vikram Chopra co-founded Cars24 in 2015, having earlier started the online furniture retailer FabFurnish. He is an IIT Delhi graduate. He has run Cars24 as CEO since it launched.",
+      },
+      {
+        name: "Mehul Agrawal",
+        title: "Co-founder",
+        bio: "Mehul Agrawal co-founded Cars24 with Vikram Chopra, having worked with him at FabFurnish before that.",
+      },
+      {
+        name: "Ruchit Agarwal",
+        title: "Co-founder & CFO",
+        bio: "Ruchit Agarwal co-founded Cars24 and looks after finance, including the lending arm that funds a large share of the cars sold on the platform.",
+      },
     ],
   },
   {
@@ -286,7 +465,10 @@ export const ANCHOR_COMPANIES: readonly AnchorCompany[] = [
     description:
       "Porter matches businesses and individuals with mini-trucks, two-wheelers, and packers for same-day intracity deliveries.",
     website: "https://porter.in",
+    linkedinUrl: "https://www.linkedin.com/company/porter-in",
+    twitterUrl: null,
     industries: ["Logistics", "Marketplace", "Mobility"],
+    businessModel: ["B2B", "B2C", "Marketplace"],
     foundedYear: 2014,
     employeeCount: 1500,
     fundingStage: "SERIES_C",
@@ -295,8 +477,16 @@ export const ANCHOR_COMPANIES: readonly AnchorCompany[] = [
     hqCity: "Bengaluru",
     hqArea: "Koramangala",
     founders: [
-      { name: "Pranav Goel", title: "Co-founder & CEO" },
-      { name: "Uttam Digga", title: "Co-founder & COO" },
+      {
+        name: "Pranav Goel",
+        title: "Co-founder & CEO",
+        bio: "Pranav Goel co-founded Porter in 2014 to organise the intracity trucking market, which until then ran on phone calls and brokers. He is an IIT Bombay graduate and has been CEO since the company started.",
+      },
+      {
+        name: "Uttam Digga",
+        title: "Co-founder & COO",
+        bio: "Uttam Digga co-founded Porter with Pranav Goel and runs its operations, which means the driver-partner network across every city the company serves.",
+      },
       { name: "Vikas Choudhary", title: "Co-founder" },
     ],
   },
@@ -307,7 +497,10 @@ export const ANCHOR_COMPANIES: readonly AnchorCompany[] = [
     description:
       "Jar rounds up everyday spends and invests the change in digital gold, aiming at first-time savers who have never held a formal investment product.",
     website: "https://www.myjar.app",
+    linkedinUrl: null,
+    twitterUrl: null,
     industries: ["Fintech", "Consumer"],
+    businessModel: ["B2C"],
     foundedYear: 2021,
     employeeCount: 300,
     fundingStage: "SERIES_B",
@@ -316,8 +509,16 @@ export const ANCHOR_COMPANIES: readonly AnchorCompany[] = [
     hqCity: "Bengaluru",
     hqArea: "Koramangala",
     founders: [
-      { name: "Nishchay AG", title: "Co-founder & CEO" },
-      { name: "Misbah Ashraf", title: "Co-founder" },
+      {
+        name: "Nishchay AG",
+        title: "Co-founder & CEO",
+        bio: "Nishchay AG co-founded Jar in 2021 around one idea: round up what someone spends and put the change into digital gold. The product is aimed at savers who have never held a formal investment. He has been CEO since it started.",
+      },
+      {
+        name: "Misbah Ashraf",
+        title: "Co-founder",
+        bio: "Misbah Ashraf co-founded Jar after building Marsplay, a social commerce app. He is an active angel investor in Indian consumer startups.",
+      },
     ],
   },
   {
@@ -327,7 +528,10 @@ export const ANCHOR_COMPANIES: readonly AnchorCompany[] = [
     description:
       "Slice began as a credit card alternative for young professionals and now operates as a merged small finance bank offering UPI, deposits, and credit.",
     website: "https://www.sliceit.com",
+    linkedinUrl: null,
+    twitterUrl: null,
     industries: ["Fintech", "Consumer"],
+    businessModel: ["B2C"],
     foundedYear: 2016,
     employeeCount: 900,
     fundingStage: "SERIES_C",
@@ -335,7 +539,13 @@ export const ANCHOR_COMPANIES: readonly AnchorCompany[] = [
     valuationUsd: 1_500_000_000,
     hqCity: "Bengaluru",
     hqArea: "HSR Layout",
-    founders: [{ name: "Rajan Bajaj", title: "Founder & CEO" }],
+    founders: [
+      {
+        name: "Rajan Bajaj",
+        title: "Founder & CEO",
+        bio: "Rajan Bajaj founded Slice in 2016 as a credit product for young professionals that banks would not underwrite. He is an IIT Kharagpur graduate and worked at Flipkart before starting the company. Slice merged with North East Small Finance Bank in 2023.",
+      },
+    ],
   },
   {
     slug: "rapido",
@@ -344,7 +554,10 @@ export const ANCHOR_COMPANIES: readonly AnchorCompany[] = [
     description:
       "Rapido runs India's largest bike-taxi network alongside auto and cab services, focused on short intracity trips.",
     website: "https://rapido.bike",
+    linkedinUrl: null,
+    twitterUrl: null,
     industries: ["Mobility", "Marketplace", "Consumer"],
+    businessModel: ["B2C", "Marketplace"],
     foundedYear: 2015,
     employeeCount: 2000,
     fundingStage: "SERIES_D_PLUS",
@@ -354,8 +567,16 @@ export const ANCHOR_COMPANIES: readonly AnchorCompany[] = [
     hqArea: "Koramangala",
     extraOffices: [{ city: "Hyderabad", area: "Gachibowli" }],
     founders: [
-      { name: "Pavan Guntupalli", title: "Co-founder & CEO" },
-      { name: "Aravind Sanka", title: "Co-founder" },
+      {
+        name: "Pavan Guntupalli",
+        title: "Co-founder & CEO",
+        bio: "Pavan Guntupalli co-founded Rapido in 2015 with Aravind Sanka and Rishikesh SR, after their earlier logistics venture did not work out. The team bet on bike taxis for short city trips, which was then a barely legal category.",
+      },
+      {
+        name: "Aravind Sanka",
+        title: "Co-founder",
+        bio: "Aravind Sanka co-founded Rapido with Pavan Guntupalli, having worked with him on the logistics startup that came before it.",
+      },
       { name: "Rishikesh SR", title: "Co-founder" },
     ],
   },
@@ -366,7 +587,10 @@ export const ANCHOR_COMPANIES: readonly AnchorCompany[] = [
     description:
       "Unacademy runs live online classes for exam preparation, from UPSC and JEE to state-level tests, alongside offline centres.",
     website: "https://unacademy.com",
+    linkedinUrl: "https://www.linkedin.com/company/unacademy",
+    twitterUrl: "https://x.com/unacademy",
     industries: ["Edtech", "Consumer"],
+    businessModel: ["B2C"],
     foundedYear: 2015,
     employeeCount: 3000,
     fundingStage: "SERIES_D_PLUS",
@@ -375,9 +599,23 @@ export const ANCHOR_COMPANIES: readonly AnchorCompany[] = [
     hqCity: "Bengaluru",
     hqArea: "Bellandur",
     founders: [
-      { name: "Gaurav Munjal", title: "Co-founder & CEO" },
-      { name: "Roman Saini", title: "Co-founder" },
-      { name: "Hemesh Singh", title: "Co-founder & CTO" },
+      {
+        name: "Gaurav Munjal",
+        title: "Co-founder & CEO",
+        bio: "Gaurav Munjal started Unacademy as a YouTube channel in 2010 and turned it into a company in 2015 with Roman Saini and Hemesh Singh. He had earlier built Flatchat, a flat-hunting product. He writes unusually openly about the company's mistakes.",
+        twitterUrl: "https://x.com/gauravmunjal",
+      },
+      {
+        name: "Roman Saini",
+        title: "Co-founder",
+        bio: "Roman Saini is a doctor and former IAS officer who left the civil service to teach on Unacademy full time. He cleared the UPSC examination at 22. He is one of the platform's best-known educators.",
+        twitterUrl: "https://x.com/RomanSaini",
+      },
+      {
+        name: "Hemesh Singh",
+        title: "Co-founder & CTO",
+        bio: "Hemesh Singh co-founded Unacademy and built its engineering team. He had worked with Gaurav Munjal on Flatchat before that.",
+      },
     ],
   },
   {
@@ -387,7 +625,10 @@ export const ANCHOR_COMPANIES: readonly AnchorCompany[] = [
     description:
       "Ather designs and manufactures electric two-wheelers and runs the Ather Grid fast-charging network across Indian cities.",
     website: "https://www.atherenergy.com",
+    linkedinUrl: "https://www.linkedin.com/company/atherenergy",
+    twitterUrl: "https://x.com/atherenergy",
     industries: ["Mobility", "Climate", "Consumer"],
+    businessModel: ["B2C", "D2C"],
     foundedYear: 2013,
     employeeCount: 2500,
     fundingStage: "PUBLIC",
@@ -396,8 +637,16 @@ export const ANCHOR_COMPANIES: readonly AnchorCompany[] = [
     hqCity: "Bengaluru",
     hqArea: "Whitefield",
     founders: [
-      { name: "Tarun Mehta", title: "Co-founder & CEO" },
-      { name: "Swapnil Jain", title: "Co-founder & CTO" },
+      {
+        name: "Tarun Mehta",
+        title: "Co-founder & CEO",
+        bio: "Tarun Mehta co-founded Ather Energy in 2013 with Swapnil Jain, a year after both left IIT Madras, and spent the early years designing an electric scooter from the ground up rather than converting a petrol one. The company also built the Ather Grid charging network. It listed publicly in 2025.",
+      },
+      {
+        name: "Swapnil Jain",
+        title: "Co-founder & CTO",
+        bio: "Swapnil Jain co-founded Ather with his IIT Madras batchmate Tarun Mehta and leads its technology, including the vehicle software and battery systems.",
+      },
     ],
   },
   {
@@ -407,7 +656,10 @@ export const ANCHOR_COMPANIES: readonly AnchorCompany[] = [
     description:
       "Lenskart sells prescription glasses, sunglasses, and lenses through an omnichannel model backed by its own manufacturing and robotic lens fitting.",
     website: "https://www.lenskart.com",
+    linkedinUrl: "https://www.linkedin.com/company/lenskart",
+    twitterUrl: "https://x.com/Lenskart_com",
     industries: ["D2C", "E-commerce", "Healthtech"],
+    businessModel: ["B2C", "D2C"],
     foundedYear: 2010,
     employeeCount: 8000,
     fundingStage: "PUBLIC",
@@ -417,8 +669,16 @@ export const ANCHOR_COMPANIES: readonly AnchorCompany[] = [
     hqArea: "Cyber City",
     extraOffices: [{ city: "Bengaluru", area: "Whitefield" }],
     founders: [
-      { name: "Peyush Bansal", title: "Founder & CEO" },
-      { name: "Amit Chaudhary", title: "Co-founder" },
+      {
+        name: "Peyush Bansal",
+        title: "Founder & CEO",
+        bio: "Peyush Bansal founded Lenskart in 2010 after studying at McGill and working at Microsoft in the United States. He built the company around owning manufacturing and lens fitting rather than only selling online. He is also an investor on Shark Tank India.",
+      },
+      {
+        name: "Amit Chaudhary",
+        title: "Co-founder",
+        bio: "Amit Chaudhary co-founded Lenskart and has led its operations and supply chain, which covers the company's own lens manufacturing.",
+      },
       { name: "Sumeet Kapahi", title: "Co-founder" },
     ],
   },
@@ -429,7 +689,10 @@ export const ANCHOR_COMPANIES: readonly AnchorCompany[] = [
     description:
       "boAt sells earphones, smartwatches, and speakers, and became one of India's largest consumer audio brands through aggressive online distribution.",
     website: "https://www.boat-lifestyle.com",
+    linkedinUrl: "https://www.linkedin.com/company/boat-lifestyle",
+    twitterUrl: "https://x.com/RockWithboAt",
     industries: ["D2C", "Consumer", "E-commerce"],
+    businessModel: ["B2C", "D2C"],
     foundedYear: 2016,
     employeeCount: 700,
     fundingStage: "SERIES_C",
@@ -438,8 +701,16 @@ export const ANCHOR_COMPANIES: readonly AnchorCompany[] = [
     hqCity: "Mumbai",
     hqArea: "Andheri East",
     founders: [
-      { name: "Sameer Mehta", title: "Co-founder & CEO" },
-      { name: "Aman Gupta", title: "Co-founder & CMO" },
+      {
+        name: "Sameer Mehta",
+        title: "Co-founder & CEO",
+        bio: "Sameer Mehta co-founded boAt in 2016 with Aman Gupta, starting with charging cables before moving into audio. He runs the product and supply side of the business.",
+      },
+      {
+        name: "Aman Gupta",
+        title: "Co-founder & CMO",
+        bio: "Aman Gupta co-founded boAt and built the brand through cricket and music sponsorships aimed at younger buyers. He worked at Citibank and Harman before that. He is one of the investors on Shark Tank India.",
+      },
     ],
   },
   {
@@ -449,7 +720,10 @@ export const ANCHOR_COMPANIES: readonly AnchorCompany[] = [
     description:
       "Dream11 runs India's largest fantasy sports platform, with cricket, football, and kabaddi contests played by well over a hundred million users.",
     website: "https://www.dream11.com",
+    linkedinUrl: "https://www.linkedin.com/company/dream11",
+    twitterUrl: "https://x.com/Dream11",
     industries: ["Gaming", "Consumer"],
+    businessModel: ["B2C"],
     foundedYear: 2008,
     employeeCount: 900,
     fundingStage: "SERIES_D_PLUS",
@@ -458,8 +732,16 @@ export const ANCHOR_COMPANIES: readonly AnchorCompany[] = [
     hqCity: "Mumbai",
     hqArea: "Lower Parel",
     founders: [
-      { name: "Harsh Jain", title: "Co-founder & CEO" },
-      { name: "Bhavit Sheth", title: "Co-founder & COO" },
+      {
+        name: "Harsh Jain",
+        title: "Co-founder & CEO",
+        bio: "Harsh Jain co-founded Dream11 in 2008 with his school friend Bhavit Sheth, and spent seven years without outside funding before fantasy sports found an audience in India. He studied at the University of Pennsylvania and Columbia Business School.",
+      },
+      {
+        name: "Bhavit Sheth",
+        title: "Co-founder & COO",
+        bio: "Bhavit Sheth co-founded Dream11 with Harsh Jain, whom he has known since school, and runs operations. The two started the company in their early twenties and kept it going through years of little traction.",
+      },
     ],
   },
   {
@@ -469,7 +751,10 @@ export const ANCHOR_COMPANIES: readonly AnchorCompany[] = [
     description:
       "Vedantu runs interactive live classes for school curricula and competitive exam preparation, with an emphasis on small-batch teaching.",
     website: "https://www.vedantu.com",
+    linkedinUrl: "https://www.linkedin.com/company/vedantu",
+    twitterUrl: "https://x.com/vedantu_learn",
     industries: ["Edtech", "Consumer"],
+    businessModel: ["B2C"],
     foundedYear: 2014,
     employeeCount: 1200,
     fundingStage: "SERIES_D_PLUS",
@@ -478,9 +763,21 @@ export const ANCHOR_COMPANIES: readonly AnchorCompany[] = [
     hqCity: "Bengaluru",
     hqArea: "HSR Layout",
     founders: [
-      { name: "Vamsi Krishna", title: "Co-founder & CEO" },
-      { name: "Pulkit Jain", title: "Co-founder" },
-      { name: "Anand Prakash", title: "Co-founder" },
+      {
+        name: "Vamsi Krishna",
+        title: "Co-founder & CEO",
+        bio: "Vamsi Krishna co-founded Vedantu in 2014, having earlier started Lakshya, a test-preparation business later acquired by MT Educare. He is an IIT Bombay graduate who taught in classrooms for years before moving online.",
+      },
+      {
+        name: "Pulkit Jain",
+        title: "Co-founder",
+        bio: "Pulkit Jain co-founded Vedantu with Vamsi Krishna, having worked with him at Lakshya, and leads product.",
+      },
+      {
+        name: "Anand Prakash",
+        title: "Co-founder",
+        bio: "Anand Prakash co-founded Vedantu after teaching at Lakshya, the test-preparation company the founding team ran earlier. He leads the academics side.",
+      },
     ],
   },
   {
@@ -490,7 +787,10 @@ export const ANCHOR_COMPANIES: readonly AnchorCompany[] = [
     description:
       "Cult.fit runs fitness centres, group classes, and an at-home workout app, alongside mental wellness and nutrition products.",
     website: "https://www.cult.fit",
+    linkedinUrl: "https://www.linkedin.com/company/cult-fit",
+    twitterUrl: "https://x.com/cult_fit",
     industries: ["Healthtech", "Consumer"],
+    businessModel: ["B2C"],
     foundedYear: 2016,
     employeeCount: 3000,
     fundingStage: "SERIES_D_PLUS",
@@ -499,8 +799,16 @@ export const ANCHOR_COMPANIES: readonly AnchorCompany[] = [
     hqCity: "Bengaluru",
     hqArea: "Koramangala",
     founders: [
-      { name: "Mukesh Bansal", title: "Co-founder" },
-      { name: "Ankit Nagori", title: "Co-founder" },
+      {
+        name: "Mukesh Bansal",
+        title: "Co-founder",
+        bio: "Mukesh Bansal founded Myntra and ran it until Flipkart acquired the company, then started Cult.fit in 2016 with Ankit Nagori. He is an IIT Kanpur graduate who spent several years working in Silicon Valley before returning to India.",
+      },
+      {
+        name: "Ankit Nagori",
+        title: "Co-founder",
+        bio: "Ankit Nagori co-founded Cult.fit after leading commerce at Flipkart. He later started the cloud kitchen business Eatfit, which became part of the same group.",
+      },
     ],
   },
   {
@@ -510,7 +818,10 @@ export const ANCHOR_COMPANIES: readonly AnchorCompany[] = [
     description:
       "ShareChat runs a regional-language social network and the Moj short-video app, serving users who post and scroll in languages other than English.",
     website: "https://sharechat.com",
+    linkedinUrl: "https://www.linkedin.com/company/sharechat",
+    twitterUrl: "https://x.com/ShareChat",
     industries: ["Consumer", "AI"],
+    businessModel: ["B2C"],
     foundedYear: 2015,
     employeeCount: 1000,
     fundingStage: "SERIES_D_PLUS",
@@ -519,9 +830,21 @@ export const ANCHOR_COMPANIES: readonly AnchorCompany[] = [
     hqCity: "Bengaluru",
     hqArea: "Bellandur",
     founders: [
-      { name: "Ankush Sachdeva", title: "Co-founder & CEO" },
-      { name: "Bhanu Pratap Singh", title: "Co-founder & CTO" },
-      { name: "Farid Ahsan", title: "Co-founder & COO" },
+      {
+        name: "Ankush Sachdeva",
+        title: "Co-founder & CEO",
+        bio: "Ankush Sachdeva co-founded ShareChat in 2015 with two IIT Kanpur batchmates, after several failed ideas and one observation: most sharing on Indian WhatsApp happened in languages other than English. The team later built the short-video app Moj.",
+      },
+      {
+        name: "Bhanu Pratap Singh",
+        title: "Co-founder & CTO",
+        bio: "Bhanu Pratap Singh co-founded ShareChat with his IIT Kanpur batchmates and leads its engineering, including the recommendation systems behind both apps.",
+      },
+      {
+        name: "Farid Ahsan",
+        title: "Co-founder & COO",
+        bio: "Farid Ahsan co-founded ShareChat and ran operations. He met his co-founders at IIT Kanpur, where the three tried several products before this one worked.",
+      },
     ],
   },
   {
@@ -531,7 +854,10 @@ export const ANCHOR_COMPANIES: readonly AnchorCompany[] = [
     description:
       "Paytm operates a wallet, UPI payments, merchant QR and device business, and distributes lending and wealth products.",
     website: "https://paytm.com",
+    linkedinUrl: "https://www.linkedin.com/company/paytm",
+    twitterUrl: "https://x.com/Paytm",
     industries: ["Fintech", "Consumer", "Marketplace"],
+    businessModel: ["B2B", "B2C"],
     foundedYear: 2010,
     employeeCount: 10000,
     fundingStage: "PUBLIC",
@@ -539,7 +865,14 @@ export const ANCHOR_COMPANIES: readonly AnchorCompany[] = [
     valuationUsd: 5_000_000_000,
     hqCity: "Noida",
     hqArea: "Sector 62",
-    founders: [{ name: "Vijay Shekhar Sharma", title: "Founder & CEO" }],
+    founders: [
+      {
+        name: "Vijay Shekhar Sharma",
+        title: "Founder & CEO",
+        bio: "Vijay Shekhar Sharma started One97 Communications in 2000 and launched Paytm as a mobile recharge service in 2010. He grew up in Aligarh and taught himself English partly by reading technical books. He took the company public in 2021.",
+        twitterUrl: "https://x.com/vijayshekhar",
+      },
+    ],
   },
   {
     slug: "delhivery",
@@ -548,7 +881,10 @@ export const ANCHOR_COMPANIES: readonly AnchorCompany[] = [
     description:
       "Delhivery runs express parcel delivery, freight, warehousing, and cross-border logistics with a large automated sortation network.",
     website: "https://www.delhivery.com",
+    linkedinUrl: "https://www.linkedin.com/company/delhivery",
+    twitterUrl: "https://x.com/delhivery",
     industries: ["Logistics", "Enterprise Software"],
+    businessModel: ["B2B"],
     foundedYear: 2011,
     employeeCount: 60000,
     fundingStage: "PUBLIC",
@@ -557,8 +893,16 @@ export const ANCHOR_COMPANIES: readonly AnchorCompany[] = [
     hqCity: "Gurugram",
     hqArea: "Cyber City",
     founders: [
-      { name: "Sahil Barua", title: "Co-founder & CEO" },
-      { name: "Mohit Tandon", title: "Co-founder" },
+      {
+        name: "Sahil Barua",
+        title: "Co-founder & CEO",
+        bio: "Sahil Barua co-founded Delhivery in 2011 with three others, starting as a local delivery service for restaurants in Gurugram. He was a consultant at Bain before that and studied at IIM Bangalore. He took the company public in 2022.",
+      },
+      {
+        name: "Mohit Tandon",
+        title: "Co-founder",
+        bio: "Mohit Tandon co-founded Delhivery and worked with Sahil Barua at Bain before the two started the company.",
+      },
       { name: "Bhavesh Manglani", title: "Co-founder" },
       { name: "Suraj Saharan", title: "Co-founder" },
     ],
@@ -570,7 +914,10 @@ export const ANCHOR_COMPANIES: readonly AnchorCompany[] = [
     description:
       "Zomato covers restaurant listings, food delivery, dining-out bookings, and the Hyperpure supplies business for restaurants.",
     website: "https://www.zomato.com",
+    linkedinUrl: "https://www.linkedin.com/company/zomato",
+    twitterUrl: "https://x.com/zomato",
     industries: ["Consumer", "Marketplace", "Logistics"],
+    businessModel: ["B2C", "Marketplace"],
     foundedYear: 2008,
     employeeCount: 5000,
     fundingStage: "PUBLIC",
@@ -579,8 +926,17 @@ export const ANCHOR_COMPANIES: readonly AnchorCompany[] = [
     hqCity: "Gurugram",
     hqArea: "Golf Course Road",
     founders: [
-      { name: "Deepinder Goyal", title: "Co-founder & CEO" },
-      { name: "Pankaj Chaddah", title: "Co-founder" },
+      {
+        name: "Deepinder Goyal",
+        title: "Co-founder & CEO",
+        bio: "Deepinder Goyal started Zomato in 2008 as Foodiebay, a scanned collection of restaurant menus he put online while working at Bain. He is an IIT Delhi graduate and took the company public in 2021. He has since pushed it into quick commerce through Blinkit.",
+        twitterUrl: "https://x.com/deepigoyal",
+      },
+      {
+        name: "Pankaj Chaddah",
+        title: "Co-founder",
+        bio: "Pankaj Chaddah co-founded Zomato with Deepinder Goyal while the two worked together at Bain, and stayed until 2018. He later started Mynd.fit, a mental wellness company.",
+      },
     ],
   },
   {
@@ -590,7 +946,10 @@ export const ANCHOR_COMPANIES: readonly AnchorCompany[] = [
     description:
       "Blinkit runs a dense dark-store network for ten-minute delivery of groceries, electronics, and household essentials.",
     website: "https://blinkit.com",
+    linkedinUrl: "https://www.linkedin.com/company/blinkit",
+    twitterUrl: "https://x.com/letsblinkit",
     industries: ["E-commerce", "Logistics", "Consumer"],
+    businessModel: ["B2C"],
     foundedYear: 2013,
     employeeCount: 2500,
     fundingStage: "SERIES_D_PLUS",
@@ -598,7 +957,13 @@ export const ANCHOR_COMPANIES: readonly AnchorCompany[] = [
     valuationUsd: 13_000_000_000,
     hqCity: "Gurugram",
     hqArea: "Udyog Vihar",
-    founders: [{ name: "Albinder Dhindsa", title: "Co-founder & CEO" }],
+    founders: [
+      {
+        name: "Albinder Dhindsa",
+        title: "Co-founder & CEO",
+        bio: "Albinder Dhindsa co-founded Grofers in 2013, which became Blinkit when the company moved to ten-minute delivery. He worked at Zomato before starting it and is an IIT Delhi graduate. Zomato acquired the business in 2022 and he still runs it.",
+      },
+    ],
   },
   {
     slug: "urban-company",
@@ -607,7 +972,10 @@ export const ANCHOR_COMPANIES: readonly AnchorCompany[] = [
     description:
       "Urban Company matches customers with vetted professionals for salon services, appliance repair, cleaning, and painting, and trains its partner network.",
     website: "https://www.urbancompany.com",
+    linkedinUrl: "https://www.linkedin.com/company/urbancompany",
+    twitterUrl: "https://x.com/urbancompany_UC",
     industries: ["Marketplace", "Consumer"],
+    businessModel: ["B2C", "Marketplace"],
     foundedYear: 2014,
     employeeCount: 3000,
     fundingStage: "PUBLIC",
@@ -617,9 +985,21 @@ export const ANCHOR_COMPANIES: readonly AnchorCompany[] = [
     hqArea: "Cyber City",
     extraOffices: [{ city: "Dubai", area: "Internet City" }],
     founders: [
-      { name: "Abhiraj Singh Bhal", title: "Co-founder & CEO" },
-      { name: "Varun Khaitan", title: "Co-founder" },
-      { name: "Raghav Chandra", title: "Co-founder & CTO" },
+      {
+        name: "Abhiraj Singh Bhal",
+        title: "Co-founder & CEO",
+        bio: "Abhiraj Singh Bhal co-founded UrbanClap, now Urban Company, in 2014 with Varun Khaitan and Raghav Chandra. He worked at BCG before that and studied at IIT Kanpur and INSEAD.",
+      },
+      {
+        name: "Varun Khaitan",
+        title: "Co-founder",
+        bio: "Varun Khaitan co-founded Urban Company with Abhiraj Singh Bhal, whom he knew from IIT Kanpur. The two worked at BCG before starting the company.",
+      },
+      {
+        name: "Raghav Chandra",
+        title: "Co-founder & CTO",
+        bio: "Raghav Chandra co-founded Urban Company and built its technology. He worked as a software engineer at Twitter in the United States before returning to India.",
+      },
     ],
   },
   {
@@ -629,7 +1009,10 @@ export const ANCHOR_COMPANIES: readonly AnchorCompany[] = [
     description:
       "PharmEasy delivers prescription and over-the-counter medicines, runs diagnostic labs, and operates a pharmacy distribution business.",
     website: "https://pharmeasy.in",
+    linkedinUrl: "https://www.linkedin.com/company/pharmeasy",
+    twitterUrl: "https://x.com/pharmeasyapp",
     industries: ["Healthtech", "E-commerce"],
+    businessModel: ["B2B", "B2C"],
     foundedYear: 2015,
     employeeCount: 4000,
     fundingStage: "SERIES_D_PLUS",
@@ -638,8 +1021,16 @@ export const ANCHOR_COMPANIES: readonly AnchorCompany[] = [
     hqCity: "Mumbai",
     hqArea: "Andheri East",
     founders: [
-      { name: "Siddharth Shah", title: "Co-founder & CEO" },
-      { name: "Dharmil Sheth", title: "Co-founder" },
+      {
+        name: "Siddharth Shah",
+        title: "Co-founder & CEO",
+        bio: "Siddharth Shah co-founded PharmEasy in 2015, starting with delivery from neighbourhood pharmacies rather than warehouses of its own. He is an IIT Bombay graduate. The company later added diagnostics and pharmacy distribution.",
+      },
+      {
+        name: "Dharmil Sheth",
+        title: "Co-founder",
+        bio: "Dharmil Sheth co-founded PharmEasy and grew up around a family pharmaceutical distribution business, which shaped how the company approached supply.",
+      },
       { name: "Dhaval Shah", title: "Co-founder" },
     ],
   },
@@ -650,7 +1041,10 @@ export const ANCHOR_COMPANIES: readonly AnchorCompany[] = [
     description:
       "Juspay builds payment orchestration and checkout infrastructure used by large merchants and banks, and maintains open-source payment tooling.",
     website: "https://juspay.io",
+    linkedinUrl: "https://www.linkedin.com/company/juspay",
+    twitterUrl: "https://x.com/juspay",
     industries: ["Fintech", "Developer Tools", "Enterprise Software"],
+    businessModel: ["B2B", "SaaS"],
     foundedYear: 2012,
     employeeCount: 600,
     fundingStage: "SERIES_C",
@@ -659,8 +1053,16 @@ export const ANCHOR_COMPANIES: readonly AnchorCompany[] = [
     hqCity: "Bengaluru",
     hqArea: "Koramangala",
     founders: [
-      { name: "Vimal Kumar", title: "Founder & CEO" },
-      { name: "Ramanathan RV", title: "Co-founder" },
+      {
+        name: "Vimal Kumar",
+        title: "Founder & CEO",
+        bio: "Vimal Kumar founded Juspay in 2012 to make Indian online checkouts less painful, and the company now sits behind payments for large merchants and banks. It also maintains open-source payment tooling, including Hyperswitch.",
+      },
+      {
+        name: "Ramanathan RV",
+        title: "Co-founder",
+        bio: "Ramanathan RV co-founded Juspay and leads its engineering work on payment infrastructure, which has to hold up on the busiest shopping days of the year.",
+      },
     ],
   },
   {
@@ -670,7 +1072,10 @@ export const ANCHOR_COMPANIES: readonly AnchorCompany[] = [
     description:
       "Chargebee handles recurring billing, invoicing, revenue recognition, and retention for subscription businesses worldwide.",
     website: "https://www.chargebee.com",
+    linkedinUrl: "https://www.linkedin.com/company/chargebee",
+    twitterUrl: "https://x.com/chargebee",
     industries: ["SaaS", "Fintech", "Enterprise Software"],
+    businessModel: ["B2B", "SaaS"],
     foundedYear: 2011,
     employeeCount: 1100,
     fundingStage: "SERIES_D_PLUS",
@@ -680,8 +1085,16 @@ export const ANCHOR_COMPANIES: readonly AnchorCompany[] = [
     hqArea: "Perungudi (OMR)",
     extraOffices: [{ city: "Bengaluru", area: "Indiranagar" }],
     founders: [
-      { name: "Krish Subramanian", title: "Co-founder & CEO" },
-      { name: "Rajaraman Santhanam", title: "Co-founder & COO" },
+      {
+        name: "Krish Subramanian",
+        title: "Co-founder & CEO",
+        bio: "Krish Subramanian co-founded Chargebee in Chennai in 2011 with three former colleagues, building subscription billing for companies selling worldwide. He worked at Cognizant before that. Most of the company's customers have always been outside India.",
+      },
+      {
+        name: "Rajaraman Santhanam",
+        title: "Co-founder & COO",
+        bio: "Rajaraman Santhanam co-founded Chargebee and runs operations. He worked with the other founders at Cognizant before they started the company.",
+      },
       { name: "Thiyagarajan T", title: "Co-founder" },
       { name: "Saravanan KP", title: "Co-founder" },
     ],
@@ -693,7 +1106,10 @@ export const ANCHOR_COMPANIES: readonly AnchorCompany[] = [
     description:
       "BrowserStack gives developers instant access to thousands of real browsers and mobile devices for manual and automated testing.",
     website: "https://www.browserstack.com",
+    linkedinUrl: "https://www.linkedin.com/company/browserstack",
+    twitterUrl: "https://x.com/browserstack",
     industries: ["Developer Tools", "SaaS"],
+    businessModel: ["B2B", "SaaS"],
     foundedYear: 2011,
     employeeCount: 1000,
     fundingStage: "SERIES_C",
@@ -703,8 +1119,16 @@ export const ANCHOR_COMPANIES: readonly AnchorCompany[] = [
     hqArea: "Powai",
     extraOffices: [{ city: "Singapore", area: "Downtown Core" }],
     founders: [
-      { name: "Ritesh Arora", title: "Co-founder & CEO" },
-      { name: "Nakul Aggarwal", title: "Co-founder & CTO" },
+      {
+        name: "Ritesh Arora",
+        title: "Co-founder & CEO",
+        bio: "Ritesh Arora co-founded BrowserStack in 2011 with Nakul Aggarwal, when cross-browser testing still meant keeping a room full of physical machines. The company was bootstrapped for years before it raised outside capital. He studied at IIT Bombay.",
+      },
+      {
+        name: "Nakul Aggarwal",
+        title: "Co-founder & CTO",
+        bio: "Nakul Aggarwal co-founded BrowserStack with Ritesh Arora, whom he met at IIT Bombay, and leads its technology — thousands of real devices kept online and clean between sessions.",
+      },
     ],
   },
   {
@@ -714,7 +1138,10 @@ export const ANCHOR_COMPANIES: readonly AnchorCompany[] = [
     description:
       "Hasura generates GraphQL and REST APIs over existing databases and services, with authorisation and caching built in.",
     website: "https://hasura.io",
+    linkedinUrl: "https://www.linkedin.com/company/hasura",
+    twitterUrl: "https://x.com/HasuraHQ",
     industries: ["Developer Tools", "SaaS"],
+    businessModel: ["B2B", "SaaS"],
     foundedYear: 2017,
     employeeCount: 250,
     fundingStage: "SERIES_C",
@@ -724,8 +1151,17 @@ export const ANCHOR_COMPANIES: readonly AnchorCompany[] = [
     hqArea: "Indiranagar",
     extraOffices: [{ city: "San Francisco", area: "SoMa" }],
     founders: [
-      { name: "Tanmai Gopal", title: "Co-founder & CEO" },
-      { name: "Rajoshi Ghosh", title: "Co-founder & COO" },
+      {
+        name: "Tanmai Gopal",
+        title: "Co-founder & CEO",
+        bio: "Tanmai Gopal co-founded Hasura with Rajoshi Ghosh, around the idea that a GraphQL API over an existing database should not require writing the middle layer at all. He is an IIT Madras graduate and speaks often on API design.",
+        twitterUrl: "https://x.com/tanmaigo",
+      },
+      {
+        name: "Rajoshi Ghosh",
+        title: "Co-founder & COO",
+        bio: "Rajoshi Ghosh co-founded Hasura and runs operations. She and Tanmai Gopal worked together on developer tooling in Bengaluru before starting the company.",
+      },
     ],
   },
   {
@@ -735,7 +1171,10 @@ export const ANCHOR_COMPANIES: readonly AnchorCompany[] = [
     description:
       "Sarvam AI trains large language models and speech systems for Indian languages, and builds developer tooling and voice agents on top of them.",
     website: "https://www.sarvam.ai",
+    linkedinUrl: "https://www.linkedin.com/company/sarvam-ai",
+    twitterUrl: "https://x.com/SarvamAI",
     industries: ["AI", "Developer Tools"],
+    businessModel: ["B2B"],
     foundedYear: 2023,
     employeeCount: 120,
     fundingStage: "SERIES_A",
@@ -744,8 +1183,16 @@ export const ANCHOR_COMPANIES: readonly AnchorCompany[] = [
     hqCity: "Bengaluru",
     hqArea: "Koramangala",
     founders: [
-      { name: "Vivek Raghavan", title: "Co-founder" },
-      { name: "Pratyush Kumar", title: "Co-founder" },
+      {
+        name: "Vivek Raghavan",
+        title: "Co-founder",
+        bio: "Vivek Raghavan co-founded Sarvam AI in 2023 to build language models for Indian languages. He spent years as chief product manager and biometric architect for Aadhaar at UIDAI, which is where much of his work on population-scale systems comes from.",
+      },
+      {
+        name: "Pratyush Kumar",
+        title: "Co-founder",
+        bio: "Pratyush Kumar co-founded Sarvam AI and was earlier part of AI4Bharat at IIT Madras, which built open datasets and models for Indian languages. He worked as a researcher at Microsoft before that.",
+      },
     ],
   },
   {
@@ -755,7 +1202,10 @@ export const ANCHOR_COMPANIES: readonly AnchorCompany[] = [
     description:
       "Krutrim builds multilingual large language models, cloud infrastructure, and an AI assistant aimed at Indian users and developers.",
     website: "https://www.olakrutrim.com",
+    linkedinUrl: "https://www.linkedin.com/company/krutrim",
+    twitterUrl: "https://x.com/Krutrim",
     industries: ["AI", "Enterprise Software"],
+    businessModel: ["B2B", "B2C"],
     foundedYear: 2023,
     employeeCount: 300,
     fundingStage: "SERIES_B",
@@ -763,7 +1213,14 @@ export const ANCHOR_COMPANIES: readonly AnchorCompany[] = [
     valuationUsd: 1_000_000_000,
     hqCity: "Bengaluru",
     hqArea: "Bellandur",
-    founders: [{ name: "Bhavish Aggarwal", title: "Founder" }],
+    founders: [
+      {
+        name: "Bhavish Aggarwal",
+        title: "Founder",
+        bio: "Bhavish Aggarwal founded Ola in 2010 and started Krutrim in 2023 to build Indian language models along with the compute underneath them. He is an IIT Bombay graduate and worked at Microsoft Research before becoming a founder.",
+        twitterUrl: "https://x.com/bhash",
+      },
+    ],
   },
   {
     slug: "zetwerk",
@@ -772,7 +1229,10 @@ export const ANCHOR_COMPANIES: readonly AnchorCompany[] = [
     description:
       "Zetwerk connects buyers with contract manufacturers for fabrication, machining, and precision components, managing quality and delivery in between.",
     website: "https://www.zetwerk.com",
+    linkedinUrl: "https://www.linkedin.com/company/zetwerk",
+    twitterUrl: null,
     industries: ["Marketplace", "Enterprise Software", "Logistics"],
+    businessModel: ["B2B", "Marketplace"],
     foundedYear: 2018,
     employeeCount: 2500,
     fundingStage: "SERIES_D_PLUS",
@@ -781,8 +1241,16 @@ export const ANCHOR_COMPANIES: readonly AnchorCompany[] = [
     hqCity: "Bengaluru",
     hqArea: "Whitefield",
     founders: [
-      { name: "Amrit Acharya", title: "Co-founder & CEO" },
-      { name: "Srinath Ramakkrushnan", title: "Co-founder" },
+      {
+        name: "Amrit Acharya",
+        title: "Co-founder & CEO",
+        bio: "Amrit Acharya co-founded Zetwerk in 2018 with Srinath Ramakkrushnan, whom he met at IIT Madras, to connect buyers with contract manufacturers. He worked at ITC before that.",
+      },
+      {
+        name: "Srinath Ramakkrushnan",
+        title: "Co-founder",
+        bio: "Srinath Ramakkrushnan co-founded Zetwerk and looks after the supply side of the network — the fabrication and machining shops that actually take the orders.",
+      },
       { name: "Rahul Sharma", title: "Co-founder" },
       { name: "Vishal Chaudhary", title: "Co-founder" },
     ],
@@ -794,7 +1262,10 @@ export const ANCHOR_COMPANIES: readonly AnchorCompany[] = [
     description:
       "Darwinbox is an end-to-end HR platform covering hiring, onboarding, payroll, performance, and engagement for large employers across Asia.",
     website: "https://darwinbox.com",
+    linkedinUrl: "https://www.linkedin.com/company/darwinbox",
+    twitterUrl: "https://x.com/darwinbox",
     industries: ["SaaS", "Enterprise Software"],
+    businessModel: ["B2B", "SaaS"],
     foundedYear: 2015,
     employeeCount: 900,
     fundingStage: "SERIES_D_PLUS",
@@ -804,9 +1275,21 @@ export const ANCHOR_COMPANIES: readonly AnchorCompany[] = [
     hqArea: "HITEC City",
     extraOffices: [{ city: "Singapore", area: "Downtown Core" }],
     founders: [
-      { name: "Jayant Paleti", title: "Co-founder" },
-      { name: "Rohit Chennamaneni", title: "Co-founder" },
-      { name: "Chaitanya Peddi", title: "Co-founder" },
+      {
+        name: "Jayant Paleti",
+        title: "Co-founder",
+        bio: "Jayant Paleti co-founded Darwinbox in Hyderabad in 2015 with Rohit Chennamaneni and Chaitanya Peddi. The company sells HR software to large employers across Asia, a segment global vendors had largely left alone.",
+      },
+      {
+        name: "Rohit Chennamaneni",
+        title: "Co-founder",
+        bio: "Rohit Chennamaneni co-founded Darwinbox in 2015 after working at Google and McKinsey. He has focused on the company's growth outside India.",
+      },
+      {
+        name: "Chaitanya Peddi",
+        title: "Co-founder",
+        bio: "Chaitanya Peddi co-founded Darwinbox and leads its product. He worked as an HR consultant before starting the company, which is where the product's shape comes from.",
+      },
     ],
   },
   {
@@ -816,7 +1299,10 @@ export const ANCHOR_COMPANIES: readonly AnchorCompany[] = [
     description:
       "Whatfix layers interactive walkthroughs and analytics on top of enterprise applications so employees and customers learn them in context.",
     website: "https://whatfix.com",
+    linkedinUrl: "https://www.linkedin.com/company/whatfix",
+    twitterUrl: "https://x.com/whatfix",
     industries: ["SaaS", "Enterprise Software"],
+    businessModel: ["B2B", "SaaS"],
     foundedYear: 2014,
     employeeCount: 900,
     fundingStage: "SERIES_D_PLUS",
@@ -826,8 +1312,16 @@ export const ANCHOR_COMPANIES: readonly AnchorCompany[] = [
     hqArea: "Bellandur",
     extraOffices: [{ city: "San Francisco", area: "SoMa" }],
     founders: [
-      { name: "Khadim Batti", title: "Co-founder & CEO" },
-      { name: "Vara Kumar", title: "Co-founder & CTO" },
+      {
+        name: "Khadim Batti",
+        title: "Co-founder & CEO",
+        bio: "Khadim Batti co-founded Whatfix in 2014 with Vara Kumar, after an earlier product of theirs failed to find a market. The company grew out of a plain observation: enterprise software fails when nobody knows how to use it.",
+      },
+      {
+        name: "Vara Kumar",
+        title: "Co-founder & CTO",
+        bio: "Vara Kumar co-founded Whatfix with Khadim Batti and leads engineering and research. The two had worked together on the product that came before it.",
+      },
     ],
   },
   {
@@ -837,7 +1331,10 @@ export const ANCHOR_COMPANIES: readonly AnchorCompany[] = [
     description:
       "Moneyview underwrites personal loans using alternative data and runs a money-management app for borrowers with thin credit files.",
     website: "https://moneyview.in",
+    linkedinUrl: "https://www.linkedin.com/company/moneyview",
+    twitterUrl: null,
     industries: ["Fintech", "Consumer"],
+    businessModel: ["B2C"],
     foundedYear: 2014,
     employeeCount: 1200,
     fundingStage: "SERIES_D_PLUS",
@@ -846,7 +1343,11 @@ export const ANCHOR_COMPANIES: readonly AnchorCompany[] = [
     hqCity: "Bengaluru",
     hqArea: "HSR Layout",
     founders: [
-      { name: "Sanjay Aggarwal", title: "Co-founder & CEO" },
+      {
+        name: "Sanjay Aggarwal",
+        title: "Co-founder & CEO",
+        bio: "Sanjay Aggarwal co-founded Moneyview in 2014 with Puneet Agarwal. The company lends to borrowers whose credit files are too thin for a bureau to score, underwriting them on alternative data instead.",
+      },
       { name: "Puneet Agarwal", title: "Co-founder" },
     ],
   },

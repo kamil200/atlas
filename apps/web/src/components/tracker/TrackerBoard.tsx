@@ -23,7 +23,8 @@ const STATUS_ORDER: ApplicationStatus[] = [
 const CHIP: Record<ApplicationStatus, string> = {
   SAVED: "border border-line bg-paper text-ink-soft",
   APPLIED: "bg-peepal-tint text-peepal-700",
-  INTERVIEWING: "bg-marigold-tint text-[#8A6D00]",
+  // Darkened from #8A6D00, which was 4.36:1 on the marigold tint at 10px — under AA.
+  INTERVIEWING: "bg-marigold-tint text-[#6F5600]",
   OFFER: "bg-peepal-600 text-paper",
   REJECTED: "border border-line bg-paper-2 text-ink-soft",
   WITHDRAWN: "border border-line bg-paper-2 text-ink-soft",

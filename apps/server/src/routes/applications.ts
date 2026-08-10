@@ -11,6 +11,7 @@ import {
   UpdateApplicationBody,
 } from "@chowk/schema";
 import type { FastifyPluginAsyncTypebox } from "@fastify/type-provider-typebox";
+import { VISIBLE_COMPANY, VISIBLE_JOB } from "../modules/filters/compile-filters";
 import { ErrorCodes, sendError, sendResponse } from "../utils/send-response";
 import { jobInclude, toApplicationDto } from "../utils/serializers";
 
@@ -59,8 +60,13 @@ const applicationRoutes: FastifyPluginAsyncTypebox = async (app) => {
       },
     },
     async (request, reply) => {
+      /*
+        You can only save something you could have browsed to. Without the
+        company clause, replaying an old job id returned the full role — title,
+        salary, company — for a company that had since been hidden or removed.
+      */
       const job = await app.prisma.job.findFirst({
-        where: { id: request.body.jobId, deletedAt: null },
+        where: { id: request.body.jobId, ...VISIBLE_JOB, company: VISIBLE_COMPANY },
         select: { id: true },
       });
       if (!job) {
@@ -159,11 +165,7 @@ const applicationRoutes: FastifyPluginAsyncTypebox = async (app) => {
     async (request, reply) => {
       const [job, resume] = await Promise.all([
         app.prisma.job.findFirst({
-          where: {
-            id: request.body.jobId,
-            deletedAt: null,
-            company: { submissionStatus: "APPROVED", deletedAt: null },
-          },
+          where: { id: request.body.jobId, deletedAt: null, company: VISIBLE_COMPANY },
           select: { id: true, status: true },
         }),
         app.prisma.resume.findFirst({

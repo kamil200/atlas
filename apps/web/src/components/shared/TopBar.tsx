@@ -1,5 +1,14 @@
-import { Link, useNavigate } from "@tanstack/react-router";
-import { Bookmark, Check, LogOut, Search, ShieldCheck, Sparkles, UserRound } from "lucide-react";
+import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
+import {
+  Bookmark,
+  Check,
+  Eye,
+  LogOut,
+  Search,
+  ShieldCheck,
+  Sparkles,
+  UserRound,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -22,6 +31,8 @@ export function TopBar({ onOpenSearch }: { onOpenSearch: () => void }) {
   const [logout] = useLogoutMutation();
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
+  // Signing in should return you to the exact view you were browsing.
+  const here = useRouterState({ select: (state) => state.location.href });
 
   const signOut = async () => {
     await logout();
@@ -114,9 +125,23 @@ export function TopBar({ onOpenSearch }: { onOpenSearch: () => void }) {
             </DropdownMenu>
           </>
         ) : (
-          <Button asChild size="sm">
-            <Link to="/auth/login">Log in</Link>
-          </Button>
+          <>
+            {/*
+              Says out loud what a signed-out visitor is looking at. Everything
+              on the map is real and browsable; only saving, applying and the
+              tracker need an account, and this is where that is explained
+              before someone clicks a bookmark and gets bounced to a login.
+            */}
+            <span className="hidden items-center gap-1.5 rounded-full border border-line bg-paper-2 px-3 py-1.5 text-[11px] text-ink-soft sm:flex">
+              <Eye className="size-3.5" aria-hidden="true" />
+              Preview — browsing without an account
+            </span>
+            <Button asChild size="sm">
+              <Link to="/auth/login" search={{ next: here }}>
+                Log in
+              </Link>
+            </Button>
+          </>
         )}
       </div>
     </header>
