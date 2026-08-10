@@ -160,10 +160,18 @@ docker build -t atlas . && docker run -p 8080:3000 \
 
 **3. Environment.** `PORT=3000` and `NODE_ENV=production` as plain variables. `DATABASE_URL`, `JWT_SECRET` and `COOKIE_SECRET` as secrets, and `FRONTEND_URL` set to the app's public URL once Koyeb assigns it. The server validates all of these at boot and crashes immediately if one is missing, rather than failing later on the first request that needed it.
 
-**4. Seed once**, since the demo data is the product. Migrations apply themselves at container start, but seeding is deliberately manual so a restart can never wipe live data. Run it against the Neon URL from your own machine.
+**4. Schema and data**, both run once from your own machine against the Neon URL. Neither happens at container start, on purpose: the container scales to zero, so migrating at boot would make every cold start pay for a check that almost always finds nothing to do, and several instances waking together would race for the migration lock. Seeding is manual for the stronger reason that a restart must never be able to wipe live data.
 
 ```bash
-DATABASE_URL="postgresql://…?sslmode=require" pnpm --filter @atlas/database seed
+DATABASE_URL="postgresql://…?sslmode=require" pnpm db:migrate:deploy
+```
+
+Run the same command again after any future schema change, before deploying the code that depends on it. If you forget, the server still boots and `/api/health` still passes, but it logs a warning naming the missing table, and real requests fail. That warning is the tell.
+
+Then the demo data, since it is the product.
+
+```bash
+DATABASE_URL="postgresql://…?sslmode=require" pnpm db:seed
 ```
 
 ### What the free tier costs you

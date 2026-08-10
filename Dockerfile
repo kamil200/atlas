@@ -63,7 +63,13 @@ ENV RESUME_STORAGE_DIR=/data/resumes
 RUN mkdir -p /data/resumes
 
 EXPOSE 3000
-# Migrations run at boot rather than in the build, because the build has no
-# database to talk to. `migrate deploy` only applies committed migrations and
-# never generates one, so it is safe to run on every start.
-CMD ["sh", "-c", "pnpm --filter @atlas/database exec prisma migrate deploy && pnpm --filter @atlas/server start"]
+# Just the server. Migrations are deliberately NOT run here.
+#
+# Two reasons. On a host that scales to zero, every cold start would pay for a
+# migration check before answering the request that woke it, on a tenth of a
+# core. And several instances waking together would race for the migration lock
+# to do nothing, since there is normally nothing to apply.
+#
+# Schema changes are applied once, on purpose, with `pnpm db:migrate:deploy`
+# against the production URL. The README says when.
+CMD ["pnpm", "--filter", "@atlas/server", "start"]
