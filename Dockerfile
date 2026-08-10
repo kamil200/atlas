@@ -28,6 +28,27 @@ COPY . .
 RUN pnpm --filter @atlas/database exec prisma generate
 RUN pnpm --filter @atlas/web build
 
+# Drop the build-only tree.
+#
+# `pnpm prune --prod` alone does almost nothing here: every workspace package
+# stays in the graph, so the web app's runtime dependencies (MapLibre, lucide)
+# are kept even though they are already bundled into dist and nothing imports
+# them from node_modules again. The toolchain has to go by name.
+#
+# tsx and the Prisma CLI are genuinely runtime dependencies in this image — one
+# runs the server, the other applies migrations at boot — which is why they were
+# moved out of devDependencies rather than deleted here.
+# Only packages that provably do not run in this image. `effect` and
+# `typescript` look like build tooling and are not: the Prisma CLI requires both
+# at runtime, and deleting them makes `migrate deploy` fail at boot with
+# MODULE_NOT_FOUND. Anything not on this list stays.
+RUN rm -rf /app/apps/web/src /app/apps/web/public \
+ && rm -rf /app/node_modules/.pnpm/@biomejs* \
+           /app/node_modules/.pnpm/@turbo* /app/node_modules/.pnpm/turbo@* \
+           /app/node_modules/.pnpm/@rolldown* /app/node_modules/.pnpm/vite@* \
+           /app/node_modules/.pnpm/maplibre-gl@* /app/node_modules/.pnpm/lucide-react@* \
+           /app/node_modules/.pnpm/vitest@* /app/node_modules/.pnpm/@vitest*
+
 # --- runtime ----------------------------------------------------------------
 FROM base AS runtime
 ENV NODE_ENV=production

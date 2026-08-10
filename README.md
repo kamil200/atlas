@@ -142,6 +142,10 @@ Deliberately skipped: MapLibre visual tests (no WebGL in jsdom), snapshots, and 
 
 One Fly machine serves both the API and the built web app from the same origin, with Postgres on Neon. That is deliberate: two deployments would have to agree about CORS, cookie domains, and OAuth redirect origins, and none of that buys anything at this size.
 
+The image is verified locally before any of this. `docker build -t atlas . && docker run -p 8080:3000 -e DATABASE_URL=… -e JWT_SECRET=… -e COOKIE_SECRET=… atlas` boots, applies migrations, serves the SPA at `/`, and answers `/api/health`. Worth doing first; it catches everything except the Fly and Neon wiring.
+
+**0. Accounts and CLI.** `brew install flyctl`, then `fly auth login`. Sign up at neon.tech.
+
 **1. Database.** Create a Neon project and copy the pooled connection string. Prisma needs `sslmode=require`.
 
 **2. Fly app.** Pick a unique name and set it as `app` in `fly.toml`.
@@ -191,6 +195,12 @@ fly secrets set \
 ```
 
 LinkedIn needs the "Sign In with LinkedIn using OpenID Connect" product enabled on the app, which grants the `openid profile email` scopes this uses.
+
+### Image size
+
+964MB. Most of it is the pnpm virtual store: every workspace package's production tree is kept, so the web app's dependencies survive even though they are already bundled into `dist` and nothing imports them again at runtime. The Dockerfile deletes the toolchain it can prove is unused, and no more than that — `effect` and `typescript` look like build tooling but the Prisma CLI needs both at boot, and removing them fails with `MODULE_NOT_FOUND`.
+
+The real fix is to compile the server to JavaScript so `tsx` is not a runtime dependency, then use `pnpm deploy --prod` to emit a self-contained tree for the server alone. That is a build-system change rather than a Dockerfile one, so it is on the v2 list rather than done badly here.
 
 ---
 
