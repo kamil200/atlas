@@ -371,6 +371,34 @@ async function pushData(
   source.setData(geojson);
 }
 
+/*
+  The second line of a pin's card.
+
+  Written as a MapLibre expression rather than worked out in JavaScript, so it
+  re-evaluates on the GPU the moment a filter changes the count. Computing it
+  here would mean rebuilding and re-pushing every feature on every filter click.
+
+  "new" is a word rather than a colour on purpose: marigold already means "this
+  is the pin you have open", and a second meaning would make both ambiguous.
+*/
+const ROLE_COUNT_TEXT: maplibregl.ExpressionSpecification = [
+  "concat",
+  [
+    "case",
+    ["==", ["get", "openJobCount"], 0],
+    "no open roles",
+    ["==", ["get", "openJobCount"], 1],
+    "1 open role",
+    ["concat", ["to-string", ["get", "openJobCount"]], " open roles"],
+  ],
+  [
+    "case",
+    [">", ["get", "newJobCount"], 0],
+    ["concat", " · ", ["to-string", ["get", "newJobCount"]], " new"],
+    "",
+  ],
+];
+
 function addSourcesAndLayers(map: maplibregl.Map) {
   map.addSource(SOURCE_ID, {
     type: "geojson",
@@ -444,24 +472,38 @@ function addSourcesAndLayers(map: maplibregl.Map) {
     source: SOURCE_ID,
     filter: single,
     layout: {
-      // Width only: the plate keeps its height and grows sideways with the name.
+      /*
+        The card grows in both axes now, because it holds two lines: the company
+        name, then how many roles are open there. The count is live text rather
+        than part of each company's sprite — it changes the moment a filter
+        changes, and a per-company image would have to be redrawn every time.
+      */
       "icon-image": IMAGE.labelPill,
-      "icon-text-fit": "width",
-      "icon-text-fit-padding": [0, 3, 0, 3],
-      "text-field": ["get", "companyName"],
-      "text-font": ["Noto Sans Bold"],
+      "icon-text-fit": "both",
+      "icon-text-fit-padding": [1, 4, 1, 4],
+      "text-field": [
+        "format",
+        ["get", "companyName"],
+        { "text-font": ["literal", ["Noto Sans Bold"]] },
+        "\n",
+        {},
+        ROLE_COUNT_TEXT,
+        { "text-font": ["literal", ["Noto Sans Regular"]], "font-scale": 0.85 },
+      ],
       "text-size": 11,
+      "text-line-height": 1.35,
       "text-anchor": "top",
       "text-offset": [0, 1.9],
-      // High enough that a name never wraps out of a fixed-height plate.
-      "text-max-width": 30,
-      // Plates may sit close together; they just may not overlap.
+      // Wide enough for most names on one line, narrow enough that a long one
+      // wraps instead of stretching the card halfway across the city.
+      "text-max-width": 11,
+      // Cards may sit close together; they just may not overlap.
       "text-padding": 1,
-      // When two plates fight for the same spot, the company hiring more people wins.
+      // When two cards fight for the same spot, the company hiring more people wins.
       "symbol-sort-key": ["-", 0, ["get", "openJobCount"]],
     },
     paint: {
-      "text-color": MAP_COLORS.label,
+      "text-color": ["case", ["get", "hiring"], MAP_COLORS.label, MAP_COLORS.labelQuiet],
       "icon-opacity": ["case", ["get", "hiring"], 1, 0.85],
     },
   });

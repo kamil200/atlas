@@ -119,19 +119,22 @@ export function drawStateRing(color: string, glow: string | null, ratio: number)
 }
 
 /*
-  The white name plate under each pin. It is a stretchable image: MapLibre
-  keeps the rounded caps intact and stretches only the flat middle, so one
-  image labels "Ola" and "The/nudge Institute" alike.
+  The white card under each pin, carrying the company name and how many roles
+  are open there. One stretchable image serves every company: MapLibre keeps the
+  rounded corners intact and stretches only the flat bands, so the same sprite
+  fits "Ola · 3 open roles" and "The/nudge Institute · 14 open roles".
 
-  The corner radius stays just under half the height on purpose. At exactly
-  half there is no flat band left to stretch, and MapLibre renders nothing.
+  Stretched in both axes rather than width alone, because the card holds two
+  lines of text and a long name may wrap to three. That is why the radius is a
+  modest 7 instead of half the height: at half there is no flat band left in the
+  vertical axis and MapLibre renders nothing at all.
 */
 export function drawLabelPill(ratio: number): StretchSprite {
-  const width = 32;
-  const height = 26;
-  const pad = 4;
+  const width = 44;
+  const height = 36;
+  const pad = 5;
   const pillHeight = height - pad * 2;
-  const radius = pillHeight / 2 - 1;
+  const radius = 7;
   const { canvas, context } = createCanvas(width, ratio, height);
 
   context.shadowColor = "rgba(33, 30, 26, 0.18)";

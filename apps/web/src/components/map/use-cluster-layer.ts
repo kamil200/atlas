@@ -23,8 +23,8 @@ export type OfficeFeatureProperties = {
   openJobCount: number;
   /** Five or more roles here. Worth a second look on a crowded map. */
   isHot: boolean;
-  /** Something went up in the last week. */
-  isNew: boolean;
+  /** How many of them went up in the last week. Zero for most pins. */
+  newJobCount: number;
   lat: number;
   lng: number;
 };
@@ -44,7 +44,7 @@ export function toOfficeFeature(office: OfficeMapPoint): Feature<Point, OfficeFe
       hiring: office.hiringStatus === "ACTIVELY_HIRING",
       openJobCount: office.openJobCount,
       isHot: office.isHot,
-      isNew: office.isNew,
+      newJobCount: office.newJobCount,
       lat: office.lat,
       lng: office.lng,
     },

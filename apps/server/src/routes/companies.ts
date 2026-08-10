@@ -180,7 +180,9 @@ const companyRoutes: FastifyPluginAsyncTypebox = async (app) => {
       const freshByOffice = new Map(
         freshPinned.map((row) => [row.officeId ?? "", row._count._all]),
       );
-      const freshRemoteByCompany = new Set(freshRemote.map((row) => row.companyId));
+      const freshRemoteByCompany = new Map(
+        freshRemote.map((row) => [row.companyId, row._count._all]),
+      );
 
       const points = offices.map((office) => {
         const openJobCount =
@@ -200,9 +202,9 @@ const companyRoutes: FastifyPluginAsyncTypebox = async (app) => {
           openJobCount,
           isHot: openJobCount >= HOT_JOB_COUNT,
           // Remote roles have no office, so their freshness lands on the HQ too.
-          isNew:
-            (freshByOffice.get(office.id) ?? 0) > 0 ||
-            (office.isHq && freshRemoteByCompany.has(office.company.id)),
+          newJobCount:
+            (freshByOffice.get(office.id) ?? 0) +
+            (office.isHq ? (freshRemoteByCompany.get(office.company.id) ?? 0) : 0),
         };
       });
 

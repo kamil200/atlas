@@ -21,7 +21,7 @@ function office(overrides: Partial<OfficeMapPoint> = {}): OfficeMapPoint {
     hiringStatus: "ACTIVELY_HIRING",
     openJobCount: 16,
     isHot: true,
-    isNew: false,
+    newJobCount: 0,
     ...overrides,
   };
 }

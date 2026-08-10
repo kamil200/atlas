@@ -51,16 +51,16 @@ export function MarkerPopup({
         real hiring push rather than one stray vacancy, and whether anything
         landed recently. Both are computed server-side from the same roles.
       */}
-      {office.isHot || office.isNew ? (
+      {office.isHot || office.newJobCount > 0 ? (
         <div className="mt-2 flex flex-wrap gap-1.5">
           {office.isHot ? (
             <span className="rounded-full bg-peepal-tint px-2 py-0.5 text-[11px] font-medium text-peepal-700">
               Hiring across several teams
             </span>
           ) : null}
-          {office.isNew ? (
+          {office.newJobCount > 0 ? (
             <span className="rounded-full bg-marigold-tint px-2 py-0.5 text-[11px] font-medium text-[#6F5600]">
-              Posted this week
+              {office.newJobCount} posted this week
             </span>
           ) : null}
         </div>

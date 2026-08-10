@@ -25,4 +25,6 @@ export const MAP_COLORS = {
   stroke: "#FFFFFF",
   label: "#211E1A",
   labelQuiet: "#6F6659",
+  /* The role count on a pin's card. peepal-700, the same green as a link. */
+  labelCount: "#136640",
 };

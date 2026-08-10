@@ -214,7 +214,7 @@ Full guide in [`brand/BRAND.md`](brand/BRAND.md).
 
 ## Not built, on purpose
 
-Job alerts were cut, because a CRUD API with no delivery is half a feature. Card-style map pins carrying a logo and a role count are the one visible gap against the reference products; the data is already on every map point (`isHot`, `isNew`) and surfaces in the marker popup, but the sprite work is not done. Also on the v2 list: refresh-token rotation, dark mode (a token swap, now that the variant is class-based), PostGIS radius search, `pg_trgm` search, server-side clustering past ten thousand offices, resume parsing, and company claiming.
+Job alerts were cut, because a CRUD API with no delivery is half a feature. Also on the v2 list: refresh-token rotation, dark mode (a token swap, now that the variant is class-based), PostGIS radius search, `pg_trgm` search, server-side clustering past ten thousand offices, resume parsing, and company claiming.
 
 The lofi track behind the music toggle is not committed for licensing reasons. Drop any CC0 loop at `apps/web/public/audio/lofi.mp3` and the toggle picks it up; until then it says so rather than pretending to play.
 

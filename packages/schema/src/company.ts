@@ -132,8 +132,13 @@ export const OfficeMapPoint = Type.Object({
   openJobCount: Type.Integer(),
   /** Five or more matching roles here. The pin gets a busier treatment. */
   isHot: Type.Boolean(),
-  /** At least one of those roles went up in the last seven days. */
-  isNew: Type.Boolean(),
+  /*
+    How many of those roles went up in the last seven days. A count rather than
+    a flag on purpose: a company with thirty openings almost always posted
+    something this week, so "is new" was true for nearly every pin and told you
+    nothing. "5 new" does.
+  */
+  newJobCount: Type.Integer(),
 });
 export type OfficeMapPoint = Static<typeof OfficeMapPoint>;
 
