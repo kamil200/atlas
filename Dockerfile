@@ -1,0 +1,47 @@
+# One image, one process: Fastify serves the API and the built web app from the
+# same origin. That keeps cookies and OAuth redirects simple, and it is one Fly
+# machine rather than two deployments that have to agree about CORS.
+
+FROM node:24-slim AS base
+ENV PNPM_HOME="/pnpm" PATH="/pnpm:$PATH"
+RUN corepack enable
+# openssl is what Prisma's query engine links against on slim images.
+RUN apt-get update -y && apt-get install -y --no-install-recommends openssl ca-certificates \
+  && rm -rf /var/lib/apt/lists/*
+WORKDIR /app
+
+# --- dependencies -----------------------------------------------------------
+# Manifests are copied on their own so a source-only change does not reinstall
+# the whole dependency tree on every build.
+FROM base AS deps
+COPY pnpm-lock.yaml pnpm-workspace.yaml package.json ./
+COPY apps/server/package.json apps/server/
+COPY apps/web/package.json apps/web/
+COPY packages/database/package.json packages/database/
+COPY packages/schema/package.json packages/schema/
+RUN pnpm install --frozen-lockfile
+
+# --- build ------------------------------------------------------------------
+FROM deps AS build
+COPY . .
+# The Prisma client is generated code; it has to exist before anything typechecks.
+RUN pnpm --filter @atlas/database exec prisma generate
+RUN pnpm --filter @atlas/web build
+
+# --- runtime ----------------------------------------------------------------
+FROM base AS runtime
+ENV NODE_ENV=production
+ENV WEB_DIST_DIR=/app/apps/web/dist
+
+COPY --from=build /app /app
+
+# Resumes land here. Fly gives it a volume in fly.toml; without one they are
+# lost on redeploy, which the README says plainly.
+ENV RESUME_STORAGE_DIR=/data/resumes
+RUN mkdir -p /data/resumes
+
+EXPOSE 3000
+# Migrations run at boot rather than in the build, because the build has no
+# database to talk to. `migrate deploy` only applies committed migrations and
+# never generates one, so it is safe to run on every machine start.
+CMD ["sh", "-c", "pnpm --filter @atlas/database exec prisma migrate deploy && pnpm --filter @atlas/server start"]

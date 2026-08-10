@@ -1,0 +1,42 @@
+# Rename `app` before the first deploy; it has to be unique across Fly.
+app = "atlas-jobs"
+primary_region = "bom"
+
+[build]
+  dockerfile = "Dockerfile"
+
+[env]
+  NODE_ENV = "production"
+  PORT = "3000"
+  RESUME_STORAGE_DIR = "/data/resumes"
+
+[http_service]
+  internal_port = 3000
+  force_https = true
+  auto_stop_machines = "suspend"
+  auto_start_machines = true
+  # One machine always up. A resume project that cold-starts on a recruiter's
+  # click reads as broken, and suspend resumes in well under a second.
+  min_machines_running = 1
+
+  [http_service.concurrency]
+    type = "requests"
+    soft_limit = 200
+    hard_limit = 250
+
+[[http_service.checks]]
+  grace_period = "10s"
+  interval = "30s"
+  method = "GET"
+  path = "/api/health"
+  timeout = "5s"
+
+# Uploaded resumes. Without this they live in the machine's ephemeral disk and
+# disappear on the next deploy.
+[[mounts]]
+  source = "atlas_data"
+  destination = "/data"
+
+[[vm]]
+  size = "shared-cpu-1x"
+  memory = "512mb"

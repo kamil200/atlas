@@ -1,0 +1,13 @@
+node_modules
+**/node_modules
+**/dist
+.git
+.turbo
+**/.turbo
+.claude
+uploads
+*.log
+.env
+.env.*
+!.env.example
+brand/mockups.html

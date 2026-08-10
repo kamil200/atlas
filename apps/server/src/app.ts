@@ -11,6 +11,7 @@ import authPlugin from "./plugins/auth";
 import envPlugin from "./plugins/env";
 import prismaPlugin from "./plugins/prisma";
 import storagePlugin from "./plugins/storage";
+import webPlugin from "./plugins/web";
 import adminRoutes from "./routes/admin";
 import applicationRoutes from "./routes/applications";
 import authRoutes from "./routes/auth";
@@ -71,6 +72,7 @@ export async function buildApp() {
   await app.register(prismaPlugin);
   await app.register(authPlugin);
   await app.register(storagePlugin);
+  await app.register(webPlugin);
 
   registerErrorHandlers(app);
 
@@ -90,9 +92,24 @@ export async function buildApp() {
 
 /* Turns anything thrown anywhere into the same error envelope. */
 function registerErrorHandlers(app: FastifyInstance) {
-  app.setNotFoundHandler((request, reply) =>
-    sendError(reply, 404, ErrorCodes.NOT_FOUND, `No route for ${request.method} ${request.url}.`),
-  );
+  app.setNotFoundHandler((request, reply) => {
+    /*
+      The web app owns routes this server has never heard of (/map, /tracker).
+      When we are serving the build, a GET for anything outside /api is handed
+      index.html so the router can resolve it. An /api miss stays JSON, because
+      an API client can do nothing with a page.
+    */
+    if (app.hasWebBuild && request.method === "GET" && !request.url.startsWith("/api/")) {
+      return reply.sendFile("index.html");
+    }
+
+    return sendError(
+      reply,
+      404,
+      ErrorCodes.NOT_FOUND,
+      `No route for ${request.method} ${request.url}.`,
+    );
+  });
 
   app.setErrorHandler((error: FastifyError, request, reply) => {
     if (error.validation) {

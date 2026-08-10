@@ -118,7 +118,7 @@ Every choice here should survive being explained in two plain sentences. Where t
 
 ## Tests
 
-`pnpm validate` runs lint, typecheck, and 74 tests. CI additionally starts a real Postgres, migrates, seeds, and runs both assertion scripts.
+`pnpm validate` runs lint, typecheck, and 115 tests. CI additionally starts a real Postgres, migrates, seeds, and runs both assertion scripts.
 
 | Area | What it pins down |
 |---|---|
@@ -129,10 +129,68 @@ Every choice here should survive being explained in two plain sentences. Where t
 | `storage` | put/get/delete round-trip, and a key that tries to escape its root |
 | `use-cluster-layer` | GeoJSON coordinate order and flat primitive properties |
 | `seed-determinism` | two runs produce identical data; quiet companies have no open roles |
+| `derive-stats` | week bucketing, roles with no salary excluded from bands, bands ordered as a ladder |
+| `regressions` | one test per bug in the log below, each written to fail against the old code |
 
 Two assertion scripts back the suite up. `pnpm db:seed:check` proves the seed is usable — every facet dimension has at least two non-empty buckets, every department has an open role, and no office sits outside its own city. `pnpm facets:check` proves the counts are honest — each dimension sums to its own population and siblings survive a selection.
 
 Deliberately skipped: MapLibre visual tests (no WebGL in jsdom), snapshots, and end-to-end tests. The map's lifecycle rules were verified by hand instead — clicking a real pin, opening the sidebar, and confirming the map instance, the canvas element, and the camera were all unchanged.
+
+---
+
+## Deploying
+
+One Fly machine serves both the API and the built web app from the same origin, with Postgres on Neon. That is deliberate: two deployments would have to agree about CORS, cookie domains, and OAuth redirect origins, and none of that buys anything at this size.
+
+**1. Database.** Create a Neon project and copy the pooled connection string. Prisma needs `sslmode=require`.
+
+**2. Fly app.** Pick a unique name and set it as `app` in `fly.toml`.
+
+```bash
+fly launch --no-deploy --copy-config --name your-app-name
+```
+
+**3. Secrets.** Everything the server validates at boot lives here. It crashes on startup rather than at the first request that needs a missing value.
+
+```bash
+fly secrets set \
+  DATABASE_URL="postgresql://…?sslmode=require" \
+  JWT_SECRET="$(openssl rand -base64 48)" \
+  COOKIE_SECRET="$(openssl rand -base64 48)" \
+  FRONTEND_URL="https://your-app-name.fly.dev"
+```
+
+**4. Volume** for uploaded resumes. Without it they sit on the machine's ephemeral disk and vanish on the next deploy.
+
+```bash
+fly volumes create atlas_data --size 1 --region bom
+```
+
+**5. Deploy.** Migrations run at machine start, not at build time, because the build has no database to talk to. `prisma migrate deploy` only applies committed migrations and never generates one, so it is safe on every boot.
+
+```bash
+fly deploy
+```
+
+**6. Seed once**, since the demo data is the product.
+
+```bash
+fly ssh console -C "pnpm --filter @atlas/database seed"
+```
+
+### Social sign-in
+
+Optional. A provider with no client id *and* secret simply does not appear on the sign-in page, and password auth carries the demo. Register each redirect URI verbatim with the provider, then:
+
+```bash
+fly secrets set \
+  GOOGLE_CLIENT_ID="…" GOOGLE_CLIENT_SECRET="…" \
+  GOOGLE_REDIRECT_URI="https://your-app-name.fly.dev/api/auth/google/callback" \
+  LINKEDIN_CLIENT_ID="…" LINKEDIN_CLIENT_SECRET="…" \
+  LINKEDIN_REDIRECT_URI="https://your-app-name.fly.dev/api/auth/linkedin/callback"
+```
+
+LinkedIn needs the "Sign In with LinkedIn using OpenID Connect" product enabled on the app, which grants the `openid profile email` scopes this uses.
 
 ---
 
@@ -156,7 +214,7 @@ Full guide in [`brand/BRAND.md`](brand/BRAND.md).
 
 ## Not built, on purpose
 
-Google sign-in is wired as far as the routes, which return a clear 503 until `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` are set; password auth carries the demo. Job alerts were cut, because a CRUD API with no delivery is half a feature. Also on the v2 list: refresh-token rotation, dark mode (a token swap, now that the variant is class-based), PostGIS radius search, `pg_trgm` search, server-side clustering past ten thousand offices, resume parsing, and company claiming.
+Job alerts were cut, because a CRUD API with no delivery is half a feature. Card-style map pins carrying a logo and a role count are the one visible gap against the reference products; the data is already on every map point (`isHot`, `isNew`) and surfaces in the marker popup, but the sprite work is not done. Also on the v2 list: refresh-token rotation, dark mode (a token swap, now that the variant is class-based), PostGIS radius search, `pg_trgm` search, server-side clustering past ten thousand offices, resume parsing, and company claiming.
 
 The lofi track behind the music toggle is not committed for licensing reasons. Drop any CC0 loop at `apps/web/public/audio/lofi.mp3` and the toggle picks it up; until then it says so rather than pretending to play.
 
