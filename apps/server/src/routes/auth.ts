@@ -7,7 +7,7 @@ import {
   LoginBody,
   RegisterBody,
   SuccessResponse,
-} from "@chowk/schema";
+} from "@atlas/schema";
 import type { FastifyPluginAsyncTypebox } from "@fastify/type-provider-typebox";
 import type { FastifyReply, FastifyRequest } from "fastify";
 import {
@@ -194,7 +194,7 @@ type App = Parameters<FastifyPluginAsyncTypebox>[0];
   top-level navigation from the provider's domain, and "strict" would withhold
   the cookie exactly then.
 */
-const OAUTH_COOKIE = "chowk_oauth";
+const OAUTH_COOKIE = "atlas_oauth";
 const OAUTH_COOKIE_MAX_AGE = 10 * 60;
 
 type OAuthHandoff = { state: string; provider: OAuthProviderName; next: string };

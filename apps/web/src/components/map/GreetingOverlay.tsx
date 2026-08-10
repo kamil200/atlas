@@ -1,13 +1,13 @@
 import { useEffect, useState } from "react";
 import { QUOTES } from "@/lib/quotes";
 
-const SESSION_KEY = "chowk.greeted";
+const SESSION_KEY = "atlas.greeted";
 const FADE_AFTER_MS = 2500;
 
 /* Light Hinglish belongs here and nowhere near an error message (BRAND §6). */
 function greeting(hour: number): string {
-  if (hour < 5) return "Still up. The chowk is quiet at this hour.";
-  if (hour < 12) return "Bright and early. The chowk is all yours.";
+  if (hour < 5) return "Still up. The city is quiet at this hour.";
+  if (hour < 12) return "Bright and early. The whole map is yours.";
   if (hour < 17) return "Afternoon. Good time for a wander.";
   if (hour < 21) return "Shaam ho gayi. Let's see who's hiring.";
   return "Late one. The good roles keep odd hours too.";

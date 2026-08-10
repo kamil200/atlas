@@ -1,6 +1,6 @@
 # Builder handoff — prompts for the build chat
 
-Open Claude Code in `/Users/kp/Personal/chowk/` and paste these prompts in order. One prompt per chat is fine — the PRD is self-contained, so every chat re-reads it. Rules that keep the build on rails:
+Open Claude Code in `/Users/kp/Personal/atlas/` and paste these prompts in order. One prompt per chat is fine — the PRD is self-contained, so every chat re-reads it. Rules that keep the build on rails:
 
 - If the builder proposes changing anything marked **locked**, reply: "follow the PRD".
 - Never let it skip a phase's done-criteria. "Show me the output" is in every prompt for a reason.
@@ -66,7 +66,7 @@ Stop when the full journey works and walk me through it: register → filter →
 ```
 Read PRD.md §9 and §12-13. Build phase 7 (landing page with the three demoMode component embeds, submit-company form + my-submissions list, admin queue, greeting/locate/music polish, OG image + meta) and phase 8 (the Vitest suite from §13, CI green, README with screenshots + mermaid architecture diagram + decision log + quickstart + brand section, demo GIF).
 
-The landing embeds must be the real components in demoMode, interactive, typed against @chowk/schema fixtures — not screenshots.
+The landing embeds must be the real components in demoMode, interactive, typed against @atlas/schema fixtures — not screenshots.
 
 Finish with `pnpm validate` output, the CI run, and the acceptance script from PRD §16 walked end to end.
 ```

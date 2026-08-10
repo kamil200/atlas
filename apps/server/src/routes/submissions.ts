@@ -4,7 +4,7 @@ import {
   SubmitCompanyBody,
   SubmitCompanyData,
   SuccessResponse,
-} from "@chowk/schema";
+} from "@atlas/schema";
 import type { FastifyPluginAsyncTypebox } from "@fastify/type-provider-typebox";
 import { isUniqueViolation } from "../utils/prisma-errors";
 import { ErrorCodes, sendError, sendResponse } from "../utils/send-response";

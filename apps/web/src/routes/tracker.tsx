@@ -1,4 +1,4 @@
-import type { ApplicationStatus } from "@chowk/schema";
+import type { ApplicationStatus } from "@atlas/schema";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { PageShell, RequireAuth } from "@/components/shared/PageShell";

@@ -32,5 +32,5 @@ export const QUOTES = [
   "Every map has a corner nobody has walked yet.",
   "Say no to the tenth-best option so you can hear the first.",
   "Growth is a side effect of good problems.",
-  "The right chowk is the one you would happily cross daily.",
+  "The right commute is the one you would happily make daily.",
 ];

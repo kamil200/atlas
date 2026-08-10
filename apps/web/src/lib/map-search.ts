@@ -1,4 +1,4 @@
-import { FundingStage, HiringStatus, type MapSearchParams, WorkMode } from "@chowk/schema";
+import { FundingStage, HiringStatus, type MapSearchParams, WorkMode } from "@atlas/schema";
 
 /*
   Parses the /map query string into typed filters.

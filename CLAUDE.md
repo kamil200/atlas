@@ -1,4 +1,4 @@
-# CLAUDE.md — Chowk
+# CLAUDE.md — Atlas
 
 Map-first startup job discovery (nextdoor.company-style). **Read [PRD.md](PRD.md) first** — it is the single source of truth for scope, schema, API, and architecture. Brand tokens and voice live in [brand/BRAND.md](brand/BRAND.md). Decisions marked "locked" are not up for debate; build them as specified.
 
@@ -14,8 +14,8 @@ pnpm 10 + Turborepo 2. Major versions matter — don't write for older APIs:
 
 - **apps/web** — React 19, Vite 8, TypeScript strict, Tailwind v4 (CSS-first `@theme`, no JS config), shadcn/ui, TanStack Router v1 (file-based, typed search params), Redux Toolkit 2 + RTK Query, MapLibre GL 5, lucide-react. Fonts: Rozha One (display), Inter (UI), JetBrains Mono (data garnish) via @fontsource
 - **apps/server** — Node 24, Fastify 5, @fastify/type-provider-typebox, TypeBox 0.34, Prisma 6, PostgreSQL 16
-- **packages/schema** — @chowk/schema, shared TypeBox contracts (API shapes + router search params). Reuse before defining new types
-- **packages/database** — @chowk/database, Prisma schema, migrations, deterministic seed
+- **packages/schema** — @atlas/schema, shared TypeBox contracts (API shapes + router search params). Reuse before defining new types
+- **packages/database** — @atlas/database, Prisma schema, migrations, deterministic seed
 - Biome 2, Vitest 4, GitHub Actions
 
 ## Commands
@@ -36,7 +36,7 @@ pnpm lint:fix       # biome check --write
 - Every public query goes through the shared visibility helpers (`submissionStatus: APPROVED`, `deletedAt: null`, job `status: OPEN`). Never inline these at call sites.
 - All filter-consuming endpoints use `modules/filters/compileFilters.ts`. The filter logic must never fork.
 - Prisma BigInt never reaches `JSON.stringify` — convert at the serializer boundary.
-- Request/response/query schemas come from `@chowk/schema`, never defined inline in routes.
+- Request/response/query schemas come from `@atlas/schema`, never defined inline in routes.
 
 **Frontend**
 - RTK Query cache is the source of truth. Never mirror server state into `useState`/`useEffect`; derive from hooks.
@@ -68,4 +68,4 @@ PRD §14 lists the eight known traps (MapLibre×React lifecycle, viewport-in-que
 
 ## Dev credentials (after seed)
 
-`admin@chowk.dev` / `demo@chowk.dev`, password `Password123!`.
+`admin@atlas.dev` / `demo@atlas.dev`, password `Password123!`.

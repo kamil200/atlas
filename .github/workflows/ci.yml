@@ -14,19 +14,19 @@ jobs:
       postgres:
         image: postgres:16-alpine
         env:
-          POSTGRES_USER: chowk
-          POSTGRES_PASSWORD: chowk
-          POSTGRES_DB: chowk
+          POSTGRES_USER: atlas
+          POSTGRES_PASSWORD: atlas
+          POSTGRES_DB: atlas
         ports:
           - 5434:5432
         options: >-
-          --health-cmd "pg_isready -U chowk -d chowk"
+          --health-cmd "pg_isready -U atlas -d atlas"
           --health-interval 5s
           --health-timeout 5s
           --health-retries 10
 
     env:
-      DATABASE_URL: postgresql://chowk:chowk@localhost:5434/chowk
+      DATABASE_URL: postgresql://atlas:atlas@localhost:5434/atlas
       JWT_SECRET: ci-secret-that-is-long-enough-for-the-schema
       COOKIE_SECRET: ci-cookie-secret-that-is-long-enough-too
       NODE_ENV: test
@@ -44,7 +44,7 @@ jobs:
       - run: pnpm install --frozen-lockfile
 
       - name: Apply migrations
-        run: pnpm --filter @chowk/database exec prisma migrate deploy
+        run: pnpm --filter @atlas/database exec prisma migrate deploy
 
       - name: Seed
         run: pnpm db:seed

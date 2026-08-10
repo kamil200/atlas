@@ -10,7 +10,7 @@ import {
   type JobData,
   type JobsListData,
   type SearchResponse,
-} from "@chowk/schema";
+} from "@atlas/schema";
 import { baseApi } from "./base-api";
 
 /*

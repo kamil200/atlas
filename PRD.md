@@ -1,6 +1,6 @@
-# PRD — Chowk
+# PRD — Atlas
 
-**Chowk** (चौक — the town square) is map-first startup job discovery: instead of scrolling a job list, you explore an interactive map of startups hiring in your city, filter with live facet counts, open a company's full profile (founders, funding, investors, open roles), save and track applications, upload a resume, and apply in-app. A resume-grade clone of nextdoor.company, India-first.
+**Atlas** is map-first startup job discovery: instead of scrolling a job list, you explore an interactive map of startups hiring in your city, filter with live facet counts, open a company's full profile (founders, funding, investors, open roles), save and track applications, upload a resume, and apply in-app. A resume-grade clone of nextdoor.company, India-first.
 
 This document is self-contained. A builder agent should need nothing beyond this file (plus `brand/BRAND.md`) to ship v1 in one day. Where a decision was open, it has been made — do not relitigate decisions marked **locked**.
 
@@ -66,12 +66,12 @@ Map style: `https://tiles.openfreemap.org/styles/positron` (light, minimal; keyl
 
 ## 3. Brand & design system (locked — full guide in `brand/BRAND.md`)
 
-Name **Chowk**; lowercase wordmark `chowk` with a marigold full stop; logo mark = a map tile (four paper city blocks around a crossroads on a peepal-green tile, marigold dot at the center). SVGs in `brand/`. The palette is green-led: peepal is the tree at the center of every square, marigold the garland.
+Name **Atlas**; lowercase wordmark `atlas` with a marigold full stop; logo mark = a map tile (four paper city blocks around a crossroads on a peepal-green tile, marigold dot at the center). SVGs in `brand/`. The palette is green-led: peepal is the tree at the center of every square, marigold the garland.
 
 Tokens (the full Tailwind v4 `@theme` block is in BRAND.md §4 — copy it verbatim into `apps/web/src/index.css` and map shadcn's semantic variables onto it):
 
 - Ground: `paper #FFFFFF`, raised `paper-2 #F2F3F6`, text `ink #191A1C`, borders `line #E3E5E9`
-- **Peepal green** (scale 400–700, core `#1B7F4D`, links/badges `#136640`) = the brand AND the working color: tile, pins, clusters, links, focus, checked states, hiring badges. If it's Chowk or you can act on it, it's peepal
+- **Peepal green** (scale 400–700, core `#1B7F4D`, links/badges `#136640`) = the brand AND the working color: tile, pins, clusters, links, focus, checked states, hiring badges. If it's Atlas or you can act on it, it's peepal
 - **Marigold** `#F5B301` = the garland: the dot motif, selected-pin ring, tiny highlights. Never text, never large surfaces
 - `stone #B0B3BA` = quiet/not-hiring pins and disabled; `danger #D64545`; tints `#DEF0E4` (applied), `#FCF1CE` (interviewing), `#E2F1E6` (hero pill)
 - Primary CTA = ink background, paper text (reference-style black buttons)
@@ -85,7 +85,7 @@ Voice: plain, warm, specific. Light Hinglish ONLY in delight moments (greeting, 
 ## 4. Monorepo layout
 
 ```
-chowk/
+atlas/
 ├── apps/
 │   ├── web/                      # React app (landing + dashboard)
 │   │   └── src/
@@ -105,8 +105,8 @@ chowk/
 │           ├── modules/          # filters/compileFilters.ts, auth/password.ts, storage/
 │           └── utils/            # sendResponse.ts, serializers.ts (BigInt→number)
 ├── packages/
-│   ├── schema/                   # @chowk/schema — TypeBox contracts, SINGLE source of truth
-│   └── database/                 # @chowk/database — prisma schema, migrations, seed
+│   ├── schema/                   # @atlas/schema — TypeBox contracts, SINGLE source of truth
+│   └── database/                 # @atlas/database — prisma schema, migrations, seed
 ├── brand/                        # BRAND.md, logo.svg, logo-mark.svg, favicon.svg, MOCKUP-PROMPTS.md
 ├── docker-compose.yml            # postgres:16-alpine
 ├── turbo.json, biome.json
@@ -407,7 +407,7 @@ model CompanySubmission {
 
 ## 6. Shared contracts (packages/schema)
 
-TypeBox is the single source of truth. Both sides import from `@chowk/schema`:
+TypeBox is the single source of truth. Both sides import from `@atlas/schema`:
 
 - Fastify validates request/response with the exact schemas (via `@fastify/type-provider-typebox`).
 - The frontend derives TS types (`Static<typeof T>`) for RTK Query endpoints.
@@ -466,11 +466,11 @@ Implement `sendResponse(reply, status, data)` / `sendError(reply, status, code, 
 
 Auth tiers: **public** · **auth** (valid JWT cookie) · **admin** (auth + role=ADMIN). Implement as Fastify decorators (`app.authenticate`, `app.requireAdmin`) applied via route `onRequest` hooks.
 
-Fastify config notes: register `@fastify/cookie` before `@fastify/jwt` (jwt reads the cookie, `cookie: { cookieName: 'chowk_session' }`); set ajv `coerceTypes: 'array'` so a single repeated query param (`?workMode=REMOTE`) parses as `["REMOTE"]`; plugins: helmet, rate-limit (100/min public, 20/min auth mutations, 10/min on /api/auth/*), sensible, multipart (5MB cap), pino logger with request ids.
+Fastify config notes: register `@fastify/cookie` before `@fastify/jwt` (jwt reads the cookie, `cookie: { cookieName: 'atlas_session' }`); set ajv `coerceTypes: 'array'` so a single repeated query param (`?workMode=REMOTE`) parses as `["REMOTE"]`; plugins: helmet, rate-limit (100/min public, 20/min auth mutations, 10/min on /api/auth/*), sensible, multipart (5MB cap), pino logger with request ids.
 
 ### Endpoints
 
-**Identity convention (owner's call, locked): no path parameters anywhere.** GET and DELETE carry identity in the query string (`?slug=`, `?id=`, `?jobId=`); POST, PUT, and PATCH carry it in the JSON body. One rule, zero exceptions, and it mirrors the frontend's query-string URL state (`/map?companySlug=…`). Classic REST would use path params — this is a deliberate consistency choice, and flipping back later is mechanical since all schemas live in `@chowk/schema`.
+**Identity convention (owner's call, locked): no path parameters anywhere.** GET and DELETE carry identity in the query string (`?slug=`, `?id=`, `?jobId=`); POST, PUT, and PATCH carry it in the JSON body. One rule, zero exceptions, and it mirrors the frontend's query-string URL state (`/map?companySlug=…`). Classic REST would use path params — this is a deliberate consistency choice, and flipping back later is mechanical since all schemas live in `@atlas/schema`.
 
 | # | Method | Path | Auth | Request | Returns |
 |---|---|---|---|---|---|
@@ -525,7 +525,7 @@ For each of the 7 dimensions run a grouped count applying **all other dimensions
 
 ### Auth flows
 
-**Password**: register hashes with argon2id (@node-rs/argon2 defaults), signs JWT `{sub: userId, role}` (7d expiry), sets cookie `chowk_session` (httpOnly, sameSite=lax, secure in prod, path=/). Login verifies + same cookie; a Google-only account (null `passwordHash`) gets a clear "use Google sign-in" error — the no-silent-merge rule in the other direction. Logout clears it. Refresh-token rotation is a documented v2 item — note it in README, don't build it.
+**Password**: register hashes with argon2id (@node-rs/argon2 defaults), signs JWT `{sub: userId, role}` (7d expiry), sets cookie `atlas_session` (httpOnly, sameSite=lax, secure in prod, path=/). Login verifies + same cookie; a Google-only account (null `passwordHash`) gets a clear "use Google sign-in" error — the no-silent-merge rule in the other direction. Logout clears it. Refresh-token rotation is a documented v2 item — note it in README, don't build it.
 
 **Google OAuth** (@fastify/oauth2, GOOGLE_CONFIGURATION, scopes `openid email profile`, state check enabled): callback exchanges code, fetches userinfo, then: existing user by `googleId` → login; else email exists with `authProvider=PASSWORD` → redirect to FE with `?error=use_password_login` (**no silent account merge**); else create user (`authProvider=GOOGLE`, avatar from profile). Set cookie, 302 to `FRONTEND_URL/auth/callback`. Canonical dev redirect URI, registered verbatim in Google Cloud Console and in `.env.example`: `http://localhost:3000/api/auth/google/callback`. **If OAuth config fights back >30 min, ship password-only and log it as fast-follow — do not burn the day.**
 
@@ -629,9 +629,9 @@ Brand world from `brand/BRAND.md`: paper ground, ink CTAs, peepal-green system w
 9. **CTA card**: checklist (curated startups, mapped jobs, founder & funding intel, free) + "Get started".
 10. **Footer**: playful P.S. lines (original; one may be Hinglish), GitHub repo link, privacy/terms placeholders.
 
-**demoMode contract (locked)**: `FilterPanel`, `CompanyCard`, `TrackerBoard` accept `demoMode?: boolean` + injected data props; a thin wrapper hook branches demo props vs live RTK Query. Fixtures in `apps/web/src/demo/fixtures.ts`, typed against `@chowk/schema` DTOs. The embedded widgets must actually respond to clicks — "the demo IS the product" is the portfolio centerpiece.
+**demoMode contract (locked)**: `FilterPanel`, `CompanyCard`, `TrackerBoard` accept `demoMode?: boolean` + injected data props; a thin wrapper hook branches demo props vs live RTK Query. Fixtures in `apps/web/src/demo/fixtures.ts`, typed against `@atlas/schema` DTOs. The embedded widgets must actually respond to clicks — "the demo IS the product" is the portfolio centerpiece.
 
-**Meta**: favicon.svg + png fallbacks, OG image 1200×630 (BRAND §8), `<title>` "Chowk — startup jobs on a map", meta description, OG/Twitter tags. Deep links get per-company titles client-side.
+**Meta**: favicon.svg + png fallbacks, OG image 1200×630 (BRAND §8), `<title>` "Atlas — startup jobs on a map", meta description, OG/Twitter tags. Deep links get per-company titles client-side.
 
 ---
 
@@ -645,7 +645,7 @@ Deterministic: seeded PRNG (mulberry32 with fixed seed), zero `Math.random()`. R
 - **Investors**: pool of ~40 real firms (Peak XV, Accel, Y Combinator, Tiger Global, Blume, Elevation, Lightspeed India, Z47, Nexus, 3one4, SoftBank, Prosus, General Catalyst…), 2-5 per funded company — reuse aggressively so investor facet counts are meaningful.
 - **Funding**: ~10% bootstrapped, 15% seed/pre-seed, 40% A-C, 25% D+, 10% public-ish; totalFunding/valuation plausible per stage.
 - **Jobs ~1500**: 15 departments: Engineering (~40%), Product, Design, Data, AI/ML, Sales, Marketing, Customer Success, Operations, Finance, People, Legal, Support, QA, DevOps. Titles from per-department template pools with seniority prefixes; workMode ~60/25/15 onsite/hybrid/remote; INR bands by seniority (8-15L entry → 90L+ lead at funded cos); ~70% get a plausible external `applyUrl`, ~30% simple-apply only; postedAt spread over past 90 days; ~8% CLOSED (proves status filtering); hiringStatus ~85% actively hiring.
-- **Users**: `admin@chowk.dev` / `demo@chowk.dev` (password `Password123!`, documented in README dev section).
+- **Users**: `admin@atlas.dev` / `demo@atlas.dev` (password `Password123!`, documented in README dev section).
 
 **Seed acceptance (script-asserted, not eyeballed)**: every facet dimension ≥2 buckets with count>0; every department ≥1 open job; 5 sampled offices fall inside their city's bbox; counts within targets; reseed → identical counts.
 
@@ -656,7 +656,7 @@ Deterministic: seeded PRNG (mulberry32 with fixed seed), zero `Math.random()`. R
 `.env.example` (root; server reads via @fastify/env schema — fail fast on missing):
 
 ```bash
-DATABASE_URL=postgresql://chowk:chowk@localhost:5432/chowk
+DATABASE_URL=postgresql://atlas:atlas@localhost:5432/atlas
 PORT=3000
 FRONTEND_URL=http://localhost:5173
 JWT_SECRET=change-me-64-chars
@@ -668,7 +668,7 @@ RESUME_STORAGE_DIR=./uploads
 NODE_ENV=development
 ```
 
-docker-compose: `postgres:16-alpine`, db/user/password `chowk`, port 5432, named volume, healthcheck.
+docker-compose: `postgres:16-alpine`, db/user/password `atlas`, port 5432, named volume, healthcheck.
 
 ---
 
@@ -677,7 +677,7 @@ docker-compose: `postgres:16-alpine`, db/user/password `chowk`, port 5432, named
 | Phase | Scope | Done when |
 |---|---|---|
 | 0. Scaffold | Turborepo + pnpm workspaces, biome, tsconfigs, docker-compose, CI skeleton, Vite app boots, Tailwind v4 + shadcn init, fonts installed, BRAND tokens in `@theme`, favicon | `pnpm install && pnpm build` green; **canary: one page shows a themed shadcn Button + Rozha One heading + the favicon** (catches Tailwind-v4/shadcn/font drift immediately) |
-| 1. Schema | Prisma schema above, `migrate dev`, packages/schema contracts | migration applies; `@chowk/schema` builds; typecheck green |
+| 1. Schema | Prisma schema above, `migrate dev`, packages/schema contracts | migration applies; `@atlas/schema` builds; typecheck green |
 | 2. Seed ⚠️ | §10 in full | seed acceptance script passes |
 | 3. Server core | plugins, envelope, error handler, password auth, companies/jobs read routes | curl: register→login→me round-trip; /api/companies returns seeded data in envelope |
 | 3b. Google OAuth ⚠️ | @fastify/oauth2 flow | browser round-trip works; **cuttable after a 30-min fight — document as fast-follow** |
@@ -745,7 +745,7 @@ Job alerts (schema + email delivery worker), refresh-token rotation, LinkedIn OA
 
 ## 18. Resolved defaults (flag to the owner only if they object)
 
-- Name **Chowk**; repo dir `chowk`; package scope `@chowk/*`; cookie `chowk_session`
+- Name **Atlas**; repo dir `atlas`; package scope `@atlas/*`; cookie `atlas_session`
 - Google OAuth needs the owner's Google Cloud OAuth client (env vars); until provided, google routes return a clear 503 and password auth carries the demo
 - Music: any CC0/royalty-free lofi loop under `/public/audio/` with attribution in README
 - All landing copy and testimonials are original and fictional — nothing copied verbatim from nextdoor.company; seeded company facts are public information with a README disclaimer

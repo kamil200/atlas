@@ -114,27 +114,27 @@
 }
 
 /* Two rows of company names drifting past each other on the landing page. */
-.chowk-marquee {
+.atlas-marquee {
   overflow: hidden;
   mask-image: linear-gradient(to right, transparent, black 6%, black 94%, transparent);
 }
 
-.chowk-marquee-track {
+.atlas-marquee-track {
   display: flex;
   gap: 0.75rem;
   width: max-content;
-  animation: chowk-drift 48s linear infinite;
+  animation: atlas-drift 48s linear infinite;
 }
 
-.chowk-marquee-reverse {
+.atlas-marquee-reverse {
   animation-direction: reverse;
 }
 
-.chowk-marquee:hover .chowk-marquee-track {
+.atlas-marquee:hover .atlas-marquee-track {
   animation-play-state: paused;
 }
 
-@keyframes chowk-drift {
+@keyframes atlas-drift {
   from {
     transform: translateX(0);
   }
@@ -145,7 +145,7 @@
 }
 
 /* The map popup is MapLibre's element, so it is styled here, not in JSX. */
-.chowk-popup .maplibregl-popup-content {
+.atlas-popup .maplibregl-popup-content {
   padding: 0.875rem;
   border: 1px solid var(--color-line);
   border-top: 2px solid var(--color-peepal-600);
@@ -154,19 +154,19 @@
   box-shadow: var(--shadow-pop);
 }
 
-.chowk-popup .maplibregl-popup-tip {
+.atlas-popup .maplibregl-popup-tip {
   border-top-color: var(--color-paper);
   border-bottom-color: var(--color-paper);
 }
 
 /* Grows out of the pin it belongs to rather than appearing on top of it (BRAND §5). */
 @media (prefers-reduced-motion: no-preference) {
-  .chowk-popup .maplibregl-popup-content {
-    animation: chowk-popup-in 150ms var(--ease-brand);
+  .atlas-popup .maplibregl-popup-content {
+    animation: atlas-popup-in 150ms var(--ease-brand);
   }
 }
 
-@keyframes chowk-popup-in {
+@keyframes atlas-popup-in {
   from {
     opacity: 0;
     transform: scale(0.92) translateY(4px);

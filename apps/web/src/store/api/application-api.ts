@@ -5,7 +5,7 @@ import type {
   ApplicationsListData,
   JobSummary,
   SimpleApplyBody,
-} from "@chowk/schema";
+} from "@atlas/schema";
 import { baseApi } from "./base-api";
 
 /*

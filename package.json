@@ -1,5 +1,5 @@
 {
-  "name": "chowk",
+  "name": "atlas",
   "version": "0.1.0",
   "private": true,
   "packageManager": "pnpm@10.18.1",
@@ -15,10 +15,10 @@
     "lint:fix": "biome check --write .",
     "validate": "pnpm lint && pnpm typecheck && pnpm test",
     "db:up": "docker compose up -d",
-    "db:migrate": "pnpm --filter @chowk/database migrate",
-    "db:seed": "pnpm --filter @chowk/database seed",
-    "db:seed:check": "pnpm --filter @chowk/database seed:check",
-    "facets:check": "pnpm --filter @chowk/server facets:check"
+    "db:migrate": "pnpm --filter @atlas/database migrate",
+    "db:seed": "pnpm --filter @atlas/database seed",
+    "db:seed:check": "pnpm --filter @atlas/database seed:check",
+    "facets:check": "pnpm --filter @atlas/server facets:check"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.4.0",

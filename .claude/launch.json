@@ -2,9 +2,9 @@
   "version": "0.0.1",
   "configurations": [
     {
-      "name": "chowk-web",
+      "name": "atlas-web",
       "runtimeExecutable": "pnpm",
-      "runtimeArgs": ["--filter", "@chowk/web", "dev"],
+      "runtimeArgs": ["--filter", "@atlas/web", "dev"],
       "port": 5173
     }
   ]

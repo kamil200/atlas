@@ -1,7 +1,7 @@
 import type maplibregl from "maplibre-gl";
 
 /*
-  Positron is a good quiet basemap, but its greys lean slightly blue and Chowk's
+  Positron is a good quiet basemap, but its greys lean slightly blue and Atlas's
   chrome is a neutral white. So once the style has loaded we repaint it in brand
   colours.
 

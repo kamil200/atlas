@@ -1,5 +1,5 @@
-import type { Prisma } from "@chowk/database";
-import type { FacetDimension, FilterParams } from "@chowk/schema";
+import type { Prisma } from "@atlas/database";
+import type { FacetDimension, FilterParams } from "@atlas/schema";
 
 /*
   Every endpoint that takes filters compiles them here. If this logic ever

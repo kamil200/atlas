@@ -9,7 +9,7 @@ import {
   SuccessResponse,
   UnsaveJobQuery,
   UpdateApplicationBody,
-} from "@chowk/schema";
+} from "@atlas/schema";
 import type { FastifyPluginAsyncTypebox } from "@fastify/type-provider-typebox";
 import { VISIBLE_COMPANY, VISIBLE_JOB } from "../modules/filters/compile-filters";
 import { ErrorCodes, sendError, sendResponse } from "../utils/send-response";

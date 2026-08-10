@@ -1,4 +1,4 @@
-import { RESUME_EXTENSIONS, RESUME_MAX_BYTES } from "@chowk/schema";
+import { RESUME_EXTENSIONS, RESUME_MAX_BYTES } from "@atlas/schema";
 import { createFileRoute } from "@tanstack/react-router";
 import { Download, FileText, Star, Trash2, Upload } from "lucide-react";
 import { useRef, useState } from "react";

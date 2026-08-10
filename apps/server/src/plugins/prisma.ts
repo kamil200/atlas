@@ -1,4 +1,4 @@
-import { PrismaClient } from "@chowk/database";
+import { PrismaClient } from "@atlas/database";
 import type { FastifyInstance } from "fastify";
 import fp from "fastify-plugin";
 

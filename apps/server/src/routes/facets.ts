@@ -6,7 +6,7 @@ import {
   HIRING_STATUS_LABELS,
   SuccessResponse,
   WORK_MODE_LABELS,
-} from "@chowk/schema";
+} from "@atlas/schema";
 import type { FastifyPluginAsyncTypebox } from "@fastify/type-provider-typebox";
 import {
   compileCompanyWhere,

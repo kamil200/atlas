@@ -8,7 +8,7 @@ let root: string;
 let storage: LocalDiskStorageAdapter;
 
 beforeAll(async () => {
-  root = await mkdtemp(path.join(tmpdir(), "chowk-storage-"));
+  root = await mkdtemp(path.join(tmpdir(), "atlas-storage-"));
   storage = new LocalDiskStorageAdapter(root);
 });
 

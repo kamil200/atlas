@@ -1,5 +1,5 @@
-import type { ApplicationDto, JobSummary } from "@chowk/schema";
-import { WORK_MODE_LABELS } from "@chowk/schema";
+import type { ApplicationDto, JobSummary } from "@atlas/schema";
+import { WORK_MODE_LABELS } from "@atlas/schema";
 import { Bookmark, Check, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 

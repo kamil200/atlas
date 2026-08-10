@@ -4,7 +4,7 @@ import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import fp from "fastify-plugin";
 import { ErrorCodes, sendError } from "../utils/send-response";
 
-export const SESSION_COOKIE = "chowk_session";
+export const SESSION_COOKIE = "atlas_session";
 const SESSION_DAYS = 7;
 
 declare module "@fastify/jwt" {

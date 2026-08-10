@@ -1,5 +1,5 @@
-import type { ApplicationDto, ApplicationStatus } from "@chowk/schema";
-import { APPLICATION_STATUS_LABELS, WORK_MODE_LABELS } from "@chowk/schema";
+import type { ApplicationDto, ApplicationStatus } from "@atlas/schema";
+import { APPLICATION_STATUS_LABELS, WORK_MODE_LABELS } from "@atlas/schema";
 import { Building2, Trash2 } from "lucide-react";
 import {
   Select,

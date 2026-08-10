@@ -1,5 +1,5 @@
 {
-  "name": "@chowk/server",
+  "name": "@atlas/server",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -11,8 +11,8 @@
     "facets:check": "LOG_LEVEL=silent tsx scripts/facet-check.ts"
   },
   "dependencies": {
-    "@chowk/database": "workspace:*",
-    "@chowk/schema": "workspace:*",
+    "@atlas/database": "workspace:*",
+    "@atlas/schema": "workspace:*",
     "@fastify/cookie": "^11.1.0",
     "@fastify/env": "^7.0.0",
     "@fastify/helmet": "^13.1.0",

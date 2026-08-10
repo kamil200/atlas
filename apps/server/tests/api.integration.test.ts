@@ -1,4 +1,4 @@
-import type { CompaniesMapData, FacetsResponse, JobsListData } from "@chowk/schema";
+import type { CompaniesMapData, FacetsResponse, JobsListData } from "@atlas/schema";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { type AppServer, buildApp } from "../src/app";
 
@@ -11,7 +11,7 @@ import { type AppServer, buildApp } from "../src/app";
 */
 
 let app: AppServer;
-const TEST_EMAIL = "vitest-user@chowk.test";
+const TEST_EMAIL = "vitest-user@atlas.test";
 
 async function get<T>(url: string): Promise<T> {
   const response = await app.inject({ method: "GET", url });
@@ -138,13 +138,13 @@ describe("saving and applying", () => {
       url: "/api/auth/register",
       payload: { email: TEST_EMAIL, password: "Password123!", name: "Vitest" },
     });
-    cookie = registered.cookies.find((c) => c.name === "chowk_session")?.value ?? "";
+    cookie = registered.cookies.find((c) => c.name === "atlas_session")?.value ?? "";
 
     const jobs = await get<JobsListData>("/api/jobs?pageSize=1");
     jobId = jobs.items[0].id;
   });
 
-  const auth = () => ({ chowk_session: cookie });
+  const auth = () => ({ atlas_session: cookie });
 
   it("saves once no matter how many times the button is pressed", async () => {
     const first = await app.inject({

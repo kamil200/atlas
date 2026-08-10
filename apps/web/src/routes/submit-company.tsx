@@ -1,4 +1,4 @@
-import { FUNDING_STAGE_LABELS, FundingStage, type SubmitOfficeInput } from "@chowk/schema";
+import { FUNDING_STAGE_LABELS, FundingStage, type SubmitOfficeInput } from "@atlas/schema";
 import { createFileRoute } from "@tanstack/react-router";
 import { Plus, Trash2 } from "lucide-react";
 import { useState } from "react";

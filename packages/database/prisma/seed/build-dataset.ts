@@ -613,7 +613,7 @@ export function buildDataset(rng: Rng, now: number): SeedDataset {
   const users: Prisma.UserCreateManyInput[] = [
     {
       id: "usr_admin",
-      email: "admin@chowk.dev",
+      email: "admin@atlas.dev",
       name: "Admin",
       role: "ADMIN",
       authProvider: "PASSWORD",
@@ -621,7 +621,7 @@ export function buildDataset(rng: Rng, now: number): SeedDataset {
     },
     {
       id: "usr_demo",
-      email: "demo@chowk.dev",
+      email: "demo@atlas.dev",
       name: "Demo User",
       role: "USER",
       authProvider: "PASSWORD",

@@ -5,7 +5,7 @@ import type {
   SubmissionsListData,
   SubmitCompanyBody,
   SubmitCompanyData,
-} from "@chowk/schema";
+} from "@atlas/schema";
 import { baseApi } from "./base-api";
 
 export const submissionApi = baseApi.injectEndpoints({

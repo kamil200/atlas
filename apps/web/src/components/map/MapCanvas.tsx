@@ -1,4 +1,4 @@
-import type { OfficeMapPoint } from "@chowk/schema";
+import type { OfficeMapPoint } from "@atlas/schema";
 import maplibregl, { type GeoJSONSource, type MapGeoJSONFeature } from "maplibre-gl";
 import { useEffect, useMemo, useRef } from "react";
 import { createRoot, type Root } from "react-dom/client";
@@ -227,7 +227,7 @@ export function MapCanvas({
         closeButton: false,
         offset: 26,
         maxWidth: "none",
-        className: "chowk-popup",
+        className: "atlas-popup",
       })
         .setLngLat(feature.geometry.coordinates as [number, number])
         .setDOMContent(node)
@@ -271,7 +271,7 @@ export function MapCanvas({
       map.getZoom(), queryRenderedFeatures, and so on. Never in a build.
     */
     if (import.meta.env.DEV) {
-      (window as unknown as { __chowkMap?: maplibregl.Map }).__chowkMap = map;
+      (window as unknown as { __atlasMap?: maplibregl.Map }).__atlasMap = map;
     }
 
     onReadyRef.current?.(buildApi(map));

@@ -2,7 +2,7 @@ import { Music, Volume2 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
-const STORAGE_KEY = "chowk.music";
+const STORAGE_KEY = "atlas.music";
 const TRACK_URL = "/audio/lofi.mp3";
 
 /*

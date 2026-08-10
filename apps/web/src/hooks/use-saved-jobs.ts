@@ -1,4 +1,4 @@
-import type { ApplicationDto, JobSummary } from "@chowk/schema";
+import type { ApplicationDto, JobSummary } from "@atlas/schema";
 import { useNavigate, useRouterState } from "@tanstack/react-router";
 import { useCallback, useMemo } from "react";
 import { toast } from "sonner";

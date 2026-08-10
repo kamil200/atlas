@@ -1,4 +1,4 @@
-import type { Prisma } from "@chowk/database";
+import type { Prisma } from "@atlas/database";
 import type {
   ApplicationDto,
   CompanyDetail,
@@ -9,7 +9,7 @@ import type {
   ResumeDto,
   SubmissionWithCompany,
   UserDto,
-} from "@chowk/schema";
+} from "@atlas/schema";
 
 /*
   Prisma rows become DTOs here and nowhere else. Two things must happen at this

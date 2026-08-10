@@ -1,22 +1,22 @@
 services:
   postgres:
     image: postgres:16-alpine
-    container_name: chowk-postgres
+    container_name: atlas-postgres
     restart: unless-stopped
     environment:
-      POSTGRES_USER: chowk
-      POSTGRES_PASSWORD: chowk
-      POSTGRES_DB: chowk
+      POSTGRES_USER: atlas
+      POSTGRES_PASSWORD: atlas
+      POSTGRES_DB: atlas
     # Host 5434 on purpose: 5432 and 5433 are commonly taken by local postgres installs.
     ports:
       - "5434:5432"
     volumes:
-      - chowk-pgdata:/var/lib/postgresql/data
+      - atlas-pgdata:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U chowk -d chowk"]
+      test: ["CMD-SHELL", "pg_isready -U atlas -d atlas"]
       interval: 5s
       timeout: 5s
       retries: 10
 
 volumes:
-  chowk-pgdata:
+  atlas-pgdata:

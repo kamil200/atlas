@@ -6,7 +6,7 @@ import {
   CompanyQuery,
   ErrorResponse,
   SuccessResponse,
-} from "@chowk/schema";
+} from "@atlas/schema";
 import type { FastifyPluginAsyncTypebox } from "@fastify/type-provider-typebox";
 import {
   compileCompanyWhere,

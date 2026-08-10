@@ -1,4 +1,4 @@
-import { SEARCH_GROUP_LIMIT, SearchQuery, SearchResponse, SuccessResponse } from "@chowk/schema";
+import { SEARCH_GROUP_LIMIT, SearchQuery, SearchResponse, SuccessResponse } from "@atlas/schema";
 import type { FastifyPluginAsyncTypebox } from "@fastify/type-provider-typebox";
 import { escapeLike, VISIBLE_COMPANY, VISIBLE_JOB } from "../modules/filters/compile-filters";
 import { sendResponse } from "../utils/send-response";

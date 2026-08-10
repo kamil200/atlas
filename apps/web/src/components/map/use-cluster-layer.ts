@@ -1,4 +1,4 @@
-import type { OfficeMapPoint } from "@chowk/schema";
+import type { OfficeMapPoint } from "@atlas/schema";
 import type { Feature, FeatureCollection, Point } from "geojson";
 
 /*

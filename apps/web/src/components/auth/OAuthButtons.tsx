@@ -13,7 +13,7 @@ type Provider = { key: "google" | "linkedin"; label: string; mark: React.ReactNo
 
 /*
   Provider marks are the one place raw hex is allowed. These are other
-  companies' trademarks with fixed colours, not Chowk design tokens, and
+  companies' trademarks with fixed colours, not Atlas design tokens, and
   recolouring them to the brand palette is against both providers' guidelines.
 */
 const GoogleMark = (

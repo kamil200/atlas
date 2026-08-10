@@ -1,4 +1,4 @@
-import type { ApiError } from "@chowk/schema";
+import type { ApiError } from "@atlas/schema";
 import type { BaseQueryFn, FetchArgs } from "@reduxjs/toolkit/query";
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 

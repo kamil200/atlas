@@ -5,7 +5,7 @@ import {
   SubmissionData,
   SubmissionsListData,
   SuccessResponse,
-} from "@chowk/schema";
+} from "@atlas/schema";
 import type { FastifyPluginAsyncTypebox } from "@fastify/type-provider-typebox";
 import { ErrorCodes, sendError, sendResponse } from "../utils/send-response";
 import { submissionInclude, toSubmissionDto } from "../utils/serializers";

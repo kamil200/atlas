@@ -1,4 +1,4 @@
-import type { FacetBucket, FacetsResponse } from "@chowk/schema";
+import type { FacetBucket, FacetsResponse } from "@atlas/schema";
 import { SlidersHorizontal, X } from "lucide-react";
 import { useState } from "react";
 import {

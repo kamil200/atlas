@@ -7,7 +7,7 @@ Paste any of these into claude.ai (artifacts on) or Claude Code to generate mock
 ## Prompt 1 — Landing page mockup
 
 ```
-Build a single-file HTML mockup (inline CSS only, no external assets, no JS needed) of a landing page for "Chowk" — a job platform that puts startups hiring on an interactive city map instead of a list. India-first, playful but professional, polish level of a designer-built product.
+Build a single-file HTML mockup (inline CSS only, no external assets, no JS needed) of a landing page for "Atlas" — a job platform that puts startups hiring on an interactive city map instead of a list. India-first, playful but professional, polish level of a designer-built product.
 
 Brand tokens (use exactly):
 - paper #FFFFFF (page bg), paper-2 #F2F3F6 (wells + hover fills), ink #191A1C (text + primary buttons with paper text), ink-soft #6E7078, line #E3E5E9 (borders)
@@ -16,7 +16,7 @@ Brand tokens (use exactly):
 - Display font: Young Serif (fallback Georgia). Body: Inter (fallback system-ui). Mono garnish: JetBrains Mono (fallback ui-monospace) for tiny uppercase meta labels like "92 COMPANIES · 1,486 JOBS"
 - Radius 12-24px, warm soft shadows, generous whitespace
 
-Logo mark (inline SVG): peepal-green rounded square #1B7F4D containing four paper rounded squares in a 2x2 grid (city blocks) with a marigold center dot — a map tile with a crossroads. Wordmark "chowk" lowercase in the display font with a marigold full stop.
+Logo mark (inline SVG): peepal-green rounded square #1B7F4D containing four paper rounded squares in a 2x2 grid (city blocks) with a marigold center dot — a map tile with a crossroads. Wordmark "atlas" lowercase in the display font with a marigold full stop.
 
 Sections:
 1. Nav: logo, "Add company", "Login" (ink button)
@@ -32,7 +32,7 @@ Desktop width ~1200px. No lorem — write real copy in a warm, plain voice.
 ## Prompt 2 — Dashboard (/map) mockup
 
 ```
-Build a single-file HTML mockup (inline CSS + minimal JS optional) of the map dashboard for "Chowk" — startups on a city map. This is the product screen; polish it like a designer-built app (think nextdoor.company quality).
+Build a single-file HTML mockup (inline CSS + minimal JS optional) of the map dashboard for "Atlas" — startups on a city map. This is the product screen; polish it like a designer-built app (think nextdoor.company quality).
 
 [Include the same "Brand tokens" and "Logo mark" blocks from Prompt 1]
 
@@ -50,5 +50,5 @@ Details that sell it: soft shadows, 12-16px radii, hover states, tabular numbers
 ## Prompt 3 — Logo explorations
 
 ```
-Generate 6 SVG logo mark explorations for "Chowk" (Hindi: town square/crossroads) — a map-based startup-jobs platform. Constraints: must read at 16px, flat vector, max 3 colors from: peepal green #1B7F4D, paper #FFFFFF, ink #191A1C, marigold #F5B301. Directions to explore: (1) map tile with four city blocks + center dot, (2) crossroads/plus formed by negative space, (3) location pin whose head is a town square, (4) aerial roundabout with a tree canopy center, (5) rangoli-geometric square, (6) the Devanagari च simplified into a map path. Present all 6 on one white board with the wordmark "chowk" in Young Serif below each.
+Generate 6 SVG logo mark explorations for "Atlas" (Hindi: town square/crossroads) — a map-based startup-jobs platform. Constraints: must read at 16px, flat vector, max 3 colors from: peepal green #1B7F4D, paper #FFFFFF, ink #191A1C, marigold #F5B301. Directions to explore: (1) map tile with four city blocks + center dot, (2) crossroads/plus formed by negative space, (3) location pin whose head is a town square, (4) aerial roundabout with a tree canopy center, (5) rangoli-geometric square, (6) the Devanagari च simplified into a map path. Present all 6 on one white board with the wordmark "atlas" in Young Serif below each.
 ```

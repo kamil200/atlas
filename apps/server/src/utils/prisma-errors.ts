@@ -1,4 +1,4 @@
-import { Prisma } from "@chowk/database";
+import { Prisma } from "@atlas/database";
 
 /*
   A check-then-write is never atomic. Two requests can both read "that email is

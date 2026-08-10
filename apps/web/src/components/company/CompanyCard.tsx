@@ -1,5 +1,5 @@
-import type { CompanyDetail } from "@chowk/schema";
-import { FUNDING_STAGE_LABELS } from "@chowk/schema";
+import type { CompanyDetail } from "@atlas/schema";
+import { FUNDING_STAGE_LABELS } from "@atlas/schema";
 import { Building2 } from "lucide-react";
 import { formatCoordinates } from "@/components/map/MarkerPopup";
 

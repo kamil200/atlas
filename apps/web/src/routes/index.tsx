@@ -61,7 +61,7 @@ function LandingPage() {
         </h1>
 
         <p className="mt-6 max-w-xl text-lg text-ink-soft">
-          Chowk puts every startup hiring in your city on one map. Filter by role, city, and funding
+          Atlas puts every startup hiring in your city on one map. Filter by role, city, and funding
           stage, read the founder and funding story, then apply without leaving the page.
         </p>
 
@@ -84,7 +84,7 @@ function LandingPage() {
 
         <p className="font-mono mt-5 text-[11px] uppercase tracking-[0.08em] text-ink-soft">
           {isLoading
-            ? "Counting the chowk…"
+            ? "Counting the pins…"
             : `${stats.companies} companies · ${stats.openJobs.toLocaleString("en-IN")} open roles · updated daily`}
         </p>
       </header>
@@ -194,7 +194,7 @@ function LandingPage() {
             </ul>
           </div>
           <p className="mt-8 font-mono text-[10px] uppercase tracking-[0.08em] text-ink-soft">
-            Chowk · demo data, not live listings · built as a portfolio project
+            Atlas · demo data, not live listings · built as a portfolio project
           </p>
         </div>
       </footer>

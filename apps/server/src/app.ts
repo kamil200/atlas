@@ -1,6 +1,6 @@
 import "./load-env";
 
-import { RESUME_MAX_BYTES } from "@chowk/schema";
+import { RESUME_MAX_BYTES } from "@atlas/schema";
 import fastifyHelmet from "@fastify/helmet";
 import fastifyMultipart from "@fastify/multipart";
 import fastifyRateLimit from "@fastify/rate-limit";

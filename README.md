@@ -1,6 +1,6 @@
-# Chowk
+# Atlas
 
-**Chowk** (चौक, rhymes with *cloak*) is the town square — the crossroads where the whole city turns up. Chowk puts every startup hiring in your city on one map, so finding your next job feels like walking your own neighbourhood instead of grinding through a list.
+**Atlas** is a book of maps rather than a list of links. It puts every startup hiring in your city on one map, so finding your next job feels like walking your own neighbourhood instead of grinding through a list.
 
 Instead of a job feed, you explore an interactive map of startups, filter with live facet counts, open a company's full profile (founders, funding, investors, open roles), save and track applications, upload a resume, and apply in-app.
 
@@ -20,8 +20,8 @@ Sign in with either seeded account, password `Password123!`:
 
 | Email | Role |
 |---|---|
-| `demo@chowk.dev` | regular user |
-| `admin@chowk.dev` | admin, sees the review queue |
+| `demo@atlas.dev` | regular user |
+| `admin@atlas.dev` | admin, sees the review queue |
 
 Postgres is mapped to host port **5434** rather than 5432, because a local Postgres install usually already owns 5432.
 
@@ -54,8 +54,8 @@ flowchart LR
   end
 
   subgraph shared["packages/"]
-    SCHEMA["@chowk/schema<br/>TypeBox contracts"]
-    DB["@chowk/database<br/>Prisma + seed"]
+    SCHEMA["@atlas/schema<br/>TypeBox contracts"]
+    DB["@atlas/database<br/>Prisma + seed"]
   end
 
   URL -->|"strip UI keys, sort"| RTK
@@ -148,7 +148,7 @@ The palette is green-led. Peepal green is the tree at the centre of every Indian
 | 🟨 | `marigold-500` `#F5B301` | The dot motif and the selected-pin ring |
 | ⬜ | `stone` `#B0B3BA` | Quiet, not-hiring pins |
 
-If it is Chowk or you can act on it, it is peepal. Marigold is never text and never a large surface. Type is a display serif for headlines, Inter for the product, and JetBrains Mono for counts and coordinates — `12.97°N 77.59°E`.
+If it is Atlas or you can act on it, it is peepal. Marigold is never text and never a large surface. Type is a display serif for headlines, Inter for the product, and JetBrains Mono for counts and coordinates — `12.97°N 77.59°E`.
 
 Full guide in [`brand/BRAND.md`](brand/BRAND.md).
 

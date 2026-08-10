@@ -1,4 +1,4 @@
-import type { FacetsResponse } from "@chowk/schema";
+import type { FacetsResponse } from "@atlas/schema";
 import { buildApp } from "../src/app";
 
 /*
@@ -6,7 +6,7 @@ import { buildApp } from "../src/app";
   counted with its own filter applied, ticking one value drops its siblings to
   zero and the panel becomes a dead end you cannot back out of.
 
-  Run with `pnpm --filter @chowk/server facets:check`.
+  Run with `pnpm --filter @atlas/server facets:check`.
 */
 
 const app = await buildApp();

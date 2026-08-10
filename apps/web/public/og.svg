@@ -1,5 +1,5 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-label="Chowk — startup jobs on a map">
-  <title>Chowk — startup jobs on a map</title>
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-label="Atlas — startup jobs on a map">
+  <title>Atlas — startup jobs on a map</title>
   <defs>
     <pattern id="grid" width="60" height="60" patternUnits="userSpaceOnUse">
       <path d="M60 0H0V60" fill="none" stroke="#E3E5E9" stroke-width="1.5"/>
@@ -25,7 +25,7 @@
     <rect x="43" y="43" width="22" height="22" rx="7" fill="#FFFFFF"/>
     <circle cx="38" cy="38" r="5.5" fill="#F5B301"/>
   </g>
-  <text x="186" y="152" font-family="Georgia, serif" font-size="52" fill="#191A1C">chowk</text>
+  <text x="186" y="152" font-family="Georgia, serif" font-size="52" fill="#191A1C">atlas</text>
   <circle cx="316" cy="145" r="7" fill="#F5B301"/>
 
   <text x="90" y="300" font-family="Georgia, serif" font-size="72" fill="#191A1C">Startup jobs,</text>

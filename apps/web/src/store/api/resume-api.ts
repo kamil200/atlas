@@ -1,4 +1,4 @@
-import type { ResumeData, ResumesListData } from "@chowk/schema";
+import type { ResumeData, ResumesListData } from "@atlas/schema";
 import { baseApi } from "./base-api";
 
 export const resumeApi = baseApi.injectEndpoints({

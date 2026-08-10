@@ -1,4 +1,4 @@
-import { Prisma } from "@chowk/database";
+import { Prisma } from "@atlas/database";
 import {
   ApplicationStatus,
   AuthProvider,
@@ -10,7 +10,7 @@ import {
   SubmissionStatus,
   UserRole,
   WorkMode,
-} from "@chowk/schema";
+} from "@atlas/schema";
 import type { TypeBoxTypeProvider } from "@fastify/type-provider-typebox";
 import { Value } from "@sinclair/typebox/value";
 import Fastify from "fastify";
@@ -91,10 +91,10 @@ describe("MapSearchParams", () => {
 
 /*
   The enums are declared twice on purpose — once in Prisma, once in
-  @chowk/schema so the browser never imports the Prisma client. This test is
+  @atlas/schema so the browser never imports the Prisma client. This test is
   what makes that safe.
 */
-describe("enum parity between Prisma and @chowk/schema", () => {
+describe("enum parity between Prisma and @atlas/schema", () => {
   /*
     The expected values are read out of the generated Prisma client, so adding
     a value in a migration and forgetting the schema package fails here rather

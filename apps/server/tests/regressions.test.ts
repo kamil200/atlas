@@ -5,7 +5,7 @@ import type {
   JobsListData,
   SearchResponse,
   SubmitCompanyBody,
-} from "@chowk/schema";
+} from "@atlas/schema";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { type AppServer, buildApp } from "../src/app";
 import { SESSION_COOKIE } from "../src/plugins/auth";
@@ -23,7 +23,7 @@ let app: AppServer;
 let cookie: string;
 let userId: string;
 
-const TEST_EMAIL = "vitest-regressions@chowk.test";
+const TEST_EMAIL = "vitest-regressions@atlas.test";
 const TEST_SLUG_PREFIX = "regression-test";
 
 async function get<T>(url: string): Promise<T> {

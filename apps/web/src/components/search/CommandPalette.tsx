@@ -12,7 +12,7 @@ import {
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
 import { useLazySearchQuery } from "@/store/api/discovery-api";
 
-const RECENTS_KEY = "chowk.recent-searches";
+const RECENTS_KEY = "atlas.recent-searches";
 const MAX_RECENTS = 5;
 const MIN_QUERY = 2;
 const DEBOUNCE_MS = 250;
@@ -81,7 +81,7 @@ export function CommandPalette({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="overflow-hidden p-0" showCloseButton={false}>
-        <DialogTitle className="sr-only">Search Chowk</DialogTitle>
+        <DialogTitle className="sr-only">Search Atlas</DialogTitle>
         <DialogDescription className="sr-only">Find companies, roles, and cities</DialogDescription>
         {/*
           Filtering is off because the server already did it. Left on, cmdk

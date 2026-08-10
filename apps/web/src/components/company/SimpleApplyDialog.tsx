@@ -1,4 +1,4 @@
-import type { JobSummary } from "@chowk/schema";
+import type { JobSummary } from "@atlas/schema";
 import { Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { toast } from "sonner";

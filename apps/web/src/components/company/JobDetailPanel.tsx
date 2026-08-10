@@ -1,5 +1,5 @@
-import type { ApplicationDto, JobSummary } from "@chowk/schema";
-import { WORK_MODE_LABELS } from "@chowk/schema";
+import type { ApplicationDto, JobSummary } from "@atlas/schema";
+import { WORK_MODE_LABELS } from "@atlas/schema";
 import { ArrowLeft, Bookmark, Check, ExternalLink } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";

@@ -20,10 +20,10 @@ importers:
 
   apps/server:
     dependencies:
-      '@chowk/database':
+      '@atlas/database':
         specifier: workspace:*
         version: link:../../packages/database
-      '@chowk/schema':
+      '@atlas/schema':
         specifier: workspace:*
         version: link:../../packages/schema
       '@fastify/cookie':
@@ -81,7 +81,7 @@ importers:
 
   apps/web:
     dependencies:
-      '@chowk/schema':
+      '@atlas/schema':
         specifier: workspace:*
         version: link:../../packages/schema
       '@fontsource-variable/inter':

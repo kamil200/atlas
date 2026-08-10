@@ -1,4 +1,4 @@
-import type { AuthProvidersData, AuthUserData, LoginBody, RegisterBody } from "@chowk/schema";
+import type { AuthProvidersData, AuthUserData, LoginBody, RegisterBody } from "@atlas/schema";
 import { baseApi } from "./base-api";
 
 export const authApi = baseApi.injectEndpoints({

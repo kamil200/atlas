@@ -1,5 +1,5 @@
 /*
-  These mirror the Prisma enums in @chowk/database. They live here as plain
+  These mirror the Prisma enums in @atlas/database. They live here as plain
   objects so the browser bundle never has to import the Prisma client just to
   know that "REMOTE" is a work mode. A test in apps/server asserts the two
   lists stay identical.

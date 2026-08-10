@@ -1,4 +1,4 @@
-import { type MapSearchParams, toFilterParams } from "@chowk/schema";
+import { type MapSearchParams, toFilterParams } from "@atlas/schema";
 import { useNavigate, useSearch } from "@tanstack/react-router";
 import { useCallback, useMemo } from "react";
 import { countActiveFilters, FILTER_KEYS, type FilterKey } from "@/lib/map-search";

@@ -1,4 +1,4 @@
-import type { FilterParams } from "@chowk/schema";
+import type { FilterParams } from "@atlas/schema";
 import { describe, expect, it } from "vitest";
 import {
   compileCompanyWhere,

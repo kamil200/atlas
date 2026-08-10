@@ -1,4 +1,4 @@
-import type { Prisma } from "@chowk/database";
+import type { Prisma } from "@atlas/database";
 import {
   ErrorResponse,
   JobData,
@@ -6,7 +6,7 @@ import {
   JobsListData,
   JobsQuery,
   SuccessResponse,
-} from "@chowk/schema";
+} from "@atlas/schema";
 import type { FastifyPluginAsyncTypebox } from "@fastify/type-provider-typebox";
 import { compileJobWhere, VISIBLE_COMPANY } from "../modules/filters/compile-filters";
 import { ErrorCodes, sendError, sendResponse } from "../utils/send-response";

@@ -1,4 +1,4 @@
-export const APP_NAME = "Chowk";
+export const APP_NAME = "Atlas";
 
 /* Keyless vector tiles. Positron is light and quiet, and map-style.ts repaints it to match the paper chrome. */
 export const MAP_STYLE_URL = "https://tiles.openfreemap.org/styles/positron";

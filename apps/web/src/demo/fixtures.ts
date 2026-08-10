@@ -1,4 +1,4 @@
-import type { ApplicationDto, CompanyDetail, FacetsResponse, JobSummary } from "@chowk/schema";
+import type { ApplicationDto, CompanyDetail, FacetsResponse, JobSummary } from "@atlas/schema";
 
 /*
   Data for the landing page embeds. It is typed against the real DTOs, so if a

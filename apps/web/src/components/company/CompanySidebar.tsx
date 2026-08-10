@@ -1,4 +1,4 @@
-import { FUNDING_STAGE_LABELS } from "@chowk/schema";
+import { FUNDING_STAGE_LABELS } from "@atlas/schema";
 import { Building2, ExternalLink, MapPin } from "lucide-react";
 import { formatCoordinates } from "@/components/map/MarkerPopup";
 import { Sheet, SheetContent, SheetDescription, SheetTitle } from "@/components/ui/sheet";

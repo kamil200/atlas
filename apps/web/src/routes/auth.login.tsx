@@ -96,7 +96,7 @@ function LoginPage() {
       </form>
 
       <p className="mt-4 rounded-md border border-line bg-paper-2 px-3 py-2 text-xs text-ink-soft">
-        Demo account: <span className="font-mono">demo@chowk.dev</span> /{" "}
+        Demo account: <span className="font-mono">demo@atlas.dev</span> /{" "}
         <span className="font-mono">Password123!</span>
       </p>
     </AuthShell>

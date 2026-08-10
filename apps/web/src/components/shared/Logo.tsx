@@ -6,8 +6,8 @@
 */
 export function LogoMark({ className = "size-8" }: { className?: string }) {
   return (
-    <svg viewBox="0 0 64 64" className={className} role="img" aria-label="Chowk">
-      <title>Chowk</title>
+    <svg viewBox="0 0 64 64" className={className} role="img" aria-label="Atlas">
+      <title>Atlas</title>
       <rect x="0" y="0" width="64" height="64" rx="16" fill="#1B7F4D" />
       <rect x="9" y="9" width="19" height="19" rx="6" fill="#FFFFFF" />
       <rect x="36" y="9" width="19" height="19" rx="6" fill="#FFFFFF" />
@@ -29,7 +29,7 @@ export function Wordmark() {
         makes it read low next to the mark otherwise.
       */}
       <span className="font-display translate-y-px text-[1.0625rem] leading-none tracking-[-0.01em] text-ink">
-        chowk<span className="text-marigold-500">.</span>
+        atlas<span className="text-marigold-500">.</span>
       </span>
     </span>
   );

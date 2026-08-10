@@ -4,7 +4,7 @@ import {
   InvestorsListData,
   InvestorsQuery,
   SuccessResponse,
-} from "@chowk/schema";
+} from "@atlas/schema";
 import type { FastifyPluginAsyncTypebox } from "@fastify/type-provider-typebox";
 import { escapeLike } from "../modules/filters/compile-filters";
 import { sendResponse } from "../utils/send-response";

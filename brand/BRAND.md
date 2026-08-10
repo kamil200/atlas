@@ -1,12 +1,12 @@
-# Chowk — Brand Guide
+# Atlas — Brand Guide
 
-**Chowk** (चौक) — the town square. The crossroads where the whole city shows up: vendors, chai, gossip, opportunity. Chowk puts every startup hiring in your city on one map, so finding your next job feels like walking your own neighborhood, not grinding through a list.
+**Atlas** — a book of maps. Not a list of links, a place you can look at. Atlas puts every startup hiring in your city on one map, so finding your next job feels like walking your own neighbourhood rather than grinding through a job board.
 
-One-line pitch: **"Every city has a chowk. Yours is full of jobs."**
+One-line pitch: **"Every city is hiring. Here is the map."**
 
-The palette is green-led (owner's call): **peepal green** — the tree at the center of every Indian square — and **marigold** — the garland strung across it. One green, one yellow, ink for buttons. The whole system in a sentence.
+The palette is green-led (owner's call): **peepal green** — the tree at the centre of an Indian town square, which is where this project started life — and **marigold**, the garland strung across it. One green, one yellow, ink for buttons. The whole system in a sentence. The token names keep the peepal and marigold vocabulary; renaming a hundred colour references would have bought nothing.
 
-Name usage: "Chowk" capitalized in prose; the wordmark is lowercase `chowk` with a marigold full stop. Pronunciation note for the README: rhymes with "cloak" (chauk).
+Name usage: "Atlas" capitalised in prose; the wordmark is lowercase `atlas` with a marigold full stop.
 
 ---
 
@@ -14,7 +14,7 @@ Name usage: "Chowk" capitalized in prose; the wordmark is lowercase `chowk` with
 
 Files in `brand/`: `logo.svg` (lockup), `logo-mark.svg` (tile only), `favicon.svg`.
 
-The mark is a **map tile**: four paper city blocks around a crossroads on a peepal-green tile, with a marigold dot at the center — the chowk itself, the point where everything meets. It reads at 16px (favicon) and scales up clean.
+The mark is a **map tile**: four paper city blocks around a crossroads on a peepal-green tile, with a marigold dot at the centre — the crossing itself, the point where everything meets. It reads at 16px (favicon) and scales up clean.
 
 Rules: don't rotate, recolor, outline, or shadow the mark. Clear space = half the tile width on all sides. On dark or photographic grounds use the tile mark alone (it carries its own background). Minimum lockup width 96px; below that, use the mark only.
 
@@ -26,7 +26,7 @@ Neutral white ground, ink for text and primary CTAs, and a **green-led system**.
 
 The ground used to be warm cream (`#FAF7F0`). It was swapped for true white in Aug 2026 — on screen the cream read as dated newsprint rather than warm, and it dulled every surface sitting on it. Depth now comes from a hairline plus a tight shadow, not from a tinted ground. Link contrast improved as a side effect (6.6:1 → 7.0:1). The token *names* are unchanged, so nothing downstream had to move.
 
-- **Peepal (green)** — the brand color and the working color. The logo tile, map pins, clusters, links, focus rings, selected filters, active bookmark, tabs, hiring badges. If it's Chowk or you can act on it, it's peepal.
+- **Peepal (green)** — the brand color and the working color. The logo tile, map pins, clusters, links, focus rings, selected filters, active bookmark, tabs, hiring badges. If it's Atlas or you can act on it, it's peepal.
 - **Marigold (yellow)** — the garland. The dot, the selected-pin ring, small highlights and celebratory moments. Never large surfaces, never text.
 - **Ink** — body text and primary buttons (paper text on ink, reference-style).
 
@@ -126,7 +126,7 @@ Plain, warm, specific. Short sentences. Say the number ("1,486 jobs"), not the a
 
 | Moment | Write this | Not this |
 |---|---|---|
-| Morning greeting | "Bright and early. The chowk is all yours." | "Welcome back to your dashboard!" |
+| Morning greeting | "Bright and early. The whole map is yours." | "Welcome back to your dashboard!" |
 | Empty tracker | "Nothing saved yet. Wander the map — something will catch your eye." | "No data available." |
 | Empty filter result | "No startups match these filters. Loosen one and try again." | "0 results found." |
 | Apply success toast | "Applied. Fingers crossed." | "Your application has been submitted successfully!" |
@@ -149,6 +149,6 @@ Buttons say what they do: "Save job", "Apply on company site", "Show 12 roles". 
 ## 8. Assets checklist for the build
 
 - `apps/web/public/favicon.svg` (from brand/), `favicon-32.png`, `apple-touch-icon.png`
-- OG image 1200×630: paper ground, peepal tile mark, "chowk" wordmark, tagline, faint map-grid pattern
-- `<title>` pattern: "Chowk — startup jobs on a map" (landing), "{Company} · Chowk" (deep links)
+- OG image 1200×630: paper ground, peepal tile mark, "atlas" wordmark, tagline, faint map-grid pattern
+- `<title>` pattern: "Atlas — startup jobs on a map" (landing), "{Company} · Atlas" (deep links)
 - Map style: OpenFreeMap Positron, repainted layer by layer in `apps/web/src/lib/map-style.ts` — its greys lean slightly blue, so they are neutralised to sit against the white chrome. Not a CSS filter: the pins share the canvas and would get tinted too

@@ -1,4 +1,4 @@
-import type { OfficeMapPoint } from "@chowk/schema";
+import type { OfficeMapPoint } from "@atlas/schema";
 import { describe, expect, it } from "vitest";
 import { summariseOffices, toOfficeCollection, toOfficeFeature } from "./use-cluster-layer";
 

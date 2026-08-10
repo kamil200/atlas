@@ -1,4 +1,4 @@
-import type { OfficeMapPoint } from "@chowk/schema";
+import type { OfficeMapPoint } from "@atlas/schema";
 import type maplibregl from "maplibre-gl";
 import { MAP_COLORS } from "@/lib/constants";
 import {
@@ -20,17 +20,17 @@ import {
 */
 
 export const IMAGE = {
-  ringHiring: "chowk-ring-hiring",
-  ringQuiet: "chowk-ring-quiet",
-  ringSelected: "chowk-ring-selected",
-  ringHover: "chowk-ring-hover",
-  labelPill: "chowk-label-pill",
-  countChip: "chowk-count-chip",
-  herePin: "chowk-here-pin",
+  ringHiring: "atlas-ring-hiring",
+  ringQuiet: "atlas-ring-quiet",
+  ringSelected: "atlas-ring-selected",
+  ringHover: "atlas-ring-hover",
+  labelPill: "atlas-label-pill",
+  countChip: "atlas-count-chip",
+  herePin: "atlas-here-pin",
 } as const;
 
 /* Also built inside a MapLibre expression, so the prefix has to live in one place. */
-export const TILE_PREFIX = "chowk-tile-";
+export const TILE_PREFIX = "atlas-tile-";
 export const tileImageId = (slug: string) => `${TILE_PREFIX}${slug}`;
 
 /* Which companies this map already has a tile for. Cleared with the map itself. */

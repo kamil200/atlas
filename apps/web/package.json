@@ -1,5 +1,5 @@
 {
-  "name": "@chowk/web",
+  "name": "@atlas/web",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -11,7 +11,7 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@chowk/schema": "workspace:*",
+    "@atlas/schema": "workspace:*",
     "@fontsource-variable/inter": "^5.3.0",
     "@fontsource/jetbrains-mono": "^5.3.0",
     "@fontsource/young-serif": "^5.3.0",

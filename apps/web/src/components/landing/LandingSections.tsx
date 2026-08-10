@@ -57,8 +57,8 @@ export function LogoMarquee() {
       </p>
       <div className="mt-6 space-y-3">
         {rows.map((row, index) => (
-          <div key={row[0]} className="chowk-marquee">
-            <div className={`chowk-marquee-track ${index === 1 ? "chowk-marquee-reverse" : ""}`}>
+          <div key={row[0]} className="atlas-marquee">
+            <div className={`atlas-marquee-track ${index === 1 ? "atlas-marquee-reverse" : ""}`}>
               {doubled(row).map((chip) => (
                 <span
                   key={chip.key}
