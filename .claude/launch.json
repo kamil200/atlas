@@ -2,9 +2,9 @@
   "version": "0.0.1",
   "configurations": [
     {
-      "name": "atlas-web",
+      "name": "atlas",
       "runtimeExecutable": "pnpm",
-      "runtimeArgs": ["--filter", "@atlas/web", "dev"],
+      "runtimeArgs": ["dev"],
       "port": 5173
     }
   ]

@@ -161,6 +161,7 @@ export function MapCanvas({
         sheet. The globe reads fine without it.
       */
       map.setProjection({ type: "globe" });
+      guardAgainstGlobeFailure(map, removedRef);
       applyBrandPaint(map);
       registerSharedImages(map);
       loadedRef.current = true;
@@ -317,6 +318,38 @@ export function MapCanvas({
   Tiles have to exist on the GPU before the symbols that name them are laid
   out, so the draw always happens first and setData always happens second.
 */
+/*
+  The globe is decoration; a map you can read is not.
+
+  On some software WebGL stacks (headless browsers, locked-down machines, VMs
+  with no GPU) the globe projection never works out which tiles it needs, so
+  MapLibre requests nothing and paints an empty page. That is a far worse
+  outcome than a flat map, and it fails silently — no error event, sources all
+  reporting loaded.
+
+  So: if nothing at all has rendered a few seconds in, drop to mercator. A slow
+  connection can trip this too, and losing the globe there is a fair price for
+  never showing a blank map to someone opening the site for the first time.
+*/
+const GLOBE_GRACE_MS = 3000;
+
+function guardAgainstGlobeFailure(map: maplibregl.Map, removedRef: { current: boolean }) {
+  window.setTimeout(() => {
+    if (removedRef.current) return;
+
+    try {
+      if (map.isStyleLoaded() || map.queryRenderedFeatures().length > 0) return;
+
+      map.setProjection({ type: "mercator" });
+      if (import.meta.env.DEV) {
+        console.warn("Globe projection rendered nothing; fell back to mercator.");
+      }
+    } catch {
+      // The map went away mid-check. Nothing to fall back to.
+    }
+  }, GLOBE_GRACE_MS);
+}
+
 async function pushData(
   map: maplibregl.Map,
   geojson: ReturnType<typeof toOfficeCollection>,
