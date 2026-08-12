@@ -1,23 +1,23 @@
 # Render blueprint. Create the workspace, point "New Blueprint" at this repo, and
-# everything below is provisioned in one step.
-#
-# The useful part is that Render wires the pieces itself: DATABASE_URL comes from
-# the database it creates, and the two signing secrets are generated server-side,
-# so no credential is ever copied by hand or pasted into a terminal.
+# everything below is provisioned in one step. The README covers what is left to
+# do by hand afterwards.
 services:
   - type: web
     name: atlas
     runtime: docker
     plan: free
-    dockerfilePath: ./Dockerfile
-    # The API and the built web app are one origin, so /api/health is both the
-    # liveness probe and proof the server reached the database layer.
+    # The probe has to stay cheap on a sleeping free instance, so /api/health
+    # touches no tables. The database is checked once at boot instead.
     healthCheckPath: /api/health
+    # A markdown commit cannot change the image, so don't rebuild 779MB for one.
+    buildFilter:
+      ignoredPaths:
+        - "*.md"
+        - "**/*.md"
     envVars:
+      # Render otherwise routes to port 10000, while the image says 3000.
       - key: PORT
         value: 3000
-      - key: NODE_ENV
-        value: production
       # Injected from the database below rather than typed anywhere.
       - key: DATABASE_URL
         fromDatabase:
@@ -28,7 +28,8 @@ services:
         generateValue: true
       - key: COOKIE_SECRET
         generateValue: true
-      # Set once, after Render assigns the URL. Used for OAuth redirects.
+      # Set by hand once Render assigns the URL. Until it is, the server falls
+      # back to localhost and OAuth sign-ins redirect nowhere useful.
       - key: FRONTEND_URL
         sync: false
 

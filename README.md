@@ -140,7 +140,7 @@ Deliberately skipped: MapLibre visual tests (no WebGL in jsdom), snapshots, and 
 
 ## Deploying
 
-Free, one account, no separate database provider. Render's Hobby workspace is $0/month and includes a free web service and free Postgres, and it builds this Dockerfile directly.
+One account, no separate database provider. Render's Hobby workspace is $0/month with a web service and Postgres included, and it builds this Dockerfile directly.
 
 One Render service serves both the API and the built web app from the same origin. That is deliberate: two deployments would have to agree about CORS, cookie domains and OAuth redirect origins, and none of that buys anything at this size.
 
@@ -154,18 +154,16 @@ docker build -t atlas . && docker run -p 8080:3000 \
   -e FRONTEND_URL="http://localhost:8080" atlas
 ```
 
-**1. Blueprint.** Sign up at render.com, then **New → Blueprint** and point it at this repo. [`render.yaml`](render.yaml) provisions the web service and the Postgres instance together, injects `DATABASE_URL` from the database it creates, and generates `JWT_SECRET` and `COOKIE_SECRET` server-side. No secret is copied by hand or pasted into a terminal.
+**1. Blueprint.** Sign up at render.com, then **New → Blueprint** and point it at this repo. [`render.yaml`](render.yaml) provisions the web service and the Postgres instance together, injects `DATABASE_URL` from the database it creates, and generates `JWT_SECRET` and `COOKIE_SECRET` server-side. Nothing the service runs on is typed into the dashboard by hand.
 
-**2. Set `FRONTEND_URL`** to the URL Render assigns, once it exists. It is the only value left blank on purpose, because it cannot be known before the service is created. OAuth redirects and the sign-in error redirect use it; everything else works without it.
+**2. Set `FRONTEND_URL`** to the URL Render assigns — the one value the blueprint leaves blank, because it cannot be known before the service exists. OAuth redirects and the sign-in error redirect use it; everything else works without it.
 
 **3. Schema and data**, both run once from your own machine against the database's external connection string, which Render shows on the database page. Neither happens at container start, on purpose: the free service sleeps when idle, so migrating at boot would make every wake pay for a check that almost always finds nothing to do, and instances waking together would race for the migration lock. Seeding is manual for the stronger reason that a restart must never be able to wipe live data.
 
 ```bash
-DATABASE_URL="<render external connection string>" pnpm db:migrate:deploy
-```
-
-```bash
-DATABASE_URL="<render external connection string>" pnpm db:seed
+export DATABASE_URL="<render external connection string>"
+pnpm db:migrate:deploy
+pnpm db:seed
 ```
 
 Run the migrate command again after any future schema change, before deploying the code that needs it. If you forget, the server still boots and `/api/health` still passes, but it logs a warning naming the missing table. That warning is the tell.
@@ -202,6 +200,8 @@ Deleting the toolchain by name is worse. It looks fine and then fails at boot: `
 What works is a second, independent install that never sees the web app. `pnpm install --prod --filter @atlas/server...` resolves only the server and what it depends on, so the web app leaves the graph entirely and the toolchain leaves with it. The runtime stage copies that tree, the server source, and `apps/web/dist` — nothing else.
 
 The remaining bulk is the Prisma client and query engine at about 126MB, which is the floor without heavier surgery. Compiling the server so `tsx` is not a runtime dependency would take off another slice; that is a build-system change and is on the v2 list rather than done badly here.
+
+---
 
 ## Brand
 
